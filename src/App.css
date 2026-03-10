@@ -1,0 +1,779 @@
+/* =========================================================
+   App.css
+   ---------------------------------------------------------
+   Indhold:
+   1. Theme / variabler
+   2. Base / reset
+   3. App layout
+   4. Header / navigation
+   5. Typografi
+   6. Fælles UI (cards, buttons, forms, tables)
+   7. Home / forside
+   8. Responsive regler
+   ========================================================= */
+
+/* =========================================================
+   1. Theme / variabler
+   ========================================================= */
+
+:root {
+  color-scheme: light dark;
+
+  --bg: #0f1115;
+  --surface: #171a20;
+  --surface-2: #1c2028;
+
+  --border: rgba(255, 255, 255, 0.10);
+  --border-2: rgba(255, 255, 255, 0.14);
+
+  --text: rgba(255, 255, 255, 0.92);
+  --muted: rgba(255, 255, 255, 0.62);
+
+  --accent: #d71920;
+  --accent-hover: #b7151b;
+
+  --shadow-lg: 0 18px 50px rgba(0, 0, 0, 0.18);
+  --radius-md: 16px;
+  --radius-lg: 24px;
+
+  --site-max: 1280px;
+  --site-pad: 32px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f7f8fa;
+    --surface: #ffffff;
+    --surface-2: #f1f3f6;
+
+    --border: rgba(0, 0, 0, 0.08);
+    --border-2: rgba(0, 0, 0, 0.14);
+
+    --text: #0f1115;
+    --muted: #5f6368;
+  }
+}
+
+/* =========================================================
+   2. Base / reset
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  line-height: 1.6;
+  background: var(--bg);
+  color: var(--text);
+}
+
+img {
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+/* =========================================================
+   3. App layout
+   ========================================================= */
+
+.shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+/* Main content er nu full width.
+   De enkelte sektioner styrer selv deres bredde. */
+.content {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 24px 0 56px;
+}
+
+.page {
+  width: 100%;
+}
+
+/* Brug denne til "almindelige" centrerede sektioner */
+.pageContainer,
+.wrap {
+  width: min(var(--site-max), calc(100% - 40px));
+  margin: 0 auto;
+}
+
+/* Lille utility hvis du vil lave boxed sektioner senere */
+.sectionBox {
+  width: min(var(--site-max), calc(100% - 40px));
+  margin: 0 auto 24px;
+}
+
+/* =========================================================
+   4. Header / navigation
+   ========================================================= */
+
+.topbar {
+  width: 100%;
+  padding: 18px var(--site-pad);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 0 0 auto;
+}
+
+.logo {
+  height: 72px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.brandTitle {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.brandTag {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-top: 0;
+  white-space: nowrap;
+}
+
+.nav {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.navLink {
+  padding: 8px 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid var(--border);
+  background: transparent;
+  opacity: 0.82;
+  transition: 0.15s ease;
+}
+
+.navLink:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--border-2);
+}
+
+.navLink.active {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--border-2);
+}
+
+/* =========================================================
+   5. Typografi
+   ========================================================= */
+
+h1 {
+  font-size: clamp(28px, 3vw, 40px);
+  margin: 0 0 10px;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+}
+
+p {
+  margin: 10px 0;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+/* =========================================================
+   6. Fælles UI
+   ========================================================= */
+
+/* ---------- Cards / section boxes ---------- */
+
+.hero,
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 28px;
+  margin-bottom: 20px;
+}
+
+.hero {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 70%), var(--surface);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* ---------- Lister ---------- */
+
+.list {
+  margin: 10px 0 0;
+  padding-left: 18px;
+}
+
+.list li {
+  margin: 6px 0;
+}
+
+/* ---------- Buttons ---------- */
+
+button,
+.btn {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  cursor: pointer;
+  transition: 0.15s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+button:hover,
+.btn:hover {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: var(--border-2);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+button.danger {
+  border-color: rgba(255, 80, 80, 0.35);
+}
+
+.btn.ghost {
+  background: transparent;
+}
+
+/* ---------- Forms ---------- */
+
+label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+input,
+select {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+input:focus,
+select:focus,
+button:focus,
+.btn:focus,
+.navLink:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.18);
+  outline-offset: 2px;
+}
+
+.grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+/* ---------- Tables ---------- */
+
+.table {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.tr {
+  display: grid;
+  gap: 12px;
+  padding: 12px 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  align-items: center;
+  white-space: nowrap;
+}
+
+.tr.head {
+  border-top: none;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.tr.rejser {
+  grid-template-columns: 60px 1.2fr 1fr 180px 180px 90px 90px 80px 90px;
+}
+
+.tr.busser {
+  grid-template-columns: 60px 110px 1fr 1fr 120px 140px 90px 90px;
+}
+
+.tr > div {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- Footer ---------- */
+
+.footer {
+  width: min(var(--site-max), calc(100% - 40px));
+  margin: 0 auto;
+  padding: 18px 0 24px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* =========================================================
+   7. Home / forside
+   ========================================================= */
+
+.homePage {
+  width: 100%;
+}
+
+/* Gammel home grid beholdt hvis du vil bruge det på andre sider */
+.homeGrid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: 1.3fr 0.9fr;
+  align-items: start;
+}
+
+/* ---------- Hero: full-width / wall-to-wall ---------- */
+
+.heroSection {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  margin-bottom: 56px;
+}
+
+.heroImage {
+  position: relative;
+  width: 100%;
+  min-height: clamp(560px, 78vh, 860px);
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+
+  /* cinematic zoom effect */
+  transform: scale(1.02);
+  transition: transform 8s ease, background-image 0.45s ease;
+}
+
+.heroOverlay {
+  min-height: clamp(560px, 78vh, 860px);
+  padding: clamp(28px, 4vw, 56px);
+}
+
+/* NY CONTAINER FOR ALT HERO INDHOLD */
+.heroInner {
+  min-height: inherit;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 36px;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+/* SKJULER TEKST + SEARCH NÅR MAN HOVER PILENE */
+.heroInner.isHidden {
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+}
+
+.heroContent {
+  max-width: min(820px, 100%);
+  color: #fff;
+  padding-top: clamp(8px, 2vw, 28px);
+}
+
+.heroKicker {
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Brug disse classes i Home.tsx i stedet for heroContent h1 */
+.heroTitle {
+  font-size: clamp(42px, 7vw, 96px);
+  line-height: 0.95;
+  margin: 0 0 18px;
+  max-width: 9ch;
+  color: #fff;
+}
+
+.heroTitleLong {
+  font-size: clamp(38px, 6vw, 76px);
+  max-width: 12ch;
+}
+
+.heroText {
+  max-width: 58ch;
+  font-size: clamp(1rem, 1.2vw, 1.2rem);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ---------- Hero search bar ---------- */
+
+.searchBar {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 240px;
+  width: min(1280px, 100%);
+  background: #fff;
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.searchItem {
+  padding: 16px 20px;
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.searchLabel {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #8a8a8a;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.searchValue {
+  color: #111;
+  font-size: 1rem;
+}
+
+.searchCta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 1rem;
+  transition: background 0.18s ease;
+}
+
+.searchCta:hover {
+  background: var(--accent-hover);
+}
+
+/* ---------- Hero slider controls ---------- */
+
+.heroArrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #fff;
+  font-size: clamp(36px, 3vw, 52px);
+  font-weight: 300;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.heroImage:hover .heroArrow {
+  opacity: 1;
+}
+
+.heroArrow:hover {
+  transform: translateY(-50%) scale(1.12);
+  transform: scale(1.04);
+}
+
+.heroArrowLeft {
+  left: 24px;
+}
+
+.heroArrowRight {
+  right: 24px;
+}
+
+.heroDots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.heroDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  padding: 0;
+  transition: 0.2s ease;
+}
+
+.heroDot:hover {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.heroDot.active {
+  width: 30px;
+  background: #fff;
+}
+
+/* ---------- Featured trips section ---------- */
+
+.homeSection {
+  width: min(var(--site-max), calc(100% - 40px));
+  margin: 0 auto 40px;
+}
+
+.sectionTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.sectionTop h2 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.sectionLink {
+  text-decoration: none;
+  color: inherit;
+  font-weight: 700;
+  opacity: 0.78;
+}
+
+.sectionLink:hover {
+  opacity: 1;
+}
+
+.tripGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.tripCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.tripImage {
+  height: 260px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.tripBadge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(20, 20, 20, 0.72);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.tripBody {
+  padding: 20px;
+}
+
+.tripBody h3 {
+  margin: 0 0 12px;
+  font-size: 1.65rem;
+  line-height: 1.15;
+}
+
+.tripBody p {
+  margin: 0 0 18px;
+  color: var(--muted);
+}
+
+.tripBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tripBottom strong {
+  font-size: 1.05rem;
+}
+
+.tripArrow {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 800;
+  transition: 0.15s ease;
+}
+
+.tripArrow:hover {
+  background: var(--accent-hover);
+}
+
+/* =========================================================
+   8. Responsive
+   ========================================================= */
+
+@media (max-width: 1100px) {
+  .searchBar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .tripGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .homeGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --site-pad: 16px;
+  }
+
+  .content {
+    padding: 20px 0 40px;
+  }
+
+  .topbar {
+    padding: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .nav {
+    margin-left: 0;
+  }
+
+  .hero,
+  .card {
+    padding: 20px;
+  }
+
+  .heroSection {
+    margin-bottom: 36px;
+  }
+
+  .heroImage,
+  .heroOverlay {
+    min-height: auto;
+  }
+
+  .heroOverlay {
+    padding: 20px;
+    gap: 24px;
+  }
+
+  .heroTitle {
+    max-width: 11ch;
+    line-height: 1;
+  }
+
+  .heroTitleLong {
+    max-width: 12ch;
+  }
+
+  .searchBar {
+    grid-template-columns: 1fr;
+    border-radius: 18px;
+  }
+
+  .searchItem {
+    border-right: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .heroArrow {
+    display: none;
+  }
+
+  .tripGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sectionTop {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
