@@ -38,6 +38,11 @@
 
   --site-max: 1280px;
   --site-pad: 32px;
+
+  --topbar-bg: #171a20;
+  --topbar-text: #b7cbb6;
+  --topbar-border: #1c2028;
+  --topbar-border-width: 1px;
 }
 
 @media (prefers-color-scheme: light) {
@@ -51,6 +56,11 @@
 
     --text: #0f1115;
     --muted: #5f6368;
+
+    --topbar-bg: #142c5c;
+    --topbar-text: #b7cbb6;
+    --topbar-border: #b7cbb6;
+    --topbar-border-width: 3px;
   }
 }
 
@@ -94,27 +104,23 @@ a {
   grid-template-rows: auto 1fr auto;
 }
 
-/* Main content er nu full width.
-   De enkelte sektioner styrer selv deres bredde. */
 .content {
   width: 100%;
   max-width: 100%;
   margin: 0;
-  padding: 24px 0 56px;
+  padding: 0 0 56px;
 }
 
 .page {
   width: 100%;
 }
 
-/* Brug denne til "almindelige" centrerede sektioner */
 .pageContainer,
 .wrap {
   width: min(var(--site-max), calc(100% - 40px));
   margin: 0 auto;
 }
 
-/* Lille utility hvis du vil lave boxed sektioner senere */
 .sectionBox {
   width: min(var(--site-max), calc(100% - 40px));
   margin: 0 auto 24px;
@@ -126,11 +132,14 @@ a {
 
 .topbar {
   width: 100%;
-  padding: 18px var(--site-pad);
+  padding: 15px var(--site-pad);
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 24px;
+  background: var(--topbar-bg);
+  color: var(--topbar-text);
+  border-bottom: var(--topbar-border-width) solid var(--topbar-border);
 }
 
 .brand {
@@ -197,6 +206,10 @@ h1 {
   font-size: clamp(28px, 3vw, 40px);
   margin: 0 0 10px;
   letter-spacing: -0.02em;
+}
+
+.login {
+  text-align: center;
 }
 
 h2 {
@@ -338,7 +351,6 @@ button:focus,
   padding: 12px 14px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   align-items: center;
-  white-space: nowrap;
 }
 
 .tr.head {
@@ -348,16 +360,148 @@ button:focus,
 }
 
 .tr.rejser {
-  grid-template-columns: 60px 1.2fr 1fr 180px 180px 90px 90px 80px 90px;
+  grid-template-columns: 50px 1.5fr 1.2fr 155px 155px 80px 100px 60px 120px;
+}
+
+.tr.rejser.withDelete {
+  grid-template-columns: 50px 1.5fr 1.2fr 155px 155px 80px 100px 60px 120px 80px;
 }
 
 .tr.busser {
   grid-template-columns: 60px 110px 1fr 1fr 120px 140px 90px 90px;
 }
 
+.tr.mine-bookinger {
+  grid-template-columns: 140px 1.3fr 1fr 180px 90px 110px 120px;
+  align-items: center;
+}
+
+.tr.mine-bookinger button {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+}
+
+.tr.mine-bookinger.cancelled {
+  opacity: 0.55;
+}
+
+.tr.mine-bookinger .status-active {
+  color: #2e8b57;
+  font-weight: 500;
+}
+
+.tr.mine-bookinger .status-cancelled {
+  color: #b94a48;
+  font-weight: 500;
+}
+
+.tr.rejser .actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.tr.rejser .actions button {
+  min-width: 96px;
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+
 .tr > div {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.tr.rejser > div:nth-child(4),
+.tr.rejser > div:nth-child(5),
+.tr.rejser > div:nth-child(6),
+.tr.rejser > div:nth-child(7),
+.tr.rejser > div:nth-child(8) {
+  white-space: nowrap;
+}
+
+/* ---------- Rejse cards ---------- */
+
+.trip-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+  margin-top: 16px;
+}
+
+.trip-card {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 18px;
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.trip-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-2);
+}
+
+.trip-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.trip-card-top h3 {
+  margin: 4px 0 6px;
+  font-size: 1.35rem;
+  line-height: 1.2;
+}
+
+.trip-card-id {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+.trip-badge {
+  white-space: nowrap;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.trip-badge.soldout {
+  opacity: 0.75;
+}
+
+.trip-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 18px;
+}
+
+.trip-meta div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.trip-meta strong {
+  line-height: 1.35;
+}
+
+.trip-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.trip-actions button {
+  min-width: 110px;
 }
 
 /* ---------- Footer ---------- */
@@ -372,6 +516,37 @@ button:focus,
   opacity: 0.78;
 }
 
+/* ---------- Auth / login ---------- */
+
+.authCard {
+  width: min(560px, 100%);
+  margin: 40px auto 0;
+}
+
+.authForm {
+  display: grid;
+  gap: 16px;
+}
+
+.error {
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(220, 50, 50, 0.25);
+  background: rgba(220, 50, 50, 0.08);
+  color: inherit;
+}
+
+/* ---------- login ---------- */
+
+.navUser {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 4px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
 /* =========================================================
    7. Home / forside
    ========================================================= */
@@ -380,7 +555,6 @@ button:focus,
   width: 100%;
 }
 
-/* Gammel home grid beholdt hvis du vil bruge det på andre sider */
 .homeGrid {
   display: grid;
   gap: 18px;
@@ -391,10 +565,9 @@ button:focus,
 /* ---------- Hero: full-width / wall-to-wall ---------- */
 
 .heroSection {
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
-  margin-bottom: 56px;
+  width: 100%;
+  margin: 0 0 56px;
+  overflow: hidden;
 }
 
 .heroImage {
@@ -404,8 +577,6 @@ button:focus,
   overflow: hidden;
   background-size: cover;
   background-position: center;
-
-  /* cinematic zoom effect */
   transform: scale(1.02);
   transition: transform 8s ease, background-image 0.45s ease;
 }
@@ -415,7 +586,6 @@ button:focus,
   padding: clamp(28px, 4vw, 56px);
 }
 
-/* NY CONTAINER FOR ALT HERO INDHOLD */
 .heroInner {
   min-height: inherit;
   display: flex;
@@ -425,7 +595,6 @@ button:focus,
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
-/* SKJULER TEKST + SEARCH NÅR MAN HOVER PILENE */
 .heroInner.isHidden {
   opacity: 0;
   transform: translateY(8px);
@@ -447,7 +616,6 @@ button:focus,
   color: rgba(255, 255, 255, 0.9);
 }
 
-/* Brug disse classes i Home.tsx i stedet for heroContent h1 */
 .heroTitle {
   font-size: clamp(42px, 7vw, 96px);
   line-height: 0.95;
@@ -539,8 +707,7 @@ button:focus,
 }
 
 .heroArrow:hover {
-  transform: translateY(-50%) scale(1.12);
-  transform: scale(1.04);
+  transform: translateY(-50%) scale(1.04);
 }
 
 .heroArrowLeft {
@@ -776,5 +943,22 @@ button:focus,
   .sectionTop {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .trip-card-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .trip-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .trip-actions {
+    flex-direction: column;
+  }
+
+  .trip-actions button {
+    width: 100%;
   }
 }

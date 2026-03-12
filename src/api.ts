@@ -1,22 +1,74 @@
+
+
 export const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
 
+function getToken() {
+  return localStorage.getItem("token");
+}
+
 async function http<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = getToken();
+
   const res = await fetch(`${API_BASE}${path}`, {
-    headers: { "Content-Type": "application/json", ...(options?.headers || {}) },
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options?.headers || {}),
+    },
   });
 
   if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`${res.status} ${res.statusText}${text ? ` — ${text}` : ""}`);
+    let message = `${res.status} ${res.statusText}`;
+
+    try {
+      const data = await res.json();
+      if (data?.message || data?.Message) {
+        message = data.message ?? data.Message;
+      }
+
+    } catch {
+      const text = await res.text().catch(() => "");
+      if (text) {
+        message = text;
+      }
+    }
+
+    throw new Error(message);
   }
 
-  // nogle endpoints kan returnere tomt body
   const ct = res.headers.get("content-type") || "";
   if (!ct.includes("application/json")) return undefined as T;
 
   return (await res.json()) as T;
 }
+
+export type RegisterRequest = {
+  username: string;
+  email: string;
+  password: string;
+};
+
+export type RegisterResponse = {
+  message: string;
+  userId: number;
+};
+
+export type LoginRequest = {
+  email: string;
+  password: string;
+};
+
+export type LoginResponse = {
+  token: string;
+};
+
+export type MeResponse = {
+  userId: string;
+  username: string;
+  email: string;
+  role: string;
+};
 
 export type Bus = {
   busId: number;
@@ -31,7 +83,6 @@ export type Bus = {
 export type BusCreate = Omit<Bus, "busId">;
 
 export type Facilitet = {
-  // din model har private set Id, så API kan evt. mangle id i første version
   id?: number;
   name: string;
   description: string;
@@ -51,9 +102,48 @@ export type Rejse = {
   busId?: number | null;
 };
 
+export type Booking = {
+  bookingId: number;
+  rejseId: number;
+  bookingReference: string;
+  kundeNavn: string;
+  kundeEmail: string;
+  antalPladser: number;
+  status: number;
+  createdAt: string;
+};
+
+export type BookingCreate = {
+  rejseId: number;
+  kundeNavn: string;
+  kundeEmail: string;
+  antalPladser: number;
+};
+
+export type BookingCreateResponse = {
+  bookingId: number;
+  bookingReference: string;
+};
+
 export type RejseCreate = Omit<Rejse, "rejseId">;
 
 export const api = {
+  auth: {
+    register: (payload: RegisterRequest) =>
+      http<RegisterResponse>("/api/auth/register", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      }),
+
+    login: (payload: LoginRequest) =>
+      http<LoginResponse>("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      }),
+
+    me: () => http<MeResponse>("/api/user/me"),
+  },
+
   buses: {
     list: () => http<Bus[]>("/api/bus"),
     get: (id: number) => http<Bus>(`/api/bus/${id}`),
@@ -66,6 +156,7 @@ export const api = {
     removeFacilitet: (busId: number, facilitetId: number) =>
       http<void>(`/api/bus/${busId}/faciliteter/${facilitetId}`, { method: "DELETE" }),
   },
+
   faciliteter: {
     list: () => http<Facilitet[]>("/api/facilitet"),
     create: (payload: Omit<Facilitet, "id">) =>
@@ -80,4 +171,42 @@ export const api = {
       http<number>("/api/rejse", { method: "POST", body: JSON.stringify(payload) }),
     delete: (id: number) => http<void>(`/api/rejse/${id}`, { method: "DELETE" }),
   },
+
+  bookings: {
+    create: (payload: BookingCreate) =>
+      http<BookingCreateResponse>("/api/booking", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      }),
+
+    get: (id: number) => http<Booking>(`/api/booking/${id}`),
+
+    listByRejse: (rejseId: number) =>
+      http<Booking[]>(`/api/booking/rejse/${rejseId}`),
+
+    mine: () => http<Booking[]>("/api/booking/mine"),
+
+    getAvailableSeats: (rejseId: number) =>
+      http<number>(`/api/booking/rejse/${rejseId}/available-seats`),
+
+    cancel: (id: number) =>
+      http<void>(`/api/booking/${id}/cancel`, {
+        method: "PUT",
+      }),
+
+    reactivate: (id: number) =>
+      http<void>(`/api/booking/${id}/reactivate`, {
+        method: "PUT",
+      }),
+  },
 };
+
+export function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("me");
+}
+
+export function getCurrentUser(): MeResponse | null {
+  const raw = localStorage.getItem("me");
+  return raw ? JSON.parse(raw) : null;
+}

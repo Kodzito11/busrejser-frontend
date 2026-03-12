@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../api";
 import type { Bus } from "../api";
+import { hasRole, isAdmin } from "../auth/auth";
 
 const statusLabel = (s: number) => ["Aktiv", "Inaktiv", "Vedligeholdelse"][s] ?? `(${s})`;
 const typeLabel = (t: number) => ["StorTurBus", "MiniBus", "VIPBus", "Shuttle", "Andet"][t] ?? `(${t})`;
@@ -29,7 +30,11 @@ export default function BusCrud() {
   });
 
   const canCreate = useMemo(() => {
-    return form.registreringnummer.trim().length > 0 && form.model.trim().length > 0 && form.kapasitet > 0;
+    return (
+      form.registreringnummer.trim().length > 0 &&
+      form.model.trim().length > 0 &&
+      form.kapasitet > 0
+    );
   }, [form]);
 
   async function refresh() {
@@ -52,7 +57,15 @@ export default function BusCrud() {
     setLoading(true);
     try {
       await api.buses.create(form);
-      setForm((p) => ({ ...p, registreringnummer: "", model: "", kapasitet: 1 }));
+      setForm((p) => ({
+        ...p,
+        registreringnummer: "",
+        model: "",
+        busselskab: "",
+        status: 0,
+        type: 0,
+        kapasitet: 1,
+      }));
       await refresh();
     } catch (e: any) {
       setErr(e?.message ?? String(e));
@@ -79,13 +92,15 @@ export default function BusCrud() {
   }, []);
 
   const busCount = buses?.length ?? 0;
+  const canCreateBus = hasRole("Admin", "Medarbejder");
+  const canDeleteBus = isAdmin();
 
   return (
     <div className="wrap">
       <header className="header">
         <div>
           <h1>Busser</h1>
-          <p className="muted">CRUD mod din backend</p>
+          <p className="muted">Her kan du se vores tilgængelige busser</p>
         </div>
         <button onClick={refresh} disabled={loading}>
           Refresh
@@ -94,57 +109,95 @@ export default function BusCrud() {
 
       {err && <div className="error">{err}</div>}
 
-      <section className="card">
-        <h2>Opret bus</h2>
-        <div className="grid">
-          <label>
-            Registreringnummer
-            <input value={form.registreringnummer} onChange={(e) => setForm({ ...form, registreringnummer: e.target.value })} />
-          </label>
+      {canCreateBus && (
+        <section className="card">
+          <h2>Opret bus</h2>
 
-          <label>
-            Model
-            <input value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} />
-          </label>
+          <div className="grid">
+            <label>
+              Registreringnummer
+              <input
+                value={form.registreringnummer}
+                onChange={(e) =>
+                  setForm({ ...form, registreringnummer: e.target.value })
+                }
+              />
+            </label>
 
-          <label>
-            Busselskab
-            <input value={form.busselskab} onChange={(e) => setForm({ ...form, busselskab: e.target.value })} />
-          </label>
+            <label>
+              Model
+              <input
+                value={form.model}
+                onChange={(e) =>
+                  setForm({ ...form, model: e.target.value })
+                }
+              />
+            </label>
 
-          <label>
-            Kapasitet
-            <input type="number" value={form.kapasitet} onChange={(e) => setForm({ ...form, kapasitet: Number(e.target.value) })} />
-          </label>
+            <label>
+              Busselskab
+              <input
+                value={form.busselskab}
+                onChange={(e) =>
+                  setForm({ ...form, busselskab: e.target.value })
+                }
+              />
+            </label>
 
-          <label>
-            Status
-            <select value={form.status} onChange={(e) => setForm({ ...form, status: Number(e.target.value) })}>
-              <option value={0}>Aktiv</option>
-              <option value={1}>Inaktiv</option>
-              <option value={2}>Vedligeholdelse</option>
-            </select>
-          </label>
+            <label>
+              Kapasitet
+              <input
+                type="number"
+                value={form.kapasitet}
+                onChange={(e) =>
+                  setForm({ ...form, kapasitet: Number(e.target.value) })
+                }
+              />
+            </label>
 
-          <label>
-            Type
-            <select value={form.type} onChange={(e) => setForm({ ...form, type: Number(e.target.value) })}>
-              <option value={0}>StorTurBus</option>
-              <option value={1}>MiniBus</option>
-              <option value={2}>VIPBus</option>
-              <option value={3}>Shuttle</option>
-              <option value={4}>Andet</option>
-            </select>
-          </label>
-        </div>
+            <label>
+              Status
+              <select
+                value={form.status}
+                onChange={(e) =>
+                  setForm({ ...form, status: Number(e.target.value) })
+                }
+              >
+                <option value={0}>Aktiv</option>
+                <option value={1}>Inaktiv</option>
+                <option value={2}>Vedligeholdelse</option>
+              </select>
+            </label>
 
-        <div className="row">
-          <button onClick={createBus} disabled={loading || !canCreate}>
-            Opret
-          </button>
-          {!canCreate && <span className="muted">Registreringnummer + Model + Kapasitet kræves</span>}
-        </div>
-      </section>
+            <label>
+              Type
+              <select
+                value={form.type}
+                onChange={(e) =>
+                  setForm({ ...form, type: Number(e.target.value) })
+                }
+              >
+                <option value={0}>StorTurBus</option>
+                <option value={1}>MiniBus</option>
+                <option value={2}>VIPBus</option>
+                <option value={3}>Shuttle</option>
+                <option value={4}>Andet</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="row">
+            <button onClick={createBus} disabled={loading || !canCreate}>
+              Opret
+            </button>
+            {!canCreate && (
+              <span className="muted">
+                Registreringnummer + Model + Kapasitet kræves
+              </span>
+            )}
+          </div>
+        </section>
+      )}
 
       <section className="card">
         <h2>Liste ({busCount})</h2>
@@ -163,7 +216,7 @@ export default function BusCrud() {
               <div>Status</div>
               <div>Type</div>
               <div>Kap</div>
-              <div></div>
+              {canDeleteBus && <div></div>}
             </div>
 
             {buses.map((b) => (
@@ -175,11 +228,18 @@ export default function BusCrud() {
                 <div>{statusLabel(b.status)}</div>
                 <div>{typeLabel(b.type)}</div>
                 <div>{b.kapasitet}</div>
-                <div className="actions">
-                  <button className="danger" onClick={() => deleteBus(b.busId)} disabled={loading}>
-                    Slet
-                  </button>
-                </div>
+
+                {canDeleteBus && (
+                  <div className="actions">
+                    <button
+                      className="danger"
+                      onClick={() => deleteBus(b.busId)}
+                      disabled={loading}
+                    >
+                      Slet
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
