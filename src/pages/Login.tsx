@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api";
+import { Link } from "react-router-dom";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -68,6 +69,11 @@ export default function Login() {
               {loading ? "Logger ind..." : "Log ind"}
             </button>
             {!canSubmit && <span className="muted">Email og password kræves</span>}
+          </div>
+
+          <div className="authSwitch">
+            <span className="muted">Har du ikke en bruger?</span>
+            <Link to="/register">Opret en her</Link>
           </div>
         </form>
       </section>

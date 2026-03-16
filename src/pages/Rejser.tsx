@@ -275,7 +275,7 @@ export default function Rejser() {
         </section>
       )}
 
-      <section className="trip-cards">
+      <section className="cards">
         <h2>Kommende rejser ({rejser.length})</h2>
 
         {loading && rejser.length === 0 ? (

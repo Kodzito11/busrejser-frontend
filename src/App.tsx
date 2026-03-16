@@ -11,6 +11,7 @@ import { getCurrentUser, logout } from "./api";
 import BookRejse from "./pages/BookRejse";
 import MineBookinger from "./pages/MineBookinger";
 import RejseDetalje from "./pages/RejseDetalje";
+import Register from "./pages/Register";
 
 export default function App() {
   const navigate = useNavigate();
@@ -44,15 +45,20 @@ export default function App() {
             Rejser
           </NavLink>
 
-          {user && (
+          
             <NavLink to="/busser" className={({ isActive }) => (isActive ? "navLink active" : "navLink")}>
               Busser
             </NavLink>
-          )}
+          
 
-          <NavLink to="/mine-bookinger" className={({ isActive }) => (isActive ? "navLink active" : "navLink")}>
-            Mine bookinger
-          </NavLink>
+          {user && (
+            <NavLink
+              to="/mine-bookinger"
+              className={({ isActive }) => (isActive ? "navLink active" : "navLink")}
+            >
+              Mine bookinger
+            </NavLink>
+          )}
 
           {!user ? (
             <NavLink to="/login" className={({ isActive }) => (isActive ? "navLink active" : "navLink")}>
@@ -77,6 +83,7 @@ export default function App() {
           <Route path="/book/:id" element={<BookRejse />} />
           <Route path="/mine-bookinger" element={<MineBookinger />} />
           <Route path="/rejse/:id" element={<RejseDetalje />} />
+          <Route path="/register" element={<Register />} />
         </Routes>
       </main>
 

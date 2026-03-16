@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { api } from "../api";
+import { api, API_BASE } from "../api";
 import type { Bus } from "../api";
 import { hasRole, isAdmin } from "../auth/auth";
 
@@ -19,6 +19,7 @@ export default function BusCrud() {
   const [buses, setBuses] = useState<Bus[]>([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string>("");
+  const [openImage, setOpenImage] = useState<string | null>(null);
 
   const [form, setForm] = useState<BusForm>({
     registreringnummer: "",
@@ -55,17 +56,25 @@ export default function BusCrud() {
     if (!canCreate) return;
     setErr("");
     setLoading(true);
+
     try {
-      await api.buses.create(form);
-      setForm((p) => ({
-        ...p,
+      const newBusId = await api.buses.create(form);
+
+      if (selectedImage) {
+        await api.buses.uploadImage(newBusId, selectedImage);
+      }
+
+      setForm({
         registreringnummer: "",
         model: "",
         busselskab: "",
         status: 0,
         type: 0,
         kapasitet: 1,
-      }));
+      });
+
+      setSelectedImage(null);
+
       await refresh();
     } catch (e: any) {
       setErr(e?.message ?? String(e));
@@ -88,12 +97,27 @@ export default function BusCrud() {
   }
 
   useEffect(() => {
-    refresh();
-  }, []);
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setOpenImage(null);
+      }
+    }
+
+    if (openImage) {
+      window.addEventListener("keydown", onKeyDown);
+      document.body.style.overflow = "hidden";
+    }
+
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [openImage]);
 
   const busCount = buses?.length ?? 0;
   const canCreateBus = hasRole("Admin", "Medarbejder");
   const canDeleteBus = isAdmin();
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
   return (
     <div className="wrap">
@@ -184,17 +208,21 @@ export default function BusCrud() {
                 <option value={4}>Andet</option>
               </select>
             </label>
+
+            <label>
+              Busbillede
+              <input
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp"
+                onChange={(e) => setSelectedImage(e.target.files?.[0] ?? null)}
+              />
+            </label>
           </div>
 
           <div className="row">
             <button onClick={createBus} disabled={loading || !canCreate}>
               Opret
             </button>
-            {!canCreate && (
-              <span className="muted">
-                Registreringnummer + Model + Kapasitet kræves
-              </span>
-            )}
           </div>
         </section>
       )}
@@ -210,6 +238,7 @@ export default function BusCrud() {
           <div className="table">
             <div className="tr head busser">
               <div>ID</div>
+              <div>Billede</div>
               <div>Reg</div>
               <div>Model</div>
               <div>Selskab</div>
@@ -222,6 +251,20 @@ export default function BusCrud() {
             {buses.map((b) => (
               <div className="tr busser" key={b.busId}>
                 <div>{b.busId}</div>
+
+                <div>
+                  {b.imageUrl ? (
+                    <img
+                      src={`${API_BASE}${b.imageUrl}`}
+                      alt={b.model}
+                      className="busThumb"
+                      onClick={() => setOpenImage(`${API_BASE}${b.imageUrl}`)}
+                    />
+                  ) : (
+                    <span className="muted">Ingen</span>
+                  )}
+                </div>
+
                 <div>{b.registreringnummer}</div>
                 <div>{b.model}</div>
                 <div>{b.busselskab}</div>
@@ -242,7 +285,18 @@ export default function BusCrud() {
                 )}
               </div>
             ))}
+            {openImage && (
+              <div className="imageModal" onClick={() => setOpenImage(null)}>
+                <img
+                  src={openImage}
+                  alt="Bus billede"
+                  className="imageModalContent"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </div>
+            )}
           </div>
+
         )}
       </section>
     </div>
