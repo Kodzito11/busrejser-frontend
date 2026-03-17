@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { api, getCurrentUser } from "../api";
-import type { Rejse } from "../api";
+
+import { api } from "../../../shared/api/api";
+import { getCurrentUser } from "../../../auth/auth";
+import type { Rejse } from "../../rejse/model/rejse.types";
 
 export default function BookRejse() {
   const { id } = useParams();

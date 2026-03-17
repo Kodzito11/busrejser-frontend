@@ -1,17 +1,24 @@
 import { NavLink, Route, Routes, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import "./App.css";
-import Home from "./pages/Home";
-import About from "./pages/About";
-import BusCrud from "./pages/BusCrud";
-import Rejser from "./pages/Rejser";
-import Login from "./pages/Login";
-import logo from "./assets/busplanen-high-resolution-logo-transparent.png";
-import { getCurrentUser, logout } from "./api";
-import BookRejse from "./pages/BookRejse";
-import MineBookinger from "./pages/MineBookinger";
-import RejseDetalje from "./pages/RejseDetalje";
-import Register from "./pages/Register";
+import "../App.css";
+
+import HomePage from "../features/public/pages/Home";
+import AboutPage from "../features/public/pages/About";
+
+import AdminBusPage from "../features/bus/pages/AdminBusPage";
+
+import RejserPage from "../features/rejse/pages/RejserPage";
+import RejseDetaljePage from "../features/rejse/pages/RejseDetaljePage";
+
+import LoginPage from "../auth/pages/LoginPage";
+import RegisterPage from "../auth/pages/RegisterPage";
+
+import BookRejsePage from "../features/booking/pages/BookRejsePage";
+import MineBookingerPage from "../features/booking/pages/MineBookinger";
+
+
+import logo from "../assets/busplanen-high-resolution-logo-transparent.png";
+import { getCurrentUser, logout } from "../auth/auth";
 
 export default function App() {
   const navigate = useNavigate();
@@ -75,15 +82,15 @@ export default function App() {
 
       <main className="content">
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/om" element={<About />} />
-          <Route path="/busser" element={<BusCrud />} />
-          <Route path="/rejser" element={<Rejser />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/book/:id" element={<BookRejse />} />
-          <Route path="/mine-bookinger" element={<MineBookinger />} />
-          <Route path="/rejse/:id" element={<RejseDetalje />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/" element={<HomePage/>} />
+          <Route path="/om" element={<AboutPage/>} />
+          <Route path="/busser" element={<AdminBusPage/>} />
+          <Route path="/rejser" element={<RejserPage/>} />
+          <Route path="/login" element={<LoginPage/>} />
+          <Route path="/book/:id" element={<BookRejsePage />} />
+          <Route path="/mine-bookinger" element={<MineBookingerPage/>} />
+          <Route path="/rejse/:id" element={<RejseDetaljePage/>} />
+          <Route path="/register" element={<RegisterPage/>} />
         </Routes>
       </main>
 

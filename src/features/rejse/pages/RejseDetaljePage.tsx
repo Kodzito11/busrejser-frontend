@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { api } from "../api";
-import type { Rejse } from "../api";
+import { api } from "../../../shared/api/api";
+import type { Rejse } from "../model/rejse.types";
 
 export default function RejseDetalje() {
   const { id } = useParams();

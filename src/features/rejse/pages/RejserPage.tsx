@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api } from "../api";
-import type { Rejse, Bus } from "../api";
+
+import { api } from "../../../shared/api/api";
+import type { Rejse } from "../model/rejse.types";
+import type { Bus } from "../../bus/model/bus.types";
 import TripCalendar from "../components/TripCalendar";
-import { hasRole, isAdmin } from "../auth/auth";
+import { hasRole, isAdmin } from "../../../auth/auth";
 
 type Form = {
   title: string;

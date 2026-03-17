@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { api, getCurrentUser } from "../api";
-import type { Booking, Rejse } from "../api";
+import { api } from "../../../shared/api/api";
+import { getCurrentUser } from "../../../auth/auth";
+import type { Booking } from "../model/booking.types";
+import type { Rejse } from "../../rejse/model/rejse.types";
 
 type BookingWithTrip = Booking & {
     rejse?: Rejse | null;

@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { api, API_BASE } from "../api";
-import type { Bus } from "../api";
-import { hasRole, isAdmin } from "../auth/auth";
+import { api } from "../../../shared/api/api";
+import { API_BASE } from "../../../shared/api/http";
+import type { Bus } from "../model/bus.types";
+import { hasRole, isAdmin } from "../../../auth/auth";
 
 const statusLabel = (s: number) => ["Aktiv", "Inaktiv", "Vedligeholdelse"][s] ?? `(${s})`;
 const typeLabel = (t: number) => ["StorTurBus", "MiniBus", "VIPBus", "Shuttle", "Andet"][t] ?? `(${t})`;
