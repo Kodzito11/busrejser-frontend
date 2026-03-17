@@ -1,4 +1,4 @@
-import { NavLink, Route, Routes, useNavigate } from "react-router-dom";
+import { NavLink, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "../App.css";
 
@@ -16,7 +16,6 @@ import RegisterPage from "../auth/pages/RegisterPage";
 import BookRejsePage from "../features/booking/pages/BookRejsePage";
 import MineBookingerPage from "../features/booking/pages/MineBookinger";
 
-
 import logo from "../assets/busplanen-high-resolution-logo-transparent.png";
 import { getCurrentUser, logout } from "../auth/auth";
 
@@ -33,6 +32,11 @@ export default function App() {
     setUser(null);
     navigate("/");
   }
+
+  const isCustomer = user?.role === "Kunde";
+
+  const isStaff =
+    user?.role === "Admin" || user?.role === "Medarbejder";
 
   return (
     <div className="shell">
@@ -52,13 +56,13 @@ export default function App() {
             Rejser
           </NavLink>
 
-          
+          {isStaff && (
             <NavLink to="/busser" className={({ isActive }) => (isActive ? "navLink active" : "navLink")}>
               Busser
             </NavLink>
-          
+          )}
 
-          {user && (
+          {isCustomer && (
             <NavLink
               to="/mine-bookinger"
               className={({ isActive }) => (isActive ? "navLink active" : "navLink")}
@@ -82,15 +86,21 @@ export default function App() {
 
       <main className="content">
         <Routes>
-          <Route path="/" element={<HomePage/>} />
-          <Route path="/om" element={<AboutPage/>} />
-          <Route path="/busser" element={<AdminBusPage/>} />
-          <Route path="/rejser" element={<RejserPage/>} />
-          <Route path="/login" element={<LoginPage/>} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/om" element={<AboutPage />} />
+          <Route
+            path="/busser"
+            element={isStaff ? <AdminBusPage /> : <Navigate to="/" replace />}
+          />
+          <Route path="/rejser" element={<RejserPage />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/book/:id" element={<BookRejsePage />} />
-          <Route path="/mine-bookinger" element={<MineBookingerPage/>} />
-          <Route path="/rejse/:id" element={<RejseDetaljePage/>} />
-          <Route path="/register" element={<RegisterPage/>} />
+          <Route
+            path="/mine-bookinger"
+            element={isCustomer ? <MineBookingerPage /> : <Navigate to="/" replace />}
+          />
+          <Route path="/rejse/:id" element={<RejseDetaljePage />} />
+          <Route path="/register" element={<RegisterPage />} />
         </Routes>
       </main>
 
