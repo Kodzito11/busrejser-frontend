@@ -1398,4 +1398,8 @@ button:focus,
     min-width: 0;
     width: 100%;
   }
+
+  .adminTopbarActions .input {
+    min-width: 220px;
+  }
 }

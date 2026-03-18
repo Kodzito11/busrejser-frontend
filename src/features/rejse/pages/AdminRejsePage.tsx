@@ -68,6 +68,9 @@ export default function AdminRejsePage() {
   const [busser, setBusser] = useState<Bus[]>([]);
   const [form, setForm] = useState<RejseCreate>(emptyForm);
 
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState<"start" | "price" | "fill">("start");
+
   const [editingId, setEditingId] = useState<number | null>(null);
 
   const [loading, setLoading] = useState(true);
@@ -212,6 +215,23 @@ export default function AdminRejsePage() {
     }
   }
 
+  const filteredRejser = [...rejser]
+    .filter((r) => {
+      const q = search.trim().toLowerCase();
+      if (!q) return true;
+
+      return (
+        r.title.toLowerCase().includes(q) ||
+        r.destination.toLowerCase().includes(q) ||
+        getBusLabel(r.busId).toLowerCase().includes(q)
+      );
+    })
+    .sort((a, b) => {
+      if (sortBy === "price") return a.price - b.price;
+      if (sortBy === "fill") return getFillPercent(b) - getFillPercent(a);
+      return new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
+    });
+
   return (
     <div className="page">
       <div className="card">
@@ -308,11 +328,37 @@ export default function AdminRejsePage() {
 
         {error && <p className="error">{error}</p>}
         {success && <p className="success">{success}</p>}
+        
+        <div className="section-header" style={{ marginTop: 24 }}>
+          <div>
+            <h2>Eksisterende rejser</h2>
+            <p className="muted">Søg og sorter i rejser.</p>
+          </div>
+
+          <div className="adminTopbarActions">
+            <input
+              className="input"
+              placeholder="Søg titel, destination eller bus..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+
+            <select
+              className="input"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as "start" | "price" | "fill")}
+            >
+              <option value="start">Sorter: Startdato</option>
+              <option value="price">Sorter: Pris</option>
+              <option value="fill">Sorter: Mest fyldt</option>
+            </select>
+          </div>
+        </div>
 
         {loading ? (
           <p className="muted">Loader rejser...</p>
-        ) : rejser.length === 0 ? (
-          <p className="muted">Ingen rejser endnu.</p>
+        ) : filteredRejser.length === 0 ? (
+          <p className="muted">Ingen rejser matcher din søgning.</p>
         ) : (
           <div className="table-wrap">
             <table className="admin-table">
@@ -331,7 +377,7 @@ export default function AdminRejsePage() {
                 </tr>
               </thead>
               <tbody>
-                {rejser.map((r) => (
+                {filteredRejser.map((r) => (
                   <tr key={r.rejseId}>
                     <td>#{r.rejseId}</td>
                     <td>{r.title}</td>
