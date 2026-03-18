@@ -16,4 +16,10 @@ export const rejseApi = {
     http<void>(`/api/Rejse/${id}`, {
       method: "DELETE",
     }),
+
+  update: (id: number, payload: RejseCreate) =>
+  http<void>(`/api/Rejse/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  }),
 };

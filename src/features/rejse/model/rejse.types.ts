@@ -8,6 +8,7 @@ export type Rejse = {
   price: number;
   maxSeats: number;
   busId?: number | null;
+  bookedSeats?: number;
 };
 
 export type RejseCreate = {
