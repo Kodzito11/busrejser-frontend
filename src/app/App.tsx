@@ -6,6 +6,9 @@ import HomePage from "../features/public/pages/Home";
 import AboutPage from "../features/public/pages/About";
 
 import AdminBusPage from "../features/bus/pages/AdminBusPage";
+import AdminRejsePage from "../features/rejse/pages/AdminRejsePage";
+import AdminBookingPage from "../features/booking/pages/AdminBookingPage";
+import AdminHomePage from "../features/admin/pages/AdminHomePage";
 
 import RejserPage from "../features/rejse/pages/RejserPage";
 import RejseDetaljePage from "../features/rejse/pages/RejseDetaljePage";
@@ -15,6 +18,8 @@ import RegisterPage from "../auth/pages/RegisterPage";
 
 import BookRejsePage from "../features/booking/pages/BookRejsePage";
 import MineBookingerPage from "../features/booking/pages/MineBookinger";
+
+import AdminLayout from "../layouts/AdminLayout";
 
 import logo from "../assets/busplanen-high-resolution-logo-transparent.png";
 import { getCurrentUser, logout } from "../auth/auth";
@@ -71,6 +76,16 @@ export default function App() {
             </NavLink>
           )}
 
+          {isStaff && (
+            <NavLink
+              to="/admin"
+              className={({ isActive }) => (isActive ? "navLink active" : "navLink")}
+            >
+              Admin
+            </NavLink>
+          )}
+
+
           {!user ? (
             <NavLink to="/login" className={({ isActive }) => (isActive ? "navLink active" : "navLink")}>
               Login
@@ -101,6 +116,13 @@ export default function App() {
           />
           <Route path="/rejse/:id" element={<RejseDetaljePage />} />
           <Route path="/register" element={<RegisterPage />} />
+          
+           <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminHomePage />} />
+            <Route path="busser" element={<AdminBusPage />} />
+             <Route path="rejser" element={<AdminRejsePage />} />
+             <Route path="bookings" element={<AdminBookingPage />} />
+          </Route>
         </Routes>
       </main>
 

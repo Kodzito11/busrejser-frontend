@@ -1,30 +1,26 @@
 import { http } from "../../../shared/api/http";
-import type {Booking, BookingCreate, BookingCreateResponse} from "../model/booking.types";
+import type {Booking, BookingCreate} from "../model/booking.types";
 
 export const bookingApi = {
   create: (payload: BookingCreate) =>
-    http<BookingCreateResponse>("/api/booking", {
+    http<number>("/api/Booking", {
       method: "POST",
       body: JSON.stringify(payload),
     }),
 
-  get: (id: number) => http<Booking>(`/api/booking/${id}`),
+  list: () => http<Booking[]>("/api/Booking"),
 
-  listByRejse: (rejseId: number) =>
-    http<Booking[]>(`/api/booking/rejse/${rejseId}`),
+  get: (id: number) => http<Booking>(`/api/Booking/${id}`),
 
-  mine: () => http<Booking[]>("/api/booking/mine"),
-
-  getAvailableSeats: (rejseId: number) =>
-    http<number>(`/api/booking/rejse/${rejseId}/available-seats`),
+  mine: () => http<Booking[]>("/api/Booking/mine"),
 
   cancel: (id: number) =>
-    http<void>(`/api/booking/${id}/cancel`, {
+    http<void>(`/api/Booking/${id}/cancel`, {
       method: "PUT",
     }),
 
   reactivate: (id: number) =>
-    http<void>(`/api/booking/${id}/reactivate`, {
+    http<void>(`/api/Booking/${id}/reactivate`, {
       method: "PUT",
     }),
 };

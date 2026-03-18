@@ -10,4 +10,12 @@ export type Rejse = {
   busId?: number | null;
 };
 
-export type RejseCreate = Omit<Rejse, "rejseId">;
+export type RejseCreate = {
+  title: string;
+  destination: string;
+  startAt: string;
+  endAt: string;
+  price: number;
+  maxSeats: number;
+  busId: number;
+};
