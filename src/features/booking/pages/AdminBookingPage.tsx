@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { bookingApi } from "../api/bookingApi";
 import { BookingStatus, type Booking } from "../model/booking.types";
+import BookingUserTypeBadge from "../components/BookingUserTypeBadge";
+import BookingStatusBadge from "../components/BookingStatusBadge";
 
 export default function AdminBookingPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -129,8 +131,12 @@ export default function AdminBookingPage() {
                       <td>{b.kundeEmail}</td>
                       <td>#{b.rejseId}</td>
                       <td>{b.antalPladser}</td>
-                      <td>{b.userId == null ? "Gæst" : b.role ?? "Bruger"}</td>
-                      <td>{isCancelled ? "Annulleret" : "Aktiv"}</td>
+                      <td>
+                        <BookingUserTypeBadge booking={b} />
+                      </td>
+                      <td>
+                        <BookingStatusBadge status={b.status} />
+                      </td>
                       <td>
                         {isCancelled ? (
                           <button
