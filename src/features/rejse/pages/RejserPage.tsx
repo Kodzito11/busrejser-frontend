@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../../../shared/api/api";
 import type { Rejse } from "../model/rejse.types";
 import type { Bus } from "../../bus/model/bus.types";
-import TripCalendar from "../components/TripCalendar";
+import TripCalendar from "../components/RejseKalender";
 import { hasRole, isAdmin } from "../../../auth/auth";
 
 type Form = {

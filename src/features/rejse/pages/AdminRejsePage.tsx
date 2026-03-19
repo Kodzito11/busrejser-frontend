@@ -6,79 +6,17 @@ import { BookingStatus, type Booking } from "../../booking/model/booking.types";
 import type { Rejse, RejseCreate } from "../model/rejse.types";
 import type { Bus } from "../../bus/model/bus.types";
 
+import CapacityCell from "../components/CapasityCell";
 
-const emptyForm: RejseCreate = {
-  title: "",
-  destination: "",
-  startAt: "",
-  endAt: "",
-  price: 0,
-  maxSeats: 0,
-  busId: 0,
-};
+import RejseStatusBadge from "../components/RejseStatusBadge";
 
-function getFillPercent(r: Rejse) {
-  const booked = r.bookedSeats ?? 0;
-  if (!r.maxSeats) return 0;
-  return Math.min(100, Math.round((booked / r.maxSeats) * 100));
-}
-
-function getBookingUserType(b: { userId?: number | null; role?: string | null }) {
-  if (b.userId == null) return "Gæst";
-  return b.role ?? "Bruger";
-}
-
-function toInputDateTime(value: string) {
-  if (!value) return "";
-
-  const d = new Date(value);
-  const pad = (n: number) => String(n).padStart(2, "0");
-
-  const year = d.getFullYear();
-  const month = pad(d.getMonth() + 1);
-  const day = pad(d.getDate());
-  const hours = pad(d.getHours());
-  const minutes = pad(d.getMinutes());
-
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
-}
-
-function formatDate(value: string) {
-  return new Date(value).toLocaleString("da-DK", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function formatCreatedAt(value: string) {
-  return new Date(value).toLocaleString("da-DK", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function getStatus(rejse: Rejse) {
-  const now = new Date();
-  const start = new Date(rejse.startAt);
-  const end = new Date(rejse.endAt);
-
-  if (end < now) return "Afsluttet";
-  if (start <= now && end >= now) return "I gang";
-  return "Kommende";
-}
-
-function getStatusClassName(rejse: Rejse) {
-  const status = getStatus(rejse);
-  if (status === "Kommende") return "kommende";
-  if (status === "I gang") return "igang";
-  return "afsluttet";
-}
+import {
+  emptyForm,
+  formatCreatedAt,
+  formatDate,
+  getFillPercent,
+  toInputDateTime,
+} from "../utils/rejseHelpers";
 
 export default function AdminRejsePage() {
   const [rejser, setRejser] = useState<Rejse[]>([]);
@@ -148,6 +86,15 @@ export default function AdminRejsePage() {
     return `${bus.registreringnummer} · ${bus.model}`;
   }
 
+  function getBookingUserType(b: Booking) {
+    if (!b.userId || !b.role) {
+      return <span className="roleBadge gaest">Gæst</span>;
+    }
+
+    const role = b.role.toLowerCase();
+    return <span className={`roleBadge ${role}`}>{b.role}</span>;
+  }
+
   async function createOrUpdateRejse(e: React.FormEvent) {
     e.preventDefault();
     if (!canSave) return;
@@ -175,7 +122,7 @@ export default function AdminRejsePage() {
       resetForm();
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Kunne ikke gemme rejse.");
+      setError(err instanceof Error ? err.message : "Kunde ikke gemme rejse.");
     } finally {
       setSaving(false);
     }
@@ -229,7 +176,7 @@ export default function AdminRejsePage() {
       setSuccess("Rejse slettet.");
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Kunne ikke slette rejse.");
+      setError(err instanceof Error ? err.message : "Kunde ikke slette rejse.");
     } finally {
       setDeletingId(null);
     }
@@ -555,25 +502,13 @@ export default function AdminRejsePage() {
                         <td>{r.title}</td>
                         <td>{r.destination}</td>
                         <td>
-                          <span className={`statusBadge ${getStatusClassName(r)}`}>
-                            {getStatus(r)}
-                          </span>
+                          <RejseStatusBadge rejse={r} />
                         </td>
                         <td>{formatDate(r.startAt)}</td>
                         <td>{formatDate(r.endAt)}</td>
                         <td>{r.price.toLocaleString("da-DK")} kr.</td>
                         <td>
-                          <div className="capacity">
-                            <div className="capacity-bar">
-                              <div
-                                className="capacity-fill"
-                                style={{ width: `${getFillPercent(r)}%` }}
-                              />
-                            </div>
-                            <span className="capacity-text">
-                              {r.bookedSeats ?? 0} / {r.maxSeats}
-                            </span>
-                          </div>
+                          <CapacityCell rejse={r} />
                         </td>
                         <td>{getBusLabel(r.busId)}</td>
                         <td>

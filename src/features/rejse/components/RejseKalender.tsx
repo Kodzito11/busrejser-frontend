@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { Rejse } from "../api";
+import type { Rejse } from "../model/rejse.types";
 
 
 function ymd(date: Date) {
