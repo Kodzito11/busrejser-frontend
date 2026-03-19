@@ -6,18 +6,17 @@ import type { Rejse } from "../model/rejse.types";
 export default function RejseDetalje() {
   const { id } = useParams();
   const [rejse, setRejse] = useState<Rejse | null>(null);
-  const [seats, setSeats] = useState<number | null>(null);
   const [antal, setAntal] = useState(1);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
   async function load() {
     try {
-      const r = await api.rejser.get(Number(id));
-      const s = await api.bookings.getAvailableSeats(Number(id));
+      setLoading(true);
+      setErr("");
 
+      const r = await api.rejser.get(Number(id));
       setRejse(r);
-      setSeats(s);
     } catch (e: any) {
       setErr(e?.message ?? "Kunne ikke hente rejse.");
     } finally {
@@ -27,7 +26,9 @@ export default function RejseDetalje() {
 
   useEffect(() => {
     load();
-  }, []);
+  }, [id]);
+
+  const seats = rejse ? Math.max(0, rejse.maxSeats - (rejse.bookedSeats ?? 0)) : 0;
 
   async function handleBook() {
     try {
@@ -52,7 +53,6 @@ export default function RejseDetalje() {
   return (
     <div className="wrap">
       <div className="card">
-
         <h1>{rejse.title}</h1>
         <p className="muted">{rejse.destination}</p>
 
@@ -84,15 +84,14 @@ export default function RejseDetalje() {
             type="number"
             value={antal}
             min={1}
-            max={seats ?? 1}
+            max={seats || 1}
             onChange={(e) => setAntal(Number(e.target.value))}
           />
 
-          <button onClick={handleBook} disabled={!seats || seats === 0}>
+          <button onClick={handleBook} disabled={seats === 0 || antal < 1 || antal > seats}>
             Book nu
           </button>
         </div>
-
       </div>
     </div>
   );

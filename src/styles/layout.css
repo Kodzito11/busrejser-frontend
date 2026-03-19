@@ -1,0 +1,85 @@
+.topbar {
+  width: 100%;
+  padding: 15px var(--site-pad);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  background: var(--topbar-bg);
+  color: var(--topbar-text);
+  border-bottom: var(--topbar-border-width) solid var(--topbar-border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 0 0 auto;
+}
+
+.logo {
+  height: 72px;
+  width: auto;
+  object-fit: contain;
+}
+
+.brandTitle {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.brandTag {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-top: 0;
+  white-space: nowrap;
+}
+
+.nav {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.navLink {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  opacity: 0.82;
+  transition: 0.15s ease;
+}
+
+.navLink:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--border-2);
+}
+
+.navLink.active {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--border-2);
+}
+
+.navUser {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 4px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+  .topbar {
+    padding: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .nav {
+    margin-left: 0;
+  }
+}

@@ -1,0 +1,22 @@
+.authCard {
+  width: min(560px, 100%);
+  margin: 40px auto 0;
+}
+
+.authForm {
+  display: grid;
+  gap: 16px;
+}
+
+.authSwitch {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+}
+
+.authSwitch a {
+  font-weight: 500;
+}

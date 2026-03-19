@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { rejseApi } from "../api/rejseApi";
 import { busApi } from "../../bus/api/busApi";
+import { bookingApi } from "../../booking/api/bookingApi";
+import { BookingStatus, type Booking } from "../../booking/model/booking.types";
 import type { Rejse, RejseCreate } from "../model/rejse.types";
 import type { Bus } from "../../bus/model/bus.types";
 
@@ -17,7 +19,6 @@ const emptyForm: RejseCreate = {
 function getFillPercent(r: Rejse) {
   const booked = r.bookedSeats ?? 0;
   if (!r.maxSeats) return 0;
-
   return Math.min(100, Math.round((booked / r.maxSeats) * 100));
 }
 
@@ -37,6 +38,16 @@ function toInputDateTime(value: string) {
 }
 
 function formatDate(value: string) {
+  return new Date(value).toLocaleString("da-DK", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function formatCreatedAt(value: string) {
   return new Date(value).toLocaleString("da-DK", {
     day: "2-digit",
     month: "2-digit",
@@ -77,10 +88,15 @@ export default function AdminRejsePage() {
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
+  const [expandedRejseId, setExpandedRejseId] = useState<number | null>(null);
+  const [bookingsByRejse, setBookingsByRejse] = useState<Record<number, Booking[]>>({});
+  const [busyBookingId, setBusyBookingId] = useState<number | null>(null);
+  const [loadingBookingsFor, setLoadingBookingsFor] = useState<number | null>(null);
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  async function loadData() {
+  async function load() {
     try {
       setLoading(true);
       setError("");
@@ -93,30 +109,76 @@ export default function AdminRejsePage() {
       setRejser(rejseData);
       setBusser(busData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Kunne ikke hente data.");
+      setError(err instanceof Error ? err.message : "Kunne ikke hente rejser.");
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    loadData();
+    load();
   }, []);
 
-  function updateField<K extends keyof RejseCreate>(key: K, value: RejseCreate[K]) {
-    setForm((prev) => ({ ...prev, [key]: value }));
-  }
+  const canSave =
+    form.title.trim().length > 0 &&
+    form.destination.trim().length > 0 &&
+    form.startAt.trim().length > 0 &&
+    form.endAt.trim().length > 0 &&
+    form.price >= 0 &&
+    form.maxSeats > 0 &&
+    form.busId > 0;
 
   function resetForm() {
-  setForm(emptyForm);
-  setEditingId(null);
-  setError("");
-}
+    setForm(emptyForm);
+    setEditingId(null);
+  }
+
+  function getBusLabel(busId?: number | null) {
+    if (!busId) return "-";
+
+    const bus = busser.find((b) => b.busId === busId);
+    if (!bus) return `#${busId}`;
+
+    return `${bus.registreringnummer} · ${bus.model}`;
+  }
+
+  async function createOrUpdateRejse(e: React.FormEvent) {
+    e.preventDefault();
+    if (!canSave) return;
+
+    try {
+      setSaving(true);
+      setError("");
+      setSuccess("");
+
+      const payload: RejseCreate = {
+        ...form,
+        price: Number(form.price),
+        maxSeats: Number(form.maxSeats),
+        busId: Number(form.busId),
+      };
+
+      if (editingId) {
+        await rejseApi.update(editingId, payload);
+        setSuccess("Rejse opdateret.");
+      } else {
+        await rejseApi.create(payload);
+        setSuccess("Rejse oprettet.");
+      }
+
+      resetForm();
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Kunne ikke gemme rejse.");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   function startEdit(rejse: Rejse) {
     setEditingId(rejse.rejseId);
-    setError("");
     setSuccess("");
+    setError("");
 
     setForm({
       title: rejse.title,
@@ -131,83 +193,35 @@ export default function AdminRejsePage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function validateForm() {
-    if (!form.title.trim()) return "Titel mangler.";
-    if (!form.destination.trim()) return "Destination mangler.";
-    if (!form.startAt) return "Starttid mangler.";
-    if (!form.endAt) return "Sluttid mangler.";
-    if (new Date(form.endAt) <= new Date(form.startAt)) {
-      return "Sluttid skal være efter starttid.";
-    }
-    if (form.price < 0) return "Pris kan ikke være negativ.";
-    if (form.maxSeats <= 0) return "Max pladser skal være over 0.";
-    if (!form.busId || form.busId <= 0) return "Du skal vælge en bus.";
+  async function handleDelete(rejseId: number) {
+    const rejse = rejser.find((r) => r.rejseId === rejseId);
+    if (!rejse) return;
 
-    return "";
-  }
-
-  function getBusLabel(busId: number | null | undefined) {
-    if (!busId) return "-";
-    const bus = busser.find((b) => b.busId === busId);
-    if (!bus) return `#${busId}`;
-    return `#${bus.busId} · ${bus.registreringnummer}`;
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-
-    const validationError = validateForm();
-    if (validationError) {
-      setError(validationError);
-      setSuccess("");
+    if ((rejse.bookedSeats ?? 0) > 0) {
+      setError("Rejsen kan ikke slettes, fordi der er bookinger.");
       return;
     }
 
-    try {
-      setSaving(true);
-      setError("");
-      setSuccess("");
-
-      if (editingId !== null) {
-        await rejseApi.update(editingId, form);
-        setSuccess("Rejse opdateret.");
-      } else {
-        await rejseApi.create(form);
-        setSuccess("Rejse oprettet.");
-      }
-
-      resetForm();
-      await loadData();
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : editingId !== null
-          ? "Kunne ikke opdatere rejse."
-          : "Kunne ikke oprette rejse."
-      );
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function handleDelete(id: number) {
-    const ok = confirm(`Slet rejse #${id}?`);
+    const ok = window.confirm(`Slet rejse #${rejseId}?`);
     if (!ok) return;
 
     try {
-      setDeletingId(id);
+      setDeletingId(rejseId);
       setError("");
       setSuccess("");
 
-      await rejseApi.delete(id);
+      await rejseApi.delete(rejseId);
 
-      if (editingId === id) {
+      if (editingId === rejseId) {
         resetForm();
       }
 
-      setRejser((prev) => prev.filter((r) => r.rejseId !== id));
+      if (expandedRejseId === rejseId) {
+        setExpandedRejseId(null);
+      }
+
       setSuccess("Rejse slettet.");
+      await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Kunne ikke slette rejse.");
     } finally {
@@ -215,130 +229,273 @@ export default function AdminRejsePage() {
     }
   }
 
-  const filteredRejser = [...rejser]
-    .filter((r) => {
-      const q = search.trim().toLowerCase();
-      if (!q) return true;
+  async function toggleBookings(rejseId: number) {
+    if (expandedRejseId === rejseId) {
+      setExpandedRejseId(null);
+      return;
+    }
 
-      return (
-        r.title.toLowerCase().includes(q) ||
-        r.destination.toLowerCase().includes(q) ||
-        getBusLabel(r.busId).toLowerCase().includes(q)
+    setExpandedRejseId(rejseId);
+
+    if (bookingsByRejse[rejseId]) return;
+
+    try {
+      setLoadingBookingsFor(rejseId);
+      setError("");
+
+      const data = await bookingApi.getByRejseId(rejseId);
+
+      setBookingsByRejse((prev) => ({
+        ...prev,
+        [rejseId]: data,
+      }));
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Kunne ikke hente bookings for rejse."
       );
-    })
-    .sort((a, b) => {
+    } finally {
+      setLoadingBookingsFor(null);
+    }
+  }
+
+  async function refreshBookingsForRejse(rejseId: number) {
+    const data = await bookingApi.getByRejseId(rejseId);
+
+    setBookingsByRejse((prev) => ({
+      ...prev,
+      [rejseId]: data,
+    }));
+  }
+
+  async function handleCancelBooking(bookingId: number, rejseId: number) {
+    const ok = window.confirm(`Annullér booking #${bookingId}?`);
+    if (!ok) return;
+
+    try {
+      setBusyBookingId(bookingId);
+      setError("");
+      setSuccess("");
+
+      await bookingApi.cancel(bookingId);
+      await Promise.all([refreshBookingsForRejse(rejseId), load()]);
+
+      setSuccess("Booking annulleret.");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Kunne ikke annullere booking."
+      );
+    } finally {
+      setBusyBookingId(null);
+    }
+  }
+
+  async function handleReactivateBooking(bookingId: number, rejseId: number) {
+    const ok = window.confirm(`Genaktiver booking #${bookingId}?`);
+    if (!ok) return;
+
+    try {
+      setBusyBookingId(bookingId);
+      setError("");
+      setSuccess("");
+
+      await bookingApi.reactivate(bookingId);
+      await Promise.all([refreshBookingsForRejse(rejseId), load()]);
+
+      setSuccess("Booking genaktiveret.");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Kunne ikke genaktivere booking."
+      );
+    } finally {
+      setBusyBookingId(null);
+    }
+  }
+
+  const filteredRejser = useMemo(() => {
+    const q = search.toLowerCase().trim();
+
+    let list = rejser.filter((r) => {
+      const haystack = [
+        r.rejseId,
+        r.title,
+        r.destination,
+        getBusLabel(r.busId),
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      return haystack.includes(q);
+    });
+
+    list = [...list].sort((a, b) => {
       if (sortBy === "price") return a.price - b.price;
       if (sortBy === "fill") return getFillPercent(b) - getFillPercent(a);
       return new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
     });
 
+    return list;
+  }, [rejser, search, sortBy, busser]);
+
   return (
     <div className="page">
       <div className="card">
-        <h1>{editingId !== null ? `Redigér rejse #${editingId}` : "Rejser"}</h1>
-        <p className="muted">
-          {editingId !== null ? "Opdatér rejseoplysninger." : "Opret og administrér rejser."}
-        </p>
+        <div className="section-header">
+          <div>
+            <h1>Admin rejser</h1>
+            <p className="muted">Opret, redigér og administrér rejser.</p>
+          </div>
+        </div>
 
-        <form className="adminForm" onSubmit={handleSubmit}>
-          <input
-            className="input"
-            placeholder="Titel"
-            value={form.title}
-            onChange={(e) => updateField("title", e.target.value)}
-            required
-          />
+        {error && <p className="error">{error}</p>}
+        {success && <p className="success">{success}</p>}
 
-          <input
-            className="input"
-            placeholder="Destination"
-            value={form.destination}
-            onChange={(e) => updateField("destination", e.target.value)}
-            required
-          />
+        <form onSubmit={createOrUpdateRejse} className="adminForm">
+          <div className="grid">
+            <label>
+              Titel
+              <input
+                className="input"
+                value={form.title}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, title: e.target.value }))
+                }
+                placeholder="Fx Berlin Forårstur"
+              />
+            </label>
 
-          <input
-            className="input"
-            type="datetime-local"
-            value={form.startAt}
-            onChange={(e) => updateField("startAt", e.target.value)}
-            required
-          />
+            <label>
+              Destination
+              <input
+                className="input"
+                value={form.destination}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, destination: e.target.value }))
+                }
+                placeholder="Fx Berlin"
+              />
+            </label>
 
-          <input
-            className="input"
-            type="datetime-local"
-            value={form.endAt}
-            onChange={(e) => updateField("endAt", e.target.value)}
-            required
-          />
+            <label>
+              Start
+              <input
+                className="input"
+                type="datetime-local"
+                value={form.startAt}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, startAt: e.target.value }))
+                }
+              />
+            </label>
 
-          <input
-            className="input"
-            type="number"
-            min={0}
-            placeholder="Pris"
-            value={form.price}
-            onChange={(e) => updateField("price", Number(e.target.value))}
-            required
-          />
+            <label>
+              Slut
+              <input
+                className="input"
+                type="datetime-local"
+                value={form.endAt}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, endAt: e.target.value }))
+                }
+              />
+            </label>
 
-          <input
-            className="input"
-            type="number"
-            min={1}
-            placeholder="Max pladser"
-            value={form.maxSeats}
-            onChange={(e) => updateField("maxSeats", Number(e.target.value))}
-            required
-          />
+            <label>
+              Pris
+              <input
+                className="input"
+                type="number"
+                min={0}
+                value={form.price}
+                onChange={(e) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    price: Number(e.target.value),
+                  }))
+                }
+              />
+            </label>
 
-          <select
-            className="input"
-            value={form.busId ?? 0}
-            onChange={(e) => updateField("busId", Number(e.target.value))}
-            required
-          >
-            <option value={0}>Vælg bus</option>
-            {busser.map((bus) => (
-              <option key={bus.busId} value={bus.busId}>
-                #{bus.busId} · {bus.registreringnummer} · {bus.model}
-              </option>
-            ))}
-          </select>
+            <label>
+              Max pladser
+              <input
+                className="input"
+                type="number"
+                min={1}
+                value={form.maxSeats}
+                onChange={(e) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    maxSeats: Number(e.target.value),
+                  }))
+                }
+              />
+            </label>
+
+            <label>
+              Bus
+              <select
+                className="input"
+                value={form.busId}
+                onChange={(e) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    busId: Number(e.target.value),
+                  }))
+                }
+              >
+                <option value={0}>Vælg bus</option>
+                {busser.map((bus) => (
+                  <option key={bus.busId} value={bus.busId}>
+                    {bus.registreringnummer} · {bus.model}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
 
           <div className="row">
-            <button className="btn" type="submit" disabled={saving}>
+            <button className="btn" type="submit" disabled={saving || !canSave}>
               {saving
-                ? editingId !== null
-                  ? "Gemmer..."
-                  : "Opretter..."
-                : editingId !== null
+                ? "Gemmer..."
+                : editingId
                 ? "Gem ændringer"
                 : "Opret rejse"}
             </button>
 
-            {editingId !== null && (
-              <button className="btn ghost" type="button" onClick={resetForm}>
-                Annullér
+            {editingId && (
+              <button
+                className="btn ghost"
+                type="button"
+                onClick={resetForm}
+                disabled={saving}
+              >
+                Annullér redigering
               </button>
+            )}
+
+            {!canSave && (
+              <span className="muted">
+                Titel, destination, datoer, pris, pladser og bus kræves.
+              </span>
             )}
           </div>
         </form>
+      </div>
 
-        {error && <p className="error">{error}</p>}
-        {success && <p className="success">{success}</p>}
-        
-        <div className="section-header" style={{ marginTop: 24 }}>
+      <div className="card">
+        <div className="section-header">
           <div>
-            <h2>Eksisterende rejser</h2>
-            <p className="muted">Søg og sorter i rejser.</p>
+            <h2>Rejser ({filteredRejser.length})</h2>
+            <p className="muted">Søg, sorter og klik for at se bookinger.</p>
           </div>
 
-          <div className="adminTopbarActions">
+          <div className="toolbar">
             <input
               className="input"
-              placeholder="Søg titel, destination eller bus..."
+              type="text"
+              placeholder="Søg på titel, destination eller bus..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -346,11 +503,13 @@ export default function AdminRejsePage() {
             <select
               className="input"
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as "start" | "price" | "fill")}
+              onChange={(e) =>
+                setSortBy(e.target.value as "start" | "price" | "fill")
+              }
             >
-              <option value="start">Sorter: Startdato</option>
-              <option value="price">Sorter: Pris</option>
-              <option value="fill">Sorter: Mest fyldt</option>
+              <option value="start">Startdato</option>
+              <option value="price">Pris</option>
+              <option value="fill">Mest fyldt</option>
             </select>
           </div>
         </div>
@@ -358,7 +517,7 @@ export default function AdminRejsePage() {
         {loading ? (
           <p className="muted">Loader rejser...</p>
         ) : filteredRejser.length === 0 ? (
-          <p className="muted">Ingen rejser matcher din søgning.</p>
+          <p className="muted">Ingen rejser fundet.</p>
         ) : (
           <div className="table-wrap">
             <table className="admin-table">
@@ -376,69 +535,201 @@ export default function AdminRejsePage() {
                   <th>Handling</th>
                 </tr>
               </thead>
-              <tbody>
-                {filteredRejser.map((r) => (
-                  <tr key={r.rejseId}>
-                    <td>#{r.rejseId}</td>
-                    <td>{r.title}</td>
-                    <td>{r.destination}</td>
-                    <td>
-                      <span className={`statusBadge ${getStatusClassName(r)}`}>
-                        {getStatus(r)}
-                      </span>
-                    </td>
-                    <td>{formatDate(r.startAt)}</td>
-                    <td>{formatDate(r.endAt)}</td>
-                    <td>{r.price.toLocaleString("da-DK")} kr.</td>
-                    <td>
-                      <div className="capacity">
-                        <div className="capacity-bar">
-                          <div
-                            className="capacity-fill"
-                            style={{
-                              width: `${getFillPercent(r)}%`,
-                              background:
-                                getFillPercent(r) > 90
-                                  ? "#ef4444"
-                                  : getFillPercent(r) > 60
-                                    ? "#f59e0b"
-                                    : "#3b82f6",
-                            }}
-                          />
-                        </div>
-                        <span className="capacity-text">
-                          {r.bookedSeats ?? 0} / {r.maxSeats}
-                        </span>
-                      </div>
-                    </td>
-                    <td>{getBusLabel(r.busId)}</td>
-                    <td>
-                      <div className="actionCell">
-                        <button
-                          className="btn"
-                          type="button"
-                          onClick={() => startEdit(r)}
-                        >
-                          Redigér
-                        </button>
 
-                        <button
-                          className="btn danger"
-                          type="button"
-                          disabled={deletingId === r.rejseId || (r.bookedSeats ?? 0) > 0}
-                          onClick={() => handleDelete(r.rejseId)}
-                          title={(r.bookedSeats ?? 0) > 0 ? "Rejsen kan ikke slettes, fordi der er bookinger." : ""}
-                        >
-                          {(r.bookedSeats ?? 0) > 0
-                            ? "Har bookinger"
-                            : deletingId === r.rejseId
-                              ? "Sletter..."
-                              : "Slet"}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+              <tbody>
+                {filteredRejser.map((r) => {
+                  const bookings = bookingsByRejse[r.rejseId] ?? [];
+                  const isExpanded = expandedRejseId === r.rejseId;
+                  const isLoadingBookings = loadingBookingsFor === r.rejseId;
+
+                  return (
+                    <Fragment key={r.rejseId}>
+                      <tr>
+                        <td>#{r.rejseId}</td>
+                        <td>{r.title}</td>
+                        <td>{r.destination}</td>
+                        <td>
+                          <span className={`statusBadge ${getStatusClassName(r)}`}>
+                            {getStatus(r)}
+                          </span>
+                        </td>
+                        <td>{formatDate(r.startAt)}</td>
+                        <td>{formatDate(r.endAt)}</td>
+                        <td>{r.price.toLocaleString("da-DK")} kr.</td>
+                        <td>
+                          <div className="capacity">
+                            <div className="capacity-bar">
+                              <div
+                                className="capacity-fill"
+                                style={{ width: `${getFillPercent(r)}%` }}
+                              />
+                            </div>
+                            <span className="capacity-text">
+                              {r.bookedSeats ?? 0} / {r.maxSeats}
+                            </span>
+                          </div>
+                        </td>
+                        <td>{getBusLabel(r.busId)}</td>
+                        <td>
+                          <div className="actionCell">
+                            <button
+                              className="btn ghost"
+                              type="button"
+                              onClick={() => toggleBookings(r.rejseId)}
+                            >
+                              {isExpanded ? "Skjul bookinger" : "Vis bookinger"}
+                            </button>
+
+                            <button
+                              className="btn"
+                              type="button"
+                              onClick={() => startEdit(r)}
+                            >
+                              Redigér
+                            </button>
+
+                            <button
+                              className="btn danger"
+                              type="button"
+                              disabled={
+                                deletingId === r.rejseId || (r.bookedSeats ?? 0) > 0
+                              }
+                              onClick={() => handleDelete(r.rejseId)}
+                              title={
+                                (r.bookedSeats ?? 0) > 0
+                                  ? "Rejsen kan ikke slettes, fordi der er bookinger."
+                                  : ""
+                              }
+                            >
+                              {(r.bookedSeats ?? 0) > 0
+                                ? "Har bookinger"
+                                : deletingId === r.rejseId
+                                ? "Sletter..."
+                                : "Slet"}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+
+                      {isExpanded && (
+                        <tr className="bookingExpandRow">
+                          <td colSpan={10}>
+                            <div className="bookingExpandBox">
+                              <h4>
+                                Bookinger for rejse #{r.rejseId} · Total: {bookings.length}
+                              </h4>
+
+                              <p className="muted">
+                                Aktive:{" "}
+                                {
+                                  bookings.filter(
+                                    (b) => b.status === BookingStatus.Active
+                                  ).length
+                                }{" "}
+                                · Annullerede:{" "}
+                                {
+                                  bookings.filter(
+                                    (b) => b.status === BookingStatus.Cancelled
+                                  ).length
+                                }
+                              </p>
+
+                              {isLoadingBookings ? (
+                                <p className="muted">Loader bookinger...</p>
+                              ) : bookings.length === 0 ? (
+                                <p className="muted">Ingen bookinger endnu.</p>
+                              ) : (
+                                <div className="bookingTableScroll">
+                                  <table className="booking-inner-table">
+                                    <thead>
+                                      <tr>
+                                        <th>ID</th>
+                                        <th>Reference</th>
+                                        <th>Navn</th>
+                                        <th>Email</th>
+                                        <th>Pladser</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                        <th>Oprettet</th>
+                                        <th>Handling</th>
+                                      </tr>
+                                    </thead>
+
+                                    <tbody>
+                                      {bookings.map((b) => {
+                                        const isCancelled =
+                                          b.status === BookingStatus.Cancelled;
+
+                                        return (
+                                          <tr
+                                            key={b.bookingId}
+                                            className={isCancelled ? "bookingCancelled" : ""}
+                                          >
+                                            <td>#{b.bookingId}</td>
+                                            <td>{b.bookingReference}</td>
+                                            <td>{b.kundeNavn}</td>
+                                            <td>{b.kundeEmail}</td>
+                                            <td>{b.antalPladser}</td>
+                                            <td>{b.userId ? `Bruger #${b.userId}` : "Gæst"}</td>
+                                            <td>
+                                              <span
+                                                className={`miniStatus ${
+                                                  isCancelled ? "cancelled" : "active"
+                                                }`}
+                                              >
+                                                {isCancelled ? "Annulleret" : "Aktiv"}
+                                              </span>
+                                            </td>
+                                            <td>{formatCreatedAt(b.createdAt)}</td>
+                                            <td>
+                                              {isCancelled ? (
+                                                <button
+                                                  className="btn"
+                                                  type="button"
+                                                  disabled={busyBookingId === b.bookingId}
+                                                  onClick={() =>
+                                                    handleReactivateBooking(
+                                                      b.bookingId,
+                                                      r.rejseId
+                                                    )
+                                                  }
+                                                >
+                                                  {busyBookingId === b.bookingId
+                                                    ? "Arbejder..."
+                                                    : "Genaktiver"}
+                                                </button>
+                                              ) : (
+                                                <button
+                                                  className="btn danger"
+                                                  type="button"
+                                                  disabled={busyBookingId === b.bookingId}
+                                                  onClick={() =>
+                                                    handleCancelBooking(
+                                                      b.bookingId,
+                                                      r.rejseId
+                                                    )
+                                                  }
+                                                >
+                                                  {busyBookingId === b.bookingId
+                                                    ? "Arbejder..."
+                                                    : "Annullér"}
+                                                </button>
+                                              )}
+                                            </td>
+                                          </tr>
+                                        );
+                                      })}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  );
+                })}
               </tbody>
             </table>
           </div>

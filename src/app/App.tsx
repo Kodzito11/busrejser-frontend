@@ -1,6 +1,12 @@
-import { NavLink, Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { NavLink, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import "../App.css";
+
+import "../styles/app.css";
+import "../styles/layout.css";
+import "../styles/home.css";
+import "../styles/admin.css";
+import "../styles/kunde.css";
+import "../styles/auth.css";
 
 import HomePage from "../features/public/pages/Home";
 import AboutPage from "../features/public/pages/About";
@@ -26,11 +32,12 @@ import { getCurrentUser, logout } from "../auth/auth";
 
 export default function App() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState(getCurrentUser());
 
   useEffect(() => {
     setUser(getCurrentUser());
-  }, []);
+  }, [location.pathname]);
 
   function handleLogout() {
     logout();
@@ -39,33 +46,29 @@ export default function App() {
   }
 
   const isCustomer = user?.role === "Kunde";
-
-  const isStaff =
-    user?.role === "Admin" || user?.role === "Medarbejder";
+  const isStaff = user?.role === "Admin" || user?.role === "Medarbejder";
 
   return (
     <div className="shell">
       <header className="topbar">
-        <NavLink to="/" end className={({ isActive }) => (isActive ? "navLink active" : "navLink")}>
-          <div className="brand">
-            <img src={logo} alt="BusPlanen logo" className="logo" />
-          </div>
+        <NavLink to="/" end className="brand">
+          <img src={logo} alt="BusPlanen logo" className="logo" />
         </NavLink>
 
         <nav className="nav">
-          <NavLink to="/om" className={({ isActive }) => (isActive ? "navLink active" : "navLink")}>
+          <NavLink
+            to="/om"
+            className={({ isActive }) => (isActive ? "navLink active" : "navLink")}
+          >
             Om os
           </NavLink>
 
-          <NavLink to="/rejser" className={({ isActive }) => (isActive ? "navLink active" : "navLink")}>
+          <NavLink
+            to="/rejser"
+            className={({ isActive }) => (isActive ? "navLink active" : "navLink")}
+          >
             Rejser
           </NavLink>
-
-          {isStaff && (
-            <NavLink to="/busser" className={({ isActive }) => (isActive ? "navLink active" : "navLink")}>
-              Busser
-            </NavLink>
-          )}
 
           {isCustomer && (
             <NavLink
@@ -85,15 +88,19 @@ export default function App() {
             </NavLink>
           )}
 
-
           {!user ? (
-            <NavLink to="/login" className={({ isActive }) => (isActive ? "navLink active" : "navLink")}>
+            <NavLink
+              to="/login"
+              className={({ isActive }) => (isActive ? "navLink active" : "navLink")}
+            >
               Login
             </NavLink>
           ) : (
             <>
               <span className="navUser">Hej, {user.username}</span>
-              <button onClick={handleLogout}>Log ud</button>
+              <button type="button" onClick={handleLogout}>
+                Log ud
+              </button>
             </>
           )}
         </nav>
@@ -103,25 +110,31 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/om" element={<AboutPage />} />
-          <Route
-            path="/busser"
-            element={isStaff ? <AdminBusPage /> : <Navigate to="/" replace />}
-          />
           <Route path="/rejser" element={<RejserPage />} />
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/rejse/:id" element={<RejseDetaljePage />} />
           <Route path="/book/:id" element={<BookRejsePage />} />
+
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+
           <Route
             path="/mine-bookinger"
             element={isCustomer ? <MineBookingerPage /> : <Navigate to="/" replace />}
           />
-          <Route path="/rejse/:id" element={<RejseDetaljePage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          
-           <Route path="/admin" element={<AdminLayout />}>
+
+          <Route
+            path="/busser"
+            element={isStaff ? <Navigate to="/admin/busser" replace /> : <Navigate to="/" replace />}
+          />
+
+          <Route
+            path="/admin"
+            element={isStaff ? <AdminLayout /> : <Navigate to="/" replace />}
+          >
             <Route index element={<AdminHomePage />} />
             <Route path="busser" element={<AdminBusPage />} />
-             <Route path="rejser" element={<AdminRejsePage />} />
-             <Route path="bookings" element={<AdminBookingPage />} />
+            <Route path="rejser" element={<AdminRejsePage />} />
+            <Route path="bookings" element={<AdminBookingPage />} />
           </Route>
         </Routes>
       </main>

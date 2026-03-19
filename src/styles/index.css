@@ -5,7 +5,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-html, body {
+html,
+body,
+#root {
   height: 100%;
 }
 

@@ -1,0 +1,349 @@
+.homePage {
+  width: 100%;
+}
+
+.homeGrid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: 1.3fr 0.9fr;
+  align-items: start;
+}
+
+.heroSection {
+  width: 100%;
+  margin: 0 0 56px;
+  overflow: hidden;
+}
+
+.heroImage {
+  position: relative;
+  width: 100%;
+  min-height: clamp(560px, 78vh, 860px);
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.02);
+  transition: transform 8s ease, background-image 0.45s ease;
+}
+
+.heroOverlay {
+  min-height: clamp(560px, 78vh, 860px);
+  padding: clamp(28px, 4vw, 56px);
+}
+
+.heroInner {
+  min-height: inherit;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 36px;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.heroInner.isHidden {
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+}
+
+.heroContent {
+  max-width: min(820px, 100%);
+  color: #fff;
+  padding-top: clamp(8px, 2vw, 28px);
+}
+
+.heroKicker {
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.heroTitle {
+  font-size: clamp(42px, 7vw, 96px);
+  line-height: 0.95;
+  margin: 0 0 18px;
+  max-width: 9ch;
+  color: #fff;
+}
+
+.heroTitleLong {
+  font-size: clamp(38px, 6vw, 76px);
+  max-width: 12ch;
+}
+
+.heroText {
+  max-width: 58ch;
+  font-size: clamp(1rem, 1.2vw, 1.2rem);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.searchBar {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 240px;
+  width: min(1280px, 100%);
+  background: #fff;
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.searchItem {
+  padding: 16px 20px;
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.searchLabel {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #8a8a8a;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.searchValue {
+  color: #111;
+  font-size: 1rem;
+}
+
+.searchCta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 800;
+  font-size: 1rem;
+  transition: background 0.18s ease;
+}
+
+.searchCta:hover {
+  background: var(--accent-hover);
+}
+
+.heroArrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #fff;
+  font-size: clamp(36px, 3vw, 52px);
+  font-weight: 300;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.heroImage:hover .heroArrow {
+  opacity: 1;
+}
+
+.heroArrow:hover {
+  transform: translateY(-50%) scale(1.04);
+}
+
+.heroArrowLeft {
+  left: 24px;
+}
+
+.heroArrowRight {
+  right: 24px;
+}
+
+.heroDots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.heroDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  padding: 0;
+  transition: 0.2s ease;
+}
+
+.heroDot:hover {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.heroDot.active {
+  width: 30px;
+  background: #fff;
+}
+
+.sectionTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.sectionTop h2 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.sectionLink {
+  font-weight: 700;
+  opacity: 0.78;
+}
+
+.sectionLink:hover {
+  opacity: 1;
+}
+
+.tripGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.tripCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.tripImage {
+  height: 260px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.tripBadge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(20, 20, 20, 0.72);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.tripBody {
+  padding: 20px;
+}
+
+.tripBody h3 {
+  margin: 0 0 12px;
+  font-size: 1.65rem;
+  line-height: 1.15;
+}
+
+.tripBody p {
+  margin: 0 0 18px;
+  color: var(--muted);
+}
+
+.tripBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tripBottom strong {
+  font-size: 1.05rem;
+}
+
+.tripArrow {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 800;
+  transition: 0.15s ease;
+}
+
+.tripArrow:hover {
+  background: var(--accent-hover);
+}
+
+@media (max-width: 1100px) {
+  .searchBar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .tripGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .homeGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .heroSection {
+    margin-bottom: 36px;
+  }
+
+  .heroImage,
+  .heroOverlay {
+    min-height: auto;
+  }
+
+  .heroOverlay {
+    padding: 20px;
+    gap: 24px;
+  }
+
+  .heroTitle {
+    max-width: 11ch;
+    line-height: 1;
+  }
+
+  .heroTitleLong {
+    max-width: 12ch;
+  }
+
+  .searchBar {
+    grid-template-columns: 1fr;
+    border-radius: 18px;
+  }
+
+  .searchItem {
+    border-right: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .heroArrow {
+    display: none;
+  }
+
+  .tripGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sectionTop {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
