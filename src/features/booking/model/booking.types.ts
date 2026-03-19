@@ -6,10 +6,14 @@ export const BookingStatus = {
 export type BookingStatusType =
   (typeof BookingStatus)[keyof typeof BookingStatus];
 
+export type UserRole = "Admin" | "Medarbejder" | "Kunde";
+
 export type Booking = {
   bookingId: number;
   rejseId: number;
   userId?: number | null;
+  role?: UserRole | null;
+
   bookingReference: string;
   kundeNavn: string;
   kundeEmail: string;

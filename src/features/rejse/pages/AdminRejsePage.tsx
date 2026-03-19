@@ -6,6 +6,7 @@ import { BookingStatus, type Booking } from "../../booking/model/booking.types";
 import type { Rejse, RejseCreate } from "../model/rejse.types";
 import type { Bus } from "../../bus/model/bus.types";
 
+
 const emptyForm: RejseCreate = {
   title: "",
   destination: "",
@@ -20,6 +21,11 @@ function getFillPercent(r: Rejse) {
   const booked = r.bookedSeats ?? 0;
   if (!r.maxSeats) return 0;
   return Math.min(100, Math.round((booked / r.maxSeats) * 100));
+}
+
+function getBookingUserType(b: { userId?: number | null; role?: string | null }) {
+  if (b.userId == null) return "Gæst";
+  return b.role ?? "Bruger";
 }
 
 function toInputDateTime(value: string) {
@@ -670,7 +676,7 @@ export default function AdminRejsePage() {
                                             <td>{b.kundeNavn}</td>
                                             <td>{b.kundeEmail}</td>
                                             <td>{b.antalPladser}</td>
-                                            <td>{b.userId ? `Bruger #${b.userId}` : "Gæst"}</td>
+                                            <td>{getBookingUserType(b)}</td>
                                             <td>
                                               <span
                                                 className={`miniStatus ${

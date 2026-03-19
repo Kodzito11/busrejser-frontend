@@ -129,7 +129,7 @@ export default function AdminBookingPage() {
                       <td>{b.kundeEmail}</td>
                       <td>#{b.rejseId}</td>
                       <td>{b.antalPladser}</td>
-                      <td>{b.userId ? `Bruger #${b.userId}` : "Gæst"}</td>
+                      <td>{b.userId == null ? "Gæst" : b.role ?? "Bruger"}</td>
                       <td>{isCancelled ? "Annulleret" : "Aktiv"}</td>
                       <td>
                         {isCancelled ? (
