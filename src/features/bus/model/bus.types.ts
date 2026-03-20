@@ -9,4 +9,13 @@ export type Bus = {
   imageUrl?: string | null;
 };
 
+export type BusForm = {
+  registreringnummer: string;
+  model: string;
+  busselskab: string;
+  status: number;
+  type: number;
+  kapasitet: number;
+};
+
 export type BusCreate = Omit<Bus, "busId">;

@@ -1,35 +1,26 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../../../shared/api/api";
-import { API_BASE } from "../../../shared/api/http";
-import type { Bus } from "../model/bus.types";
 import { hasRole, isAdmin } from "../../../auth/auth";
 
-const statusLabel = (s: number) => ["Aktiv", "Inaktiv", "Vedligeholdelse"][s] ?? `(${s})`;
-const typeLabel = (t: number) => ["StorTurBus", "MiniBus", "VIPBus", "Shuttle", "Andet"][t] ?? `(${t})`;
+import type { Bus } from "../model/bus.types";
+import type { BusForm } from "../model/bus.types";
 
-type BusForm = {
-  registreringnummer: string;
-  model: string;
-  busselskab: string;
-  status: number;
-  type: number;
-  kapasitet: number;
-};
+import AdminBusTable from "../components/AdminBusTable";
+import BusImageModal from "../components/BusImageModal";
 
-export default function BusCrud() {
+import { emptyBusForm } from "../utils/busHelpers";
+
+export default function AdminBusPage() {
   const [buses, setBuses] = useState<Bus[]>([]);
   const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState<string>("");
+  const [error, setError] = useState("");
+
+  const [form, setForm] = useState<BusForm>(emptyBusForm);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [openImage, setOpenImage] = useState<string | null>(null);
 
-  const [form, setForm] = useState<BusForm>({
-    registreringnummer: "",
-    model: "",
-    busselskab: "",
-    status: 0,
-    type: 0,
-    kapasitet: 1,
-  });
+  const canCreateBus = hasRole("Admin", "Medarbejder");
+  const canDeleteBus = isAdmin();
 
   const canCreate = useMemo(() => {
     return (
@@ -40,13 +31,14 @@ export default function BusCrud() {
   }, [form]);
 
   async function refresh() {
-    setErr("");
-    setLoading(true);
     try {
+      setError("");
+      setLoading(true);
+
       const list = await api.buses.list();
       setBuses(Array.isArray(list) ? list : []);
-    } catch (e: any) {
-      setErr(e?.message ?? String(e));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Kunne ikke hente busser.");
       setBuses([]);
     } finally {
       setLoading(false);
@@ -55,47 +47,45 @@ export default function BusCrud() {
 
   async function createBus() {
     if (!canCreate) return;
-    setErr("");
-    setLoading(true);
 
     try {
+      setError("");
+      setLoading(true);
+
       const newBusId = await api.buses.create(form);
 
       if (selectedImage) {
         await api.buses.uploadImage(newBusId, selectedImage);
       }
 
-      setForm({
-        registreringnummer: "",
-        model: "",
-        busselskab: "",
-        status: 0,
-        type: 0,
-        kapasitet: 1,
-      });
-
+      setForm(emptyBusForm);
       setSelectedImage(null);
 
       await refresh();
-    } catch (e: any) {
-      setErr(e?.message ?? String(e));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Kunne ikke oprette bus.");
     } finally {
       setLoading(false);
     }
   }
 
   async function deleteBus(id: number) {
-    setErr("");
-    setLoading(true);
     try {
+      setError("");
+      setLoading(true);
+
       await api.buses.delete(id);
       await refresh();
-    } catch (e: any) {
-      setErr(e?.message ?? String(e));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Kunne ikke slette bus.");
     } finally {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    refresh();
+  }, []);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -115,191 +105,170 @@ export default function BusCrud() {
     };
   }, [openImage]);
 
-  const busCount = buses?.length ?? 0;
-  const canCreateBus = hasRole("Admin", "Medarbejder");
-  const canDeleteBus = isAdmin();
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-
   return (
-    <div className="wrap">
-      <header className="header">
-        <div>
-          <h1>Busser</h1>
-          <p className="muted">Her kan du se vores tilgængelige busser</p>
+    <div className="page">
+      <div className="card">
+        <div className="section-header">
+          <div>
+            <h1>Admin busser</h1>
+            <p className="muted">Opret og administrér busser.</p>
+          </div>
+
+          <button className="btn" onClick={refresh} disabled={loading}>
+            {loading ? "Loader..." : "Refresh"}
+          </button>
         </div>
-        <button onClick={refresh} disabled={loading}>
-          Refresh
-        </button>
-      </header>
 
-      {err && <div className="error">{err}</div>}
+        {error && <p className="error">{error}</p>}
 
-      {canCreateBus && (
-        <section className="card">
-          <h2>Opret bus</h2>
+        {canCreateBus && (
+          <div className="adminForm">
+            <div className="grid">
+              <label>
+                Registreringnummer
+                <input
+                  className="input"
+                  value={form.registreringnummer}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      registreringnummer: e.target.value,
+                    }))
+                  }
+                />
+              </label>
 
-          <div className="grid">
-            <label>
-              Registreringnummer
-              <input
-                value={form.registreringnummer}
-                onChange={(e) =>
-                  setForm({ ...form, registreringnummer: e.target.value })
-                }
-              />
-            </label>
+              <label>
+                Model
+                <input
+                  className="input"
+                  value={form.model}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      model: e.target.value,
+                    }))
+                  }
+                />
+              </label>
 
-            <label>
-              Model
-              <input
-                value={form.model}
-                onChange={(e) =>
-                  setForm({ ...form, model: e.target.value })
-                }
-              />
-            </label>
+              <label>
+                Busselskab
+                <input
+                  className="input"
+                  value={form.busselskab}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      busselskab: e.target.value,
+                    }))
+                  }
+                />
+              </label>
 
-            <label>
-              Busselskab
-              <input
-                value={form.busselskab}
-                onChange={(e) =>
-                  setForm({ ...form, busselskab: e.target.value })
-                }
-              />
-            </label>
+              <label>
+                Kapasitet
+                <input
+                  className="input"
+                  type="number"
+                  min={1}
+                  value={form.kapasitet}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      kapasitet: Number(e.target.value),
+                    }))
+                  }
+                />
+              </label>
 
-            <label>
-              Kapasitet
-              <input
-                type="number"
-                value={form.kapasitet}
-                onChange={(e) =>
-                  setForm({ ...form, kapasitet: Number(e.target.value) })
-                }
-              />
-            </label>
+              <label>
+                Status
+                <select
+                  className="input"
+                  value={form.status}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      status: Number(e.target.value),
+                    }))
+                  }
+                >
+                  <option value={0}>Aktiv</option>
+                  <option value={1}>Inaktiv</option>
+                  <option value={2}>Vedligeholdelse</option>
+                </select>
+              </label>
 
-            <label>
-              Status
-              <select
-                value={form.status}
-                onChange={(e) =>
-                  setForm({ ...form, status: Number(e.target.value) })
-                }
-              >
-                <option value={0}>Aktiv</option>
-                <option value={1}>Inaktiv</option>
-                <option value={2}>Vedligeholdelse</option>
-              </select>
-            </label>
+              <label>
+                Type
+                <select
+                  className="input"
+                  value={form.type}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      type: Number(e.target.value),
+                    }))
+                  }
+                >
+                  <option value={0}>StorTurBus</option>
+                  <option value={1}>MiniBus</option>
+                  <option value={2}>VIPBus</option>
+                  <option value={3}>Shuttle</option>
+                  <option value={4}>Andet</option>
+                </select>
+              </label>
 
-            <label>
-              Type
-              <select
-                value={form.type}
-                onChange={(e) =>
-                  setForm({ ...form, type: Number(e.target.value) })
-                }
-              >
-                <option value={0}>StorTurBus</option>
-                <option value={1}>MiniBus</option>
-                <option value={2}>VIPBus</option>
-                <option value={3}>Shuttle</option>
-                <option value={4}>Andet</option>
-              </select>
-            </label>
-
-            <label>
-              Busbillede
-              <input
-                type="file"
-                accept=".jpg,.jpeg,.png,.webp"
-                onChange={(e) => setSelectedImage(e.target.files?.[0] ?? null)}
-              />
-            </label>
-          </div>
-
-          <div className="row">
-            <button onClick={createBus} disabled={loading || !canCreate}>
-              Opret
-            </button>
-          </div>
-        </section>
-      )}
-
-      <section className="card">
-        <h2>Liste ({busCount})</h2>
-
-        {loading && busCount === 0 ? (
-          <p className="muted">Loader…</p>
-        ) : busCount === 0 ? (
-          <p className="muted">Ingen busser endnu.</p>
-        ) : (
-          <div className="table">
-            <div className="tr head busser">
-              <div>ID</div>
-              <div>Billede</div>
-              <div>Reg</div>
-              <div>Model</div>
-              <div>Selskab</div>
-              <div>Status</div>
-              <div>Type</div>
-              <div>Kap</div>
-              {canDeleteBus && <div></div>}
+              <label>
+                Busbillede
+                <input
+                  className="input"
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.webp"
+                  onChange={(e) => setSelectedImage(e.target.files?.[0] ?? null)}
+                />
+              </label>
             </div>
 
-            {buses.map((b) => (
-              <div className="tr busser" key={b.busId}>
-                <div>{b.busId}</div>
+            <div className="row">
+              <button
+                className="btn"
+                type="button"
+                onClick={createBus}
+                disabled={loading || !canCreate}
+              >
+                Opret bus
+              </button>
 
-                <div>
-                  {b.imageUrl ? (
-                    <img
-                      src={`${API_BASE}${b.imageUrl}`}
-                      alt={b.model}
-                      className="busThumb"
-                      onClick={() => setOpenImage(`${API_BASE}${b.imageUrl}`)}
-                    />
-                  ) : (
-                    <span className="muted">Ingen</span>
-                  )}
-                </div>
-
-                <div>{b.registreringnummer}</div>
-                <div>{b.model}</div>
-                <div>{b.busselskab}</div>
-                <div>{statusLabel(b.status)}</div>
-                <div>{typeLabel(b.type)}</div>
-                <div>{b.kapasitet}</div>
-
-                {canDeleteBus && (
-                  <div className="actions">
-                    <button
-                      className="danger"
-                      onClick={() => deleteBus(b.busId)}
-                      disabled={loading}
-                    >
-                      Slet
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
-            {openImage && (
-              <div className="imageModal" onClick={() => setOpenImage(null)}>
-                <img
-                  src={openImage}
-                  alt="Bus billede"
-                  className="imageModalContent"
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </div>
-            )}
+              {!canCreate && (
+                <span className="muted">
+                  Registreringnummer, model og kapacitet kræves.
+                </span>
+              )}
+            </div>
           </div>
-
         )}
-      </section>
+      </div>
+
+      <div className="card">
+        <div className="section-header">
+          <div>
+            <h2>Busser ({buses.length})</h2>
+            <p className="muted">Se alle busser i systemet.</p>
+          </div>
+        </div>
+
+        <AdminBusTable
+          buses={buses}
+          loading={loading}
+          canDelete={canDeleteBus}
+          onDelete={deleteBus}
+          onOpenImage={setOpenImage}
+        />
+      </div>
+
+      <BusImageModal imageUrl={openImage} onClose={() => setOpenImage(null)} />
     </div>
   );
 }

@@ -265,9 +265,7 @@
   min-width: 110px;
 }
 
-/* =========================================================
-   Booking expand
-   ========================================================= */
+/* Booking expand */
 
 .bookingExpandRow td {
   padding: 0 !important;
@@ -375,6 +373,88 @@
   color: #b91c1c;
 }
 
+.roleBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.roleBadge.admin {
+  background: rgba(239, 68, 68, 0.12);
+  color: #b91c1c;
+}
+
+.roleBadge.medarbejder {
+  background: rgba(59, 130, 246, 0.14);
+  color: #2563eb;
+}
+
+.roleBadge.kunde {
+  background: rgba(34, 197, 94, 0.12);
+  color: #15803d;
+}
+
+.roleBadge.gaest {
+  background: rgba(120, 120, 120, 0.14);
+  color: #6b7280;
+}
+
+/* Dashboard */
+
+.dashboardStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.statCard {
+  min-height: 130px;
+}
+
+.statCardButton {
+  all: unset;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-height: 170px;
+  padding: 20px 24px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: 0.2s ease;
+  text-align: left;
+  
+}
+
+.statCardButton:hover {
+  transform: translateY(-2px);
+  background: var(--surface-2);
+}
+
+.statCardButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.statCardButton p {
+  margin: 0;
+}
+
+.statCardButton h2 {
+  margin: 18px 0;
+  font-size: 3rem;
+  line-height: 1;
+  font-size: 2.2rem; /* var 3rem */
+  margin: 12px 0;
+}
+
 @media (max-width: 900px) {
   .adminShell {
     grid-template-columns: 1fr;
@@ -387,6 +467,10 @@
   .adminTopbar {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .dashboardStatsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -438,39 +522,8 @@
     min-width: 0;
     width: 100%;
   }
-}
 
-.roleBadge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-/* Admin – tydelig */
-.roleBadge.admin {
-  background: rgba(239, 68, 68, 0.12);
-  color: #b91c1c;
-}
-
-/* Medarbejder – neutral/blå */
-.roleBadge.medarbejder {
-  background: rgba(59, 130, 246, 0.14);
-  color: #2563eb;
-}
-
-/* Kunde – grøn/mild */
-.roleBadge.kunde {
-  background: rgba(34, 197, 94, 0.12);
-  color: #15803d;
-}
-
-/* Gæst – grå */
-.roleBadge.gaest {
-  background: rgba(120, 120, 120, 0.14);
-  color: #6b7280;
+  .dashboardStatsGrid {
+    grid-template-columns: 1fr;
+  }
 }
