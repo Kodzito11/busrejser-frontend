@@ -33,3 +33,16 @@ export type BookingCreateResponse = {
   bookingId: number;
   bookingReference: string;
 };
+
+export type BookingListItem = {
+  bookingId: number;
+  rejseId: number;
+  kundeNavn: string;
+  kundeEmail: string;
+  antalPladser: number;
+  userId: number | null;
+  role?: string | null;
+  bookingReference?: string;
+  isCancelled: boolean;
+  createdAt?: string;
+};

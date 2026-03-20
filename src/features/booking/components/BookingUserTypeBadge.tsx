@@ -1,16 +1,15 @@
-import type { Booking } from "../model/booking.types";
-
 type Props = {
-  booking: Booking;
+  userId: number | null;
+  role?: string | null;
 };
 
-export default function BookingUserTypeBadge({ booking }: Props) {
-  if (booking.userId == null) {
+export default function BookingUserTypeBadge({ userId, role }: Props) {
+  if (userId == null) {
     return <span className="roleBadge gaest">Gæst</span>;
   }
 
-  const role = booking.role ?? "Bruger";
-  const className = role.toLowerCase();
+  const label = role ?? "Bruger";
+  const className = label.toLowerCase();
 
-  return <span className={`roleBadge ${className}`}>{role}</span>;
+  return <span className={`roleBadge ${className}`}>{label}</span>;
 }

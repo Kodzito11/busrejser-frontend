@@ -1,5 +1,10 @@
 import { http } from "../../../shared/api/http";
-import type { Booking, BookingCreate, BookingCreateResponse } from "../model/booking.types";
+import type {
+  Booking,
+  BookingCreate,
+  BookingCreateResponse,
+  BookingListItem,
+} from "../model/booking.types";
 
 export const bookingApi = {
   create: (payload: BookingCreate) =>
@@ -8,14 +13,14 @@ export const bookingApi = {
       body: JSON.stringify(payload),
     }),
 
-  list: () => http<Booking[]>("/api/Booking"),
+  list: () => http<BookingListItem[]>("/api/Booking"),
 
   get: (id: number) => http<Booking>(`/api/Booking/${id}`),
 
   mine: () => http<Booking[]>("/api/Booking/mine"),
 
   getByRejseId: (rejseId: number) =>
-    http<Booking[]>(`/api/Booking/rejse/${rejseId}`),
+    http<BookingListItem[]>(`/api/Booking/rejse/${rejseId}`),
 
   getAvailableSeats: (rejseId: number) =>
     http<number>(`/api/Booking/rejse/${rejseId}/available-seats`),

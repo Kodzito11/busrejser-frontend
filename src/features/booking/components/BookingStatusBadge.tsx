@@ -1,12 +1,8 @@
-import { BookingStatus, type Booking } from "../model/booking.types";
-
 type Props = {
-  status: Booking["status"];
+  isCancelled: boolean;
 };
 
-export default function BookingStatusBadge({ status }: Props) {
-  const isCancelled = status === BookingStatus.Cancelled;
-
+export default function BookingStatusBadge({ isCancelled }: Props) {
   return (
     <span className={`miniStatus ${isCancelled ? "cancelled" : "active"}`}>
       {isCancelled ? "Annulleret" : "Aktiv"}

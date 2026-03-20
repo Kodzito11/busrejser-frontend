@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { bookingApi } from "../api/bookingApi";
-import { BookingStatus, type Booking } from "../model/booking.types";
-import BookingUserTypeBadge from "../components/BookingUserTypeBadge";
-import BookingStatusBadge from "../components/BookingStatusBadge";
+import AdminBookingTable, {
+  type AdminBookingRow,
+} from "../components/AdminBookingTable";
 
 export default function AdminBookingPage() {
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [bookings, setBookings] = useState<AdminBookingRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
@@ -67,11 +67,11 @@ export default function AdminBookingPage() {
         b.bookingId,
         b.rejseId,
         b.userId ?? "",
-        b.bookingReference,
         b.kundeNavn,
         b.kundeEmail,
         b.antalPladser,
-        b.status === BookingStatus.Cancelled ? "Annulleret" : "Aktiv",
+        b.role ?? "",
+        b.isCancelled ? "annulleret" : "aktiv",
       ]
         .join(" ")
         .toLowerCase()
@@ -91,7 +91,7 @@ export default function AdminBookingPage() {
           <input
             className="input"
             type="text"
-            placeholder="Søg på navn, email, reference eller id..."
+            placeholder="Søg på navn, email eller id..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
@@ -99,72 +99,14 @@ export default function AdminBookingPage() {
 
         {error && <p className="error">{error}</p>}
 
-        {loading ? (
-          <p className="muted">Loader bookings...</p>
-        ) : filteredBookings.length === 0 ? (
-          <p className="muted">Ingen bookings fundet.</p>
-        ) : (
-          <div className="table-wrap">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Ref</th>
-                  <th>Navn</th>
-                  <th>Email</th>
-                  <th>Rejse</th>
-                  <th>Pladser</th>
-                  <th>Type</th>
-                  <th>Status</th>
-                  <th>Handling</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredBookings.map((b) => {
-                  const isCancelled = b.status === BookingStatus.Cancelled;
-
-                  return (
-                    <tr key={b.bookingId}>
-                      <td>#{b.bookingId}</td>
-                      <td>{b.bookingReference}</td>
-                      <td>{b.kundeNavn}</td>
-                      <td>{b.kundeEmail}</td>
-                      <td>#{b.rejseId}</td>
-                      <td>{b.antalPladser}</td>
-                      <td>
-                        <BookingUserTypeBadge booking={b} />
-                      </td>
-                      <td>
-                        <BookingStatusBadge status={b.status} />
-                      </td>
-                      <td>
-                        {isCancelled ? (
-                          <button
-                            className="btn"
-                            type="button"
-                            disabled={busyId === b.bookingId}
-                            onClick={() => handleReactivate(b.bookingId)}
-                          >
-                            {busyId === b.bookingId ? "Arbejder..." : "Genaktiver"}
-                          </button>
-                        ) : (
-                          <button
-                            className="btn danger"
-                            type="button"
-                            disabled={busyId === b.bookingId}
-                            onClick={() => handleCancel(b.bookingId)}
-                          >
-                            {busyId === b.bookingId ? "Arbejder..." : "Annullér"}
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <AdminBookingTable
+          bookings={filteredBookings}
+          loading={loading}
+          actionLoadingId={busyId}
+          onCancel={handleCancel}
+          onReactivate={handleReactivate}
+          emptyMessage="Ingen bookings fundet."
+        />
       </div>
     </div>
   );

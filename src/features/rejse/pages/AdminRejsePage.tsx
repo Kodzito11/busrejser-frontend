@@ -2,17 +2,17 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 import { rejseApi } from "../api/rejseApi";
 import { busApi } from "../../bus/api/busApi";
 import { bookingApi } from "../../booking/api/bookingApi";
-import { BookingStatus, type Booking } from "../../booking/model/booking.types";
+
 import type { Rejse, RejseCreate } from "../model/rejse.types";
 import type { Bus } from "../../bus/model/bus.types";
+import type { BookingListItem } from "../../booking/model/booking.types";
 
 import CapacityCell from "../components/CapasityCell";
-
 import RejseStatusBadge from "../components/RejseStatusBadge";
+import AdminBookingTable from "../../booking/components/AdminBookingTable";
 
 import {
   emptyForm,
-  formatCreatedAt,
   formatDate,
   getFillPercent,
   toInputDateTime,
@@ -33,9 +33,13 @@ export default function AdminRejsePage() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const [expandedRejseId, setExpandedRejseId] = useState<number | null>(null);
-  const [bookingsByRejse, setBookingsByRejse] = useState<Record<number, Booking[]>>({});
+  const [bookingsByRejse, setBookingsByRejse] = useState<
+    Record<number, BookingListItem[]>
+  >({});
   const [busyBookingId, setBusyBookingId] = useState<number | null>(null);
-  const [loadingBookingsFor, setLoadingBookingsFor] = useState<number | null>(null);
+  const [loadingBookingsFor, setLoadingBookingsFor] = useState<number | null>(
+    null
+  );
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -86,15 +90,6 @@ export default function AdminRejsePage() {
     return `${bus.registreringnummer} · ${bus.model}`;
   }
 
-  function getBookingUserType(b: Booking) {
-    if (!b.userId || !b.role) {
-      return <span className="roleBadge gaest">Gæst</span>;
-    }
-
-    const role = b.role.toLowerCase();
-    return <span className={`roleBadge ${role}`}>{b.role}</span>;
-  }
-
   async function createOrUpdateRejse(e: React.FormEvent) {
     e.preventDefault();
     if (!canSave) return;
@@ -122,7 +117,7 @@ export default function AdminRejsePage() {
       resetForm();
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Kunde ikke gemme rejse.");
+      setError(err instanceof Error ? err.message : "Kunne ikke gemme rejse.");
     } finally {
       setSaving(false);
     }
@@ -176,7 +171,7 @@ export default function AdminRejsePage() {
       setSuccess("Rejse slettet.");
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Kunde ikke slette rejse.");
+      setError(err instanceof Error ? err.message : "Kunne ikke slette rejse.");
     } finally {
       setDeletingId(null);
     }
@@ -206,7 +201,7 @@ export default function AdminRejsePage() {
       setError(
         err instanceof Error
           ? err.message
-          : "Kunne ikke hente bookings for rejse."
+          : "Kunne ikke hente bookinger for rejse."
       );
     } finally {
       setLoadingBookingsFor(null);
@@ -270,12 +265,7 @@ export default function AdminRejsePage() {
     const q = search.toLowerCase().trim();
 
     let list = rejser.filter((r) => {
-      const haystack = [
-        r.rejseId,
-        r.title,
-        r.destination,
-        getBusLabel(r.busId),
-      ]
+      const haystack = [r.rejseId, r.title, r.destination, getBusLabel(r.busId)]
         .join(" ")
         .toLowerCase();
 
@@ -557,113 +547,29 @@ export default function AdminRejsePage() {
                           <td colSpan={10}>
                             <div className="bookingExpandBox">
                               <h4>
-                                Bookinger for rejse #{r.rejseId} · Total: {bookings.length}
+                                Bookinger for rejse #{r.rejseId} · Total:{" "}
+                                {bookings.length}
                               </h4>
 
                               <p className="muted">
-                                Aktive:{" "}
-                                {
-                                  bookings.filter(
-                                    (b) => b.status === BookingStatus.Active
-                                  ).length
-                                }{" "}
-                                · Annullerede:{" "}
-                                {
-                                  bookings.filter(
-                                    (b) => b.status === BookingStatus.Cancelled
-                                  ).length
-                                }
+                                Aktive: {bookings.filter((b) => !b.isCancelled).length}
+                                {" · "}
+                                Annullerede:{" "}
+                                {bookings.filter((b) => b.isCancelled).length}
                               </p>
 
-                              {isLoadingBookings ? (
-                                <p className="muted">Loader bookinger...</p>
-                              ) : bookings.length === 0 ? (
-                                <p className="muted">Ingen bookinger endnu.</p>
-                              ) : (
-                                <div className="bookingTableScroll">
-                                  <table className="booking-inner-table">
-                                    <thead>
-                                      <tr>
-                                        <th>ID</th>
-                                        <th>Reference</th>
-                                        <th>Navn</th>
-                                        <th>Email</th>
-                                        <th>Pladser</th>
-                                        <th>Type</th>
-                                        <th>Status</th>
-                                        <th>Oprettet</th>
-                                        <th>Handling</th>
-                                      </tr>
-                                    </thead>
-
-                                    <tbody>
-                                      {bookings.map((b) => {
-                                        const isCancelled =
-                                          b.status === BookingStatus.Cancelled;
-
-                                        return (
-                                          <tr
-                                            key={b.bookingId}
-                                            className={isCancelled ? "bookingCancelled" : ""}
-                                          >
-                                            <td>#{b.bookingId}</td>
-                                            <td>{b.bookingReference}</td>
-                                            <td>{b.kundeNavn}</td>
-                                            <td>{b.kundeEmail}</td>
-                                            <td>{b.antalPladser}</td>
-                                            <td>{getBookingUserType(b)}</td>
-                                            <td>
-                                              <span
-                                                className={`miniStatus ${
-                                                  isCancelled ? "cancelled" : "active"
-                                                }`}
-                                              >
-                                                {isCancelled ? "Annulleret" : "Aktiv"}
-                                              </span>
-                                            </td>
-                                            <td>{formatCreatedAt(b.createdAt)}</td>
-                                            <td>
-                                              {isCancelled ? (
-                                                <button
-                                                  className="btn"
-                                                  type="button"
-                                                  disabled={busyBookingId === b.bookingId}
-                                                  onClick={() =>
-                                                    handleReactivateBooking(
-                                                      b.bookingId,
-                                                      r.rejseId
-                                                    )
-                                                  }
-                                                >
-                                                  {busyBookingId === b.bookingId
-                                                    ? "Arbejder..."
-                                                    : "Genaktiver"}
-                                                </button>
-                                              ) : (
-                                                <button
-                                                  className="btn danger"
-                                                  type="button"
-                                                  disabled={busyBookingId === b.bookingId}
-                                                  onClick={() =>
-                                                    handleCancelBooking(
-                                                      b.bookingId,
-                                                      r.rejseId
-                                                    )
-                                                  }
-                                                >
-                                                  {busyBookingId === b.bookingId
-                                                    ? "Arbejder..."
-                                                    : "Annullér"}
-                                                </button>
-                                              )}
-                                            </td>
-                                          </tr>
-                                        );
-                                      })}
-                                    </tbody>
-                                  </table>
-                                </div>
-                              )}
+                              <AdminBookingTable
+                                bookings={bookings}
+                                loading={isLoadingBookings}
+                                emptyMessage="Ingen bookinger endnu."
+                                actionLoadingId={busyBookingId}
+                                onCancel={(bookingId) =>
+                                  handleCancelBooking(bookingId, r.rejseId)
+                                }
+                                onReactivate={(bookingId) =>
+                                  handleReactivateBooking(bookingId, r.rejseId)
+                                }
+                              />
                             </div>
                           </td>
                         </tr>
