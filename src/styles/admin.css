@@ -527,3 +527,350 @@
     grid-template-columns: 1fr;
   }
 }
+
+.dashboardStatsGrid--v2 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.dashboardInfoGrid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.dashboardPanel {
+  min-height: 100%;
+}
+
+.dashboardMetricList {
+  display: grid;
+  gap: 12px;
+}
+
+.dashboardMetricRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.dashboardMetricRow:last-child {
+  border-bottom: none;
+}
+
+.dashboardMetricRow p {
+  margin: 4px 0 0;
+}
+
+.dashboardMetricValue {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.dashboardHighlight {
+  display: grid;
+  gap: 14px;
+}
+
+.dashboardHighlight h3 {
+  margin: 0;
+}
+
+.dashboardHighlightMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.dashboardCapacity {
+  margin-top: 4px;
+}
+
+.dashboardQuickFacts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.dashboardQuickFact {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-2);
+  display: grid;
+  gap: 6px;
+}
+
+.dashboardPill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  font-weight: 700;
+}
+
+.dashboardList {
+  display: grid;
+  gap: 10px;
+}
+
+.dashboardListItem {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.dashboardListItem:hover {
+  transform: translateY(-1px);
+  background: var(--surface-2);
+}
+
+.dashboardListItem p {
+  margin: 4px 0 0;
+}
+
+.dashboardListItemRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: right;
+}
+
+@media (max-width: 1100px) {
+  .dashboardStatsGrid--v2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboardInfoGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboardQuickFacts {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboardListItem {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .dashboardListItemRight {
+    width: 100%;
+    justify-content: space-between;
+    text-align: left;
+  }
+}
+
+.dashboardChart {
+  display: grid;
+  gap: 14px;
+}
+
+.dashboardChart h3 {
+  margin: 0;
+}
+
+.dashboardChartList {
+  display: grid;
+  gap: 12px;
+}
+
+.dashboardChartRow {
+  display: grid;
+  grid-template-columns: minmax(140px, 1.2fr) minmax(120px, 2fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.dashboardChartLabel p {
+  margin: 4px 0 0;
+}
+
+.dashboardChartBarWrap {
+  width: 100%;
+}
+
+.dashboardChartBar {
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.dashboardChartBarFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+}
+
+.dashboardChartValue {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.dashboardInsightList {
+  display: grid;
+  gap: 12px;
+}
+
+.dashboardInsightCard {
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.dashboardInsightCard strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.dashboardInsightCard p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.dashboardInsightCard.warning {
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+.dashboardInsightCard.success {
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+.dashboardInsightCard.info {
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+@media (max-width: 640px) {
+  .dashboardChartRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dashboardChartRow {
+  display: grid;
+  grid-template-columns: minmax(140px, 1.2fr) minmax(120px, 2fr) auto;
+  gap: 12px;
+  align-items: center;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  width: 100%;
+  text-align: left;
+}
+
+.dashboardChartRow.clickable {
+  cursor: pointer;
+  padding: 10px 12px;
+  border-radius: 12px;
+  transition: 0.2s ease;
+}
+
+.dashboardChartRow.clickable:hover {
+  background: var(--surface-2);
+}
+
+.dashboardChartRow:disabled {
+  opacity: 1;
+}
+
+.dashboardChartBarFill.default {
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+}
+
+.dashboardChartBarFill.success {
+  background: linear-gradient(90deg, #16a34a, #4ade80);
+}
+
+.dashboardChartBarFill.warning {
+  background: linear-gradient(90deg, #d97706, #f59e0b);
+}
+
+.dashboardChartBarFill.danger {
+  background: linear-gradient(90deg, #dc2626, #f87171);
+}
+
+.dashboardInsightCard {
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  text-align: left;
+  width: 100%;
+}
+
+.dashboardInsightCard.clickable {
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.dashboardInsightCard.clickable:hover {
+  transform: translateY(-1px);
+  background: var(--surface);
+}
+
+.dashboardInsightCard:disabled {
+  opacity: 1;
+}
+
+.dashboardInsightCta {
+  display: inline-block;
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.dashboardJumpRow {
+  position: relative;
+  background: rgba(59, 130, 246, 0.1);
+
+  box-shadow:
+    inset 0 0 0 2px rgba(59, 130, 246, 0.9),
+    0 0 0 0 rgba(59, 130, 246, 0.24);
+
+  animation: highlightPulse 2s ease-in-out forwards;
+  transition: box-shadow 1.5s ease, background 1.5s ease;
+}
+
+.dashboardJumpRow.fadeOut {
+  background: transparent;
+  box-shadow:
+    inset 0 0 0 2px rgba(59, 130, 246, 0),
+    0 0 0 16px rgba(59, 130, 246, 0);
+}
+
+@keyframes highlightPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.25);
+  }
+
+ 50% {
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0.1);
+  }
+
+  100% {
+    box-shadow: 0 0 0 14px rgba(59, 130, 246, 0.05);
+  }
+}

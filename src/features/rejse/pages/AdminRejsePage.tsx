@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { rejseApi } from "../api/rejseApi";
 import { busApi } from "../../bus/api/busApi";
 import { bookingApi } from "../../booking/api/bookingApi";
@@ -19,6 +20,11 @@ import {
 } from "../utils/rejseHelpers";
 
 export default function AdminRejsePage() {
+  const location = useLocation();
+  const highlightRejseId = location.state?.highlightRejseId as
+    | number
+    | undefined;
+
   const [rejser, setRejser] = useState<Rejse[]>([]);
   const [busser, setBusser] = useState<Bus[]>([]);
   const [form, setForm] = useState<RejseCreate>(emptyForm);
@@ -44,6 +50,8 @@ export default function AdminRejsePage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const navigate = useNavigate();
+
   async function load() {
     try {
       setLoading(true);
@@ -66,6 +74,38 @@ export default function AdminRejsePage() {
   useEffect(() => {
     load();
   }, []);
+
+  useEffect(() => {
+    if (!highlightRejseId || rejser.length === 0) return;
+
+    const selected = rejser.find((r) => r.rejseId === highlightRejseId);
+    if (!selected) return;
+
+    setSearch(String(highlightRejseId));
+    setExpandedRejseId(highlightRejseId);
+
+    if (!bookingsByRejse[highlightRejseId]) {
+      void toggleBookings(highlightRejseId, true);
+    }
+
+   requestAnimationFrame(() => {
+  const el = document.getElementById(`rejse-row-${highlightRejseId}`);
+  if (!el) return;
+
+  el.scrollIntoView({ behavior: "smooth", block: "center" });
+
+     setTimeout(() => {
+       el.classList.add("fadeOut");
+     }, 1400);
+
+     setTimeout(() => {
+       navigate(location.pathname, {
+         replace: true,
+         state: {},
+       });
+     }, 2000);
+   });
+  }, [highlightRejseId, rejser]);
 
   const canSave =
     form.title.trim().length > 0 &&
@@ -177,8 +217,8 @@ export default function AdminRejsePage() {
     }
   }
 
-  async function toggleBookings(rejseId: number) {
-    if (expandedRejseId === rejseId) {
+  async function toggleBookings(rejseId: number, forceOpen = false) {
+    if (!forceOpen && expandedRejseId === rejseId) {
       setExpandedRejseId(null);
       return;
     }
@@ -487,7 +527,12 @@ export default function AdminRejsePage() {
 
                   return (
                     <Fragment key={r.rejseId}>
-                      <tr>
+                      <tr
+                        id={`rejse-row-${r.rejseId}`}
+                        className={
+                          highlightRejseId === r.rejseId ? "dashboardJumpRow" : ""
+                        }
+                      >
                         <td>#{r.rejseId}</td>
                         <td>{r.title}</td>
                         <td>{r.destination}</td>
