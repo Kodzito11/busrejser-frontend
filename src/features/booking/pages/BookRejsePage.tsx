@@ -39,6 +39,11 @@ export default function BookRejse() {
 
       setRejse(r);
       setAvailableSeats(seats);
+
+      if (isLoggedIn && currentUser) {
+        setKundeNavn(currentUser.username ?? "");
+        setKundeEmail(currentUser.email ?? "");
+      }
     } catch (e: any) {
       setMsgType("error");
       setMsg(e?.message ?? "Kunne ikke hente rejse.");
@@ -47,35 +52,29 @@ export default function BookRejse() {
     }
   }
 
-  async function book() {
+  async function goToPayment() {
     setMsg("");
     setMsgType("");
     setLoading(true);
 
     try {
-      const res = await api.bookings.create({
+      const payload = {
         rejseId,
-        kundeNavn: isLoggedIn ? "" : kundeNavn.trim(),
-        kundeEmail: isLoggedIn ? "" : kundeEmail.trim(),
+        kundeNavn: isLoggedIn ? currentUser?.username ?? "" : kundeNavn.trim(),
+        kundeEmail: isLoggedIn ? currentUser?.email ?? "" : kundeEmail.trim(),
         antalPladser: Number(antalPladser),
-      });
+      };
 
-      const seats = await api.bookings.getAvailableSeats(rejseId);
-      setAvailableSeats(seats);
+      const res = await api.stripe.createCheckoutSession(payload);
 
-      setMsgType("success");
-      setMsg(`Booking oprettet! Reference: ${res.bookingReference}`);
-
-      if (!isLoggedIn) {
-        setKundeNavn("");
-        setKundeEmail("");
+      if (!res?.url) {
+        throw new Error("Stripe checkout URL mangler.");
       }
 
-      setAntalPladser(1);
+      window.location.href = res.url;
     } catch (e: any) {
       setMsgType("error");
-      setMsg(e?.message ?? "Booking fejlede.");
-    } finally {
+      setMsg(e?.message ?? "Kunne ikke starte betaling.");
       setLoading(false);
     }
   }
@@ -202,8 +201,8 @@ export default function BookRejse() {
         </div>
 
         <div className="row">
-          <button onClick={book} disabled={!canSubmit}>
-            {loading ? "Booker..." : "Bekræft booking"}
+          <button onClick={goToPayment} disabled={!canSubmit}>
+            {loading ? "Sender til betaling..." : "Gå til betaling"}
           </button>
 
           <button className="ghost" onClick={() => navigate("/rejser")}>
