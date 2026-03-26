@@ -1,6 +1,8 @@
 export const BookingStatus = {
-  Active: 0,
-  Cancelled: 1,
+  Pending: 0,
+  Paid: 1,
+  Cancelled: 2,
+  PaymentFailed: 3
 } as const;
 
 export type BookingStatusType =

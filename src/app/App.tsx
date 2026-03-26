@@ -22,7 +22,7 @@ import RejseDetaljePage from "../features/rejse/pages/RejseDetaljePage";
 import LoginPage from "../auth/pages/LoginPage";
 import RegisterPage from "../auth/pages/RegisterPage";
 
-import BookRejsePage from "../features/booking/pages/BookRejsePage";
+import BookRejsePage from "../features/booking/pages/CheckoutPage";
 import MineBookingerPage from "../features/booking/pages/MineBookinger";
 
 import BetalingSuccessPage from "../features/payment/pages/BetalingSuccessPage";

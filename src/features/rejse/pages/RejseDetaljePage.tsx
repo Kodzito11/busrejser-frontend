@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../../../shared/api/api";
 import type { Rejse } from "../model/rejse.types";
 
 export default function RejseDetalje() {
   const { id } = useParams();
+  const navigate = useNavigate();
+
   const [rejse, setRejse] = useState<Rejse | null>(null);
   const [antal, setAntal] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -30,20 +32,10 @@ export default function RejseDetalje() {
 
   const seats = rejse ? Math.max(0, rejse.maxSeats - (rejse.bookedSeats ?? 0)) : 0;
 
-  async function handleBook() {
-    try {
-      await api.bookings.create({
-        rejseId: Number(id),
-        kundeNavn: "",
-        kundeEmail: "",
-        antalPladser: antal,
-      });
+  function handleStartBooking() {
+    if (!id) return;
 
-      alert("Booking gennemført!");
-      load();
-    } catch (e: any) {
-      alert(e?.message ?? "Booking fejlede");
-    }
+    navigate(`/book/${id}?antal=${antal}`);
   }
 
   if (loading) return <p>Loader...</p>;
@@ -79,6 +71,10 @@ export default function RejseDetalje() {
         </div>
 
         <div className="booking-box">
+          <p className="muted">
+            Din booking oprettes først, når betalingen er gennemført.
+          </p>
+
           <label>Antal pladser</label>
           <input
             type="number"
@@ -88,8 +84,11 @@ export default function RejseDetalje() {
             onChange={(e) => setAntal(Number(e.target.value))}
           />
 
-          <button onClick={handleBook} disabled={seats === 0 || antal < 1 || antal > seats}>
-            Book nu
+          <button
+            onClick={handleStartBooking}
+            disabled={seats === 0 || antal < 1 || antal > seats}
+          >
+            Start booking
           </button>
         </div>
       </div>

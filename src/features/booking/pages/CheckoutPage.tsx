@@ -1,18 +1,20 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 
 import { api } from "../../../shared/api/api";
 import { getCurrentUser } from "../../../auth/auth";
 import type { Rejse } from "../../rejse/model/rejse.types";
 
-export default function BookRejse() {
+export default function CheckoutPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const currentUser = getCurrentUser();
   const isLoggedIn = !!currentUser;
 
   const rejseId = Number(id);
+  const antalFromQuery = Number(searchParams.get("antal"));
 
   const [rejse, setRejse] = useState<Rejse | null>(null);
   const [availableSeats, setAvailableSeats] = useState<number>(0);
@@ -26,7 +28,7 @@ export default function BookRejse() {
   const [msg, setMsg] = useState("");
   const [msgType, setMsgType] = useState<"" | "success" | "error">("");
 
-  async function load() {
+   async function load() {
     setMsg("");
     setMsgType("");
     setPageLoading(true);
@@ -39,6 +41,10 @@ export default function BookRejse() {
 
       setRejse(r);
       setAvailableSeats(seats);
+
+      if (!Number.isNaN(antalFromQuery) && antalFromQuery > 0 && seats > 0) {
+        setAntalPladser(Math.min(antalFromQuery, seats));
+      }
 
       if (isLoggedIn && currentUser) {
         setKundeNavn(currentUser.username ?? "");
@@ -152,7 +158,10 @@ export default function BookRejse() {
       </section>
 
       <section className="card">
-        <h2>Book rejse</h2>
+        <h2>Gå til betaling</h2>
+        <p className="muted">
+          Din booking oprettes først, når betalingen er gennemført.
+        </p>
 
         {availableSeats <= 0 && (
           <div className="error">Rejsen er udsolgt.</div>
@@ -160,7 +169,7 @@ export default function BookRejse() {
 
         {isLoggedIn ? (
           <div className="card" style={{ marginBottom: 16 }}>
-            <strong>Du booker som:</strong>
+            <strong>Du betaler som:</strong>
             <div>{currentUser?.username}</div>
             <div className="muted">{currentUser?.email}</div>
           </div>
@@ -212,7 +221,7 @@ export default function BookRejse() {
 
         {antalPladser > availableSeats && availableSeats > 0 && (
           <div className="error" style={{ marginTop: 12 }}>
-            Du kan ikke booke flere pladser end der er ledigt.
+            Du kan ikke vælge flere pladser end der er ledigt.
           </div>
         )}
 

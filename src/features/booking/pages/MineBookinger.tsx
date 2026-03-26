@@ -3,6 +3,7 @@ import { api } from "../../../shared/api/api";
 import { getCurrentUser } from "../../../auth/auth";
 import type { Booking } from "../model/booking.types";
 import type { Rejse } from "../../rejse/model/rejse.types";
+import { BookingStatus } from "../model/booking.types";
 
 type BookingWithTrip = Booking & {
     rejse?: Rejse | null;
@@ -85,7 +86,7 @@ export default function MineBookinger() {
                 </button>
             </header>
 
-<br />
+            <br />
 
             {err && <div className="error">{err}</div>}
 
@@ -107,7 +108,10 @@ export default function MineBookinger() {
                         </div>
 
                         {bookings.map((b) => {
-                            const isCancelled = b.status !== 0;
+                            const isCancelled = b.status === BookingStatus.Cancelled;
+                            const isPaid = b.status === BookingStatus.Paid;
+                            const isPending = b.status === BookingStatus.Pending;
+                            const isFailed = b.status === BookingStatus.PaymentFailed;
 
                             return (
                                 <div
@@ -123,13 +127,33 @@ export default function MineBookinger() {
                                             : "-"}
                                     </div>
                                     <div>{b.antalPladser}</div>
-                                    <div className={isCancelled ? "status-cancelled" : "status-active"}>
-                                        {isCancelled ? "Annulleret" : "Aktiv"}
+                                    <div
+                                        className={
+                                            isCancelled
+                                                ? "status-cancelled"
+                                                : isPaid
+                                                    ? "status-active"
+                                                    : isPending
+                                                        ? "status-pending"
+                                                        : isFailed
+                                                            ? "status-failed"
+                                                            : ""
+                                        }
+                                    >
+                                        {isCancelled
+                                            ? "Annulleret"
+                                            : isPaid
+                                                ? "Betalt"
+                                                : isPending
+                                                    ? "Afventer"
+                                                    : isFailed
+                                                        ? "Betaling fejlet"
+                                                        : "Ukendt"}
                                     </div>
                                     <div>
                                         <button
                                             onClick={() => handleCancel(b.bookingId)}
-                                            disabled={isCancelled || cancellingId === b.bookingId}
+                                            disabled={!isPaid || cancellingId === b.bookingId}
                                         >
                                             {cancellingId === b.bookingId ? "Annullerer..." : "Annuller"}
                                         </button>
