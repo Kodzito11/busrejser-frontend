@@ -25,6 +25,9 @@ import RegisterPage from "../auth/pages/RegisterPage";
 import BookRejsePage from "../features/booking/pages/BookRejsePage";
 import MineBookingerPage from "../features/booking/pages/MineBookinger";
 
+import BetalingSuccessPage from "../features/payment/pages/BetalingSuccessPage";
+import BetalingCancelPage from "../features/payment/pages/BetalingCancelPage";
+
 import AdminLayout from "../layouts/AdminLayout";
 
 import logo from "../assets/busplanen-high-resolution-logo-transparent.png";
@@ -114,8 +117,12 @@ export default function App() {
           <Route path="/rejse/:id" element={<RejseDetaljePage />} />
           <Route path="/book/:id" element={<BookRejsePage />} />
 
+          <Route path="/betaling/success" element={<BetalingSuccessPage />} />
+          <Route path="/betaling/cancel" element={<BetalingCancelPage />} />
+
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+
 
           <Route
             path="/mine-bookinger"
