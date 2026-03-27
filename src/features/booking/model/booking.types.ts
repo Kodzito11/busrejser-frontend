@@ -2,7 +2,7 @@ export const BookingStatus = {
   Pending: 0,
   Paid: 1,
   Cancelled: 2,
-  PaymentFailed: 3
+  PaymentFailed: 3,
 } as const;
 
 export type BookingStatusType =
@@ -43,8 +43,13 @@ export type BookingListItem = {
   kundeEmail: string;
   antalPladser: number;
   userId: number | null;
-  role?: string | null;
-  bookingReference?: string;
-  isCancelled: boolean;
+  role?: UserRole | null;
+
+  status: BookingStatusType;
   createdAt?: string;
+
+  totalPrice: number;
+  paidAt?: string | null;
+  stripeSessionId?: string | null;
+  stripePaymentIntentId?: string | null;
 };

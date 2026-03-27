@@ -1,18 +1,6 @@
-import type { BookingListItem } from "../model/booking.types";
+import { BookingStatus, type BookingListItem } from "../model/booking.types";
 import BookingStatusBadge from "./BookingStatusBadge";
 import BookingUserTypeBadge from "./BookingUserTypeBadge";
-
-export type AdminBookingRow = {
-  bookingId: number;
-  rejseId: number;
-  kundeNavn: string;
-  kundeEmail: string;
-  antalPladser: number;
-  userId: number | null;
-  role?: string | null;
-  isCancelled: boolean;
-  createdAt?: string;
-};
 
 type Props = {
   bookings: BookingListItem[];
@@ -49,9 +37,13 @@ export default function AdminBookingTable({
             <th>Navn</th>
             <th>Email</th>
             <th>Pladser</th>
+            <th>Pris</th>
+            <th>Betaling</th>
             <th>Type</th>
             <th>Status</th>
             <th>Oprettet</th>
+            <th>Betalt</th>
+            <th>Stripe</th>
             <th>Handling</th>
           </tr>
         </thead>
@@ -59,6 +51,7 @@ export default function AdminBookingTable({
         <tbody>
           {bookings.map((b) => {
             const busy = actionLoadingId === b.bookingId;
+            const isCancelled = b.status === BookingStatus.Cancelled;
 
             return (
               <tr key={b.bookingId}>
@@ -67,15 +60,30 @@ export default function AdminBookingTable({
                 <td>{b.kundeNavn}</td>
                 <td>{b.kundeEmail}</td>
                 <td>{b.antalPladser}</td>
+                <td>{formatPrice(b.totalPrice)}</td>
+                <td>
+                  <PaymentBadge paidAt={b.paidAt} />
+                </td>
                 <td>
                   <BookingUserTypeBadge userId={b.userId} role={b.role} />
                 </td>
                 <td>
-                  <BookingStatusBadge isCancelled={b.isCancelled} />
+                  <BookingStatusBadge status={b.status} />
                 </td>
                 <td>{formatDateTime(b.createdAt)}</td>
+                <td>{formatDateTime(b.paidAt)}</td>
                 <td>
-                  {b.isCancelled ? (
+                  <div className="adminStripeMeta">
+                    <div title={b.stripeSessionId ?? ""}>
+                      <strong>Session:</strong> {shortId(b.stripeSessionId)}
+                    </div>
+                    <div title={b.stripePaymentIntentId ?? ""}>
+                      <strong>Intent:</strong> {shortId(b.stripePaymentIntentId)}
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  {isCancelled ? (
                     <button
                       className="adminActionBtn secondary"
                       onClick={() => onReactivate?.(b.bookingId)}
@@ -102,7 +110,7 @@ export default function AdminBookingTable({
   );
 }
 
-function formatDateTime(value?: string) {
+function formatDateTime(value?: string | null) {
   if (!value) return "-";
 
   const d = new Date(value);
@@ -112,4 +120,28 @@ function formatDateTime(value?: string) {
     dateStyle: "short",
     timeStyle: "short",
   });
+}
+
+function formatPrice(value?: number) {
+  if (typeof value !== "number") return "-";
+  return `${value.toLocaleString("da-DK", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })} kr`;
+}
+
+function shortId(value?: string | null) {
+  if (!value) return "-";
+  if (value.length <= 16) return value;
+  return `${value.slice(0, 8)}...${value.slice(-6)}`;
+}
+
+function PaymentBadge({ paidAt }: { paidAt?: string | null }) {
+  const isPaid = !!paidAt;
+
+  return (
+    <span className={`paymentBadge ${isPaid ? "paid" : "pending"}`}>
+      {isPaid ? "Betalt" : "Afventer"}
+    </span>
+  );
 }
