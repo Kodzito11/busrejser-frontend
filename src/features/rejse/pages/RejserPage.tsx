@@ -39,18 +39,9 @@ export default function Rejser() {
     {}
   );
 
-  const monthLabel = new Intl.DateTimeFormat("da-DK", {
-    month: "long",
-    year: "numeric",
-  }).format(currentMonth);
-
-  function prevMonth() {
-    setCurrentMonth((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
-  }
-
-  function nextMonth() {
-    setCurrentMonth((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
-  }
+  const [search, setSearch] = useState("");
+  const [onlyAvailable, setOnlyAvailable] = useState(false);
+  const [sort, setSort] = useState("date-asc");
 
   const [form, setForm] = useState<Form>({
     title: "",
@@ -66,6 +57,25 @@ export default function Rejser() {
     isFeatured: false,
     isPublished: false,
   });
+
+  const monthLabel = new Intl.DateTimeFormat("da-DK", {
+    month: "long",
+    year: "numeric",
+  }).format(currentMonth);
+
+  function prevMonth() {
+    setCurrentMonth((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
+  }
+
+  function nextMonth() {
+    setCurrentMonth((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
+  }
+
+  function resetFilters() {
+    setSearch("");
+    setOnlyAvailable(false);
+    setSort("date-asc");
+  }
 
   const canCreate = useMemo(() => {
     return (
@@ -176,7 +186,51 @@ export default function Rejser() {
   const canCreateTrips = hasRole("Admin", "Medarbejder");
   const canDeleteTrips = isAdmin();
 
-  const visibleRejser = rejser.filter((r) => r.isPublished);
+  const publishedRejser = useMemo(() => {
+    return rejser.filter((r) => r.isPublished);
+  }, [rejser]);
+
+  const visibleRejser = useMemo(() => {
+    let result = rejser.filter((r) => r.isPublished);
+
+    if (search.trim()) {
+      const s = search.trim().toLowerCase();
+      result = result.filter(
+        (r) =>
+          r.title.toLowerCase().includes(s) ||
+          r.destination.toLowerCase().includes(s)
+      );
+    }
+
+    if (onlyAvailable) {
+      result = result.filter((r) => {
+        const seatsLeft = availableSeats[r.rejseId] ?? r.maxSeats;
+        return seatsLeft > 0;
+      });
+    }
+
+    result.sort((a, b) => {
+      switch (sort) {
+        case "date-asc":
+          return new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
+        case "date-desc":
+          return new Date(b.startAt).getTime() - new Date(a.startAt).getTime();
+        case "price-asc":
+          return a.price - b.price;
+        case "price-desc":
+          return b.price - a.price;
+        default:
+          return 0;
+      }
+    });
+
+    return result;
+  }, [rejser, search, onlyAvailable, sort, availableSeats]);
+
+  const hasActiveFilters =
+    search.trim().length > 0 ||
+    onlyAvailable ||
+    sort !== "date-asc";
 
   return (
     <div className="wrap">
@@ -186,7 +240,7 @@ export default function Rejser() {
           <p className="muted">Se kommende rejser og book din plads</p>
         </div>
         <button onClick={refresh} disabled={loading}>
-          Refresh
+          {loading ? "Opdaterer..." : "Refresh"}
         </button>
       </header>
 
@@ -207,7 +261,7 @@ export default function Rejser() {
         <button onClick={nextMonth}>→</button>
       </section>
 
-      <TripCalendar trips={visibleRejser} currentMonth={currentMonth} />
+      <TripCalendar trips={publishedRejser} currentMonth={currentMonth} />
 
       {canCreateTrips && (
         <section className="card">
@@ -357,13 +411,71 @@ export default function Rejser() {
         </section>
       )}
 
+      <section className="card">
+        <div
+          style={{
+            display: "grid",
+            gap: "1rem",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            alignItems: "end",
+          }}
+        >
+          <label>
+            Søg
+            <input
+              type="text"
+              placeholder="Søg på titel eller destination"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </label>
+
+          <label>
+            Sortering
+            <select value={sort} onChange={(e) => setSort(e.target.value)}>
+              <option value="date-asc">Tidligste afgang</option>
+              <option value="date-desc">Seneste afgang</option>
+              <option value="price-asc">Billigste</option>
+              <option value="price-desc">Dyreste</option>
+            </select>
+          </label>
+
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              minHeight: "42px",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={onlyAvailable}
+              onChange={(e) => setOnlyAvailable(e.target.checked)}
+            />
+            Kun ledige pladser
+          </label>
+
+          <div>
+            <button
+              type="button"
+              className="ghost"
+              onClick={resetFilters}
+              disabled={!hasActiveFilters}
+            >
+              Nulstil filtre
+            </button>
+          </div>
+        </div>
+      </section>
+
       <section className="cards">
         <h2>Kommende rejser ({visibleRejser.length})</h2>
 
         {loading && visibleRejser.length === 0 ? (
-          <p className="muted">Loader…</p>
+          <p className="muted">Loader rejser...</p>
         ) : visibleRejser.length === 0 ? (
-          <p className="muted">Ingen rejser endnu.</p>
+          <p className="muted">Ingen rejser matcher din søgning eller filter.</p>
         ) : (
           <div className="trip-cards">
             {visibleRejser.map((r) => {
