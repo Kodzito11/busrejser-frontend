@@ -8,8 +8,8 @@ import "../styles/admin.css";
 import "../styles/kunde.css";
 import "../styles/auth.css";
 
-import HomePage from "../features/public/pages/Home";
-import AboutPage from "../features/public/pages/About";
+import HomePage from "../features/public/pages/HomePage";
+import AboutPage from "../features/public/pages/AboutPage";
 
 import AdminBusPage from "../features/bus/pages/AdminBusPage";
 import AdminRejsePage from "../features/rejse/pages/AdminRejsePage";
