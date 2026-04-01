@@ -7,6 +7,7 @@ import { bookingApi } from "../../booking/api/bookingApi";
 import type { Rejse, RejseCreate } from "../model/rejse.types";
 import type { Bus } from "../../bus/model/bus.types";
 import type { BookingListItem } from "../../booking/model/booking.types";
+import { BookingStatus } from "../../booking/model/booking.types";
 
 import CapacityCell from "../components/CapasityCell";
 import RejseStatusBadge from "../components/RejseStatusBadge";
@@ -88,23 +89,23 @@ export default function AdminRejsePage() {
       void toggleBookings(highlightRejseId, true);
     }
 
-   requestAnimationFrame(() => {
-  const el = document.getElementById(`rejse-row-${highlightRejseId}`);
-  if (!el) return;
+    requestAnimationFrame(() => {
+      const el = document.getElementById(`rejse-row-${highlightRejseId}`);
+      if (!el) return;
 
-  el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
 
-     setTimeout(() => {
-       el.classList.add("fadeOut");
-     }, 1400);
+      setTimeout(() => {
+        el.classList.add("fadeOut");
+      }, 1400);
 
-     setTimeout(() => {
-       navigate(location.pathname, {
-         replace: true,
-         state: {},
-       });
-     }, 2000);
-   });
+      setTimeout(() => {
+        navigate(location.pathname, {
+          replace: true,
+          state: {},
+        });
+      }, 2000);
+    });
   }, [highlightRejseId, rejser]);
 
   const canSave =
@@ -113,8 +114,7 @@ export default function AdminRejsePage() {
     form.startAt.trim().length > 0 &&
     form.endAt.trim().length > 0 &&
     form.price >= 0 &&
-    form.maxSeats > 0 &&
-    form.busId > 0;
+    form.maxSeats > 0;
 
   function resetForm() {
     setForm(emptyForm);
@@ -143,7 +143,7 @@ export default function AdminRejsePage() {
         ...form,
         price: Number(form.price),
         maxSeats: Number(form.maxSeats),
-        busId: Number(form.busId),
+        busId: form.busId ?? null,
       };
 
       if (editingId) {
@@ -175,7 +175,12 @@ export default function AdminRejsePage() {
       endAt: toInputDateTime(rejse.endAt),
       price: rejse.price,
       maxSeats: rejse.maxSeats,
-      busId: rejse.busId ?? 0,
+      busId: rejse.busId ?? null,
+      shortDescription: rejse.shortDescription ?? "",
+      description: rejse.description ?? "",
+      imageUrl: rejse.imageUrl ?? "",
+      isFeatured: rejse.isFeatured,
+      isPublished: rejse.isPublished,
     });
 
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -420,15 +425,15 @@ export default function AdminRejsePage() {
               Bus
               <select
                 className="input"
-                value={form.busId}
+                value={form.busId ?? ""}
                 onChange={(e) =>
                   setForm((prev) => ({
                     ...prev,
-                    busId: Number(e.target.value),
+                    busId: e.target.value ? Number(e.target.value) : null,
                   }))
                 }
               >
-                <option value={0}>Vælg bus</option>
+                <option value="">Ingen</option>
                 {busser.map((bus) => (
                   <option key={bus.busId} value={bus.busId}>
                     {bus.registreringnummer} · {bus.model}
@@ -438,13 +443,68 @@ export default function AdminRejsePage() {
             </label>
           </div>
 
+          <label>
+            Kort beskrivelse
+            <input
+              className="input"
+              value={form.shortDescription ?? ""}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, shortDescription: e.target.value }))
+              }
+            />
+          </label>
+
+          <label>
+            Beskrivelse
+            <textarea
+              className="input"
+              value={form.description ?? ""}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, description: e.target.value }))
+              }
+            />
+          </label>
+
+          <label>
+            Billede URL
+            <input
+              className="input"
+              value={form.imageUrl ?? ""}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, imageUrl: e.target.value }))
+              }
+            />
+          </label>
+
+          <label>
+            <input
+              type="checkbox"
+              checked={form.isFeatured}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, isFeatured: e.target.checked }))
+              }
+            />
+            Featured
+          </label>
+
+          <label>
+            <input
+              type="checkbox"
+              checked={form.isPublished}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, isPublished: e.target.checked }))
+              }
+            />
+            Publiceret
+          </label>
+
           <div className="row">
             <button className="btn" type="submit" disabled={saving || !canSave}>
               {saving
                 ? "Gemmer..."
                 : editingId
-                ? "Gem ændringer"
-                : "Opret rejse"}
+                  ? "Gem ændringer"
+                  : "Opret rejse"}
             </button>
 
             {editingId && (
@@ -580,8 +640,8 @@ export default function AdminRejsePage() {
                               {(r.bookedSeats ?? 0) > 0
                                 ? "Har bookinger"
                                 : deletingId === r.rejseId
-                                ? "Sletter..."
-                                : "Slet"}
+                                  ? "Sletter..."
+                                  : "Slet"}
                             </button>
                           </div>
                         </td>
@@ -597,10 +657,9 @@ export default function AdminRejsePage() {
                               </h4>
 
                               <p className="muted">
-                                Aktive: {bookings.filter((b) => !b.isCancelled).length}
+                                Aktive: {bookings.filter((b) => b.status !== BookingStatus.Cancelled).length}
                                 {" · "}
-                                Annullerede:{" "}
-                                {bookings.filter((b) => b.isCancelled).length}
+                                Annullerede: {bookings.filter((b) => b.status === BookingStatus.Cancelled).length}
                               </p>
 
                               <AdminBookingTable

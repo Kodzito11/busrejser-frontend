@@ -30,11 +30,12 @@ export default function RejseDetalje() {
     load();
   }, [id]);
 
-  const seats = rejse ? Math.max(0, rejse.maxSeats - (rejse.bookedSeats ?? 0)) : 0;
+  const seats = rejse
+    ? Math.max(0, rejse.maxSeats - (rejse.bookedSeats ?? 0))
+    : 0;
 
   function handleStartBooking() {
     if (!id) return;
-
     navigate(`/book/${id}?antal=${antal}`);
   }
 
@@ -45,8 +46,27 @@ export default function RejseDetalje() {
   return (
     <div className="wrap">
       <div className="card">
+        {rejse.imageUrl && (
+          <div
+            style={{
+              height: "300px",
+              backgroundImage: `url(${rejse.imageUrl})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              borderRadius: "12px",
+              marginBottom: "1rem",
+            }}
+          />
+        )}
+
         <h1>{rejse.title}</h1>
         <p className="muted">{rejse.destination}</p>
+
+        {rejse.shortDescription && (
+          <p className="muted" style={{ marginTop: "0.5rem" }}>
+            {rejse.shortDescription}
+          </p>
+        )}
 
         <div className="rejse-info">
           <div>
@@ -69,6 +89,13 @@ export default function RejseDetalje() {
             <div>{seats}</div>
           </div>
         </div>
+
+        {rejse.description && (
+          <div style={{ marginTop: "1rem" }}>
+            <h3>Om rejsen</h3>
+            <p>{rejse.description}</p>
+          </div>
+        )}
 
         <div className="booking-box">
           <p className="muted">

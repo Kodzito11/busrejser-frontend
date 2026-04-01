@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { api } from "../../../shared/api/api";
-import type { Rejse } from "../model/rejse.types";
+import type { Rejse, RejseCreate } from "../model/rejse.types";
 import type { Bus } from "../../bus/model/bus.types";
 import TripCalendar from "../components/RejseKalender";
 import { hasRole, isAdmin } from "../../../auth/auth";
@@ -15,6 +15,11 @@ type Form = {
   price: number;
   maxSeats: number;
   busId: string;
+  shortDescription: string;
+  description: string;
+  imageUrl: string;
+  isFeatured: boolean;
+  isPublished: boolean;
 };
 
 function toIso(dtLocal: string) {
@@ -55,6 +60,11 @@ export default function Rejser() {
     price: 0,
     maxSeats: 0,
     busId: "",
+    shortDescription: "",
+    description: "",
+    imageUrl: "",
+    isFeatured: false,
+    isPublished: false,
   });
 
   const canCreate = useMemo(() => {
@@ -105,15 +115,22 @@ export default function Rejser() {
     setLoading(true);
 
     try {
-      await api.rejser.create({
+      const payload: RejseCreate = {
         title: form.title,
         destination: form.destination,
         startAt: toIso(form.startAt),
         endAt: toIso(form.endAt),
         price: Number(form.price) || 0,
         maxSeats: Number(form.maxSeats) || 0,
-        busId: form.busId ? Number(form.busId) : null,
-      });
+        busId: form.busId ? Number(form.busId) : 0,
+        shortDescription: form.shortDescription || undefined,
+        description: form.description || undefined,
+        imageUrl: form.imageUrl || undefined,
+        isFeatured: form.isFeatured,
+        isPublished: form.isPublished,
+      };
+
+      await api.rejser.create(payload);
 
       setForm({
         title: "",
@@ -123,6 +140,11 @@ export default function Rejser() {
         price: 0,
         maxSeats: 0,
         busId: "",
+        shortDescription: "",
+        description: "",
+        imageUrl: "",
+        isFeatured: false,
+        isPublished: false,
       });
 
       await refresh();
@@ -154,6 +176,8 @@ export default function Rejser() {
   const canCreateTrips = hasRole("Admin", "Medarbejder");
   const canDeleteTrips = isAdmin();
 
+  const visibleRejser = rejser.filter((r) => r.isPublished);
+
   return (
     <div className="wrap">
       <header className="header">
@@ -183,7 +207,7 @@ export default function Rejser() {
         <button onClick={nextMonth}>→</button>
       </section>
 
-      <TripCalendar trips={rejser} currentMonth={currentMonth} />
+      <TripCalendar trips={visibleRejser} currentMonth={currentMonth} />
 
       {canCreateTrips && (
         <section className="card">
@@ -262,6 +286,62 @@ export default function Rejser() {
                 ))}
               </select>
             </label>
+
+            <label>
+              Kort beskrivelse
+              <input
+                value={form.shortDescription}
+                onChange={(e) =>
+                  setForm({ ...form, shortDescription: e.target.value })
+                }
+              />
+            </label>
+
+            <label>
+              Beskrivelse
+              <textarea
+                value={form.description}
+                onChange={(e) =>
+                  setForm({ ...form, description: e.target.value })
+                }
+              />
+            </label>
+
+            <label>
+              Billede URL
+              <input
+                value={form.imageUrl}
+                onChange={(e) =>
+                  setForm({ ...form, imageUrl: e.target.value })
+                }
+              />
+            </label>
+
+            <label
+              style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+            >
+              <input
+                type="checkbox"
+                checked={form.isFeatured}
+                onChange={(e) =>
+                  setForm({ ...form, isFeatured: e.target.checked })
+                }
+              />
+              Featured
+            </label>
+
+            <label
+              style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+            >
+              <input
+                type="checkbox"
+                checked={form.isPublished}
+                onChange={(e) =>
+                  setForm({ ...form, isPublished: e.target.checked })
+                }
+              />
+              Publiceret
+            </label>
           </div>
 
           <div className="row">
@@ -278,27 +358,43 @@ export default function Rejser() {
       )}
 
       <section className="cards">
-        <h2>Kommende rejser ({rejser.length})</h2>
+        <h2>Kommende rejser ({visibleRejser.length})</h2>
 
-        {loading && rejser.length === 0 ? (
+        {loading && visibleRejser.length === 0 ? (
           <p className="muted">Loader…</p>
-        ) : rejser.length === 0 ? (
+        ) : visibleRejser.length === 0 ? (
           <p className="muted">Ingen rejser endnu.</p>
         ) : (
           <div className="trip-cards">
-            {rejser.map((r) => {
+            {visibleRejser.map((r) => {
               const seatsLeft = availableSeats[r.rejseId] ?? r.maxSeats;
 
               return (
                 <article className="trip-card" key={r.rejseId}>
+                  {r.imageUrl && (
+                    <div
+                      style={{
+                        height: "150px",
+                        backgroundImage: `url(${r.imageUrl})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        borderRadius: "12px 12px 0 0",
+                        marginBottom: "1rem",
+                      }}
+                    />
+                  )}
+
                   <div className="trip-card-top">
                     <div>
                       <p className="trip-card-id">Rejse #{r.rejseId}</p>
                       <h3>{r.title}</h3>
                       <p className="muted">{r.destination}</p>
+                      {r.shortDescription && <p>{r.shortDescription}</p>}
                     </div>
 
-                    <div className={`trip-badge ${seatsLeft <= 0 ? "soldout" : ""}`}>
+                    <div
+                      className={`trip-badge ${seatsLeft <= 0 ? "soldout" : ""}`}
+                    >
                       {seatsLeft <= 0 ? "Udsolgt" : `${seatsLeft} ledige`}
                     </div>
                   </div>

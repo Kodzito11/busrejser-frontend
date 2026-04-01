@@ -7,7 +7,13 @@ export const emptyForm: RejseCreate = {
   endAt: "",
   price: 0,
   maxSeats: 0,
-  busId: 0,
+  busId: null,
+
+  shortDescription: "",
+  description: "",
+  imageUrl: "",
+  isFeatured: false,
+  isPublished: false,
 };
 
 export function getFillPercent(r: Rejse) {
