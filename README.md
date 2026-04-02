@@ -1,73 +1,114 @@
-# React + TypeScript + Vite
+# 🚌 BusPlanen Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend for BusPlanen – en platform til at finde og booke billige busrejser i Europa.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Features
 
-## React Compiler
+- Se kommende rejser (kun public + fremtidige)
+- Hero + featured rejser styret fra backend
+- Booking flow via Stripe checkout
+- Rollebaseret UI (Kunde / Admin / Medarbejder)
+- “Mine bookinger” for brugere
+- Admin panel til:
+  - Busser
+  - Rejser
+  - Bookinger
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🧠 Tech stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- React + TypeScript
+- Vite
+- React Router
+- Feature-based struktur
+- Custom API layer
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🔌 API
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Frontend bruger følgende endpoints fra backend:
+
+- `/api/rejse`
+- `/api/booking`
+- `/api/auth`
+- `/api/stripe`
+
+Base URL styres via environment variable:
+
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+VITE_API_BASE_URL=[http://localhost:xxxx](http://localhost:xxxx)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+````
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+## 🚀 Kør projektet lokalt
+
+### 1. Install dependencies
+
+```bash
+npm install
+````
+
+### 2. Start dev server
+
+```bash
+npm run dev
+```
+
+App kører typisk på:
+
+```
+http://localhost:5173
+```
+
+---
+
+## 🔐 Auth
+
+* JWT gemmes i `localStorage`
+* bruger info gemmes som `me`
+* UI ændrer sig baseret på rolle
+
+---
+
+## 💳 Booking flow
+
+```
+Frontend → Stripe Checkout → Backend webhook → Booking oprettes
+```
+
+* Ingen direkte booking fra frontend
+* Booking oprettes først efter betaling
+
+---
+
+## 📌 Status
+
+* Homepage er 100% data-driven
+* Booking + Stripe flow virker
+* Admin flows fungerer
+* API integration stabil
+
+---
+
+## 🧱 Næste skridt
+
+* Search + filter på rejser
+* UI polish
+* bedre loading / empty states
+* deployment
+
+---
+
+## ⚠️ Note
+
+Projektet køres pt. lokalt (development).
+Deployment setup kommer senere.
+
 ```
