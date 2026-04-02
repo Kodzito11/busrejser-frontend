@@ -9,9 +9,9 @@ export type Rejse = {
   busId?: number | null;
   bookedSeats?: number;
 
-  shortDescription?: string;
-  description?: string;
-  imageUrl?: string;
+  shortDescription?: string | null;
+  description?: string | null;
+  imageUrl?: string | null;
   isFeatured: boolean;
   isPublished: boolean;
 };
@@ -25,9 +25,9 @@ export type RejseCreate = {
   maxSeats: number;
   busId?: number | null;
 
-  shortDescription?: string;
-  description?: string;
-  imageUrl?: string;
+  shortDescription?: string | null;
+  description?: string | null;
+  imageUrl?: string | null;
   isFeatured: boolean;
   isPublished: boolean;
 };

@@ -1,0 +1,24 @@
+.status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.status.available {
+  background: rgba(60, 180, 120, 0.14);
+  color: #3cb478;
+}
+
+.status.low {
+  background: rgba(255, 180, 0, 0.14);
+  color: #ffb400;
+}
+
+.status.soldout {
+  background: rgba(255, 90, 90, 0.14);
+  color: #ff5a5a;
+}
