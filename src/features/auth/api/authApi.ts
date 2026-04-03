@@ -1,10 +1,14 @@
 import { http } from "../../../shared/api/http";
 import type {
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
   LoginRequest,
   LoginResponse,
   MeResponse,
   RegisterRequest,
   RegisterResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
 } from "../model/auth.types";
 
 export const authApi = {
@@ -16,6 +20,18 @@ export const authApi = {
 
   login: (payload: LoginRequest) =>
     http<LoginResponse>("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  forgotPassword: (payload: ForgotPasswordRequest) =>
+    http<ForgotPasswordResponse>("/api/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  resetPassword: (payload: ResetPasswordRequest) =>
+    http<ResetPasswordResponse>("/api/auth/reset-password", {
       method: "POST",
       body: JSON.stringify(payload),
     }),

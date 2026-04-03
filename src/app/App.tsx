@@ -33,6 +33,9 @@ import AdminLayout from "../layouts/AdminLayout";
 import logo from "../assets/busplanen-high-resolution-logo-transparent.png";
 import { getCurrentUser, logout } from "../auth/auth";
 
+import ForgotPasswordPage from "../auth/pages/ForgotPasswordPage";
+import ResetPasswordPage from "../auth/pages/ResetPasswordPage";
+
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -122,6 +125,8 @@ export default function App() {
 
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/glemt-adgangskode" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
 
 
           <Route
