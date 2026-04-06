@@ -1,4 +1,4 @@
-import type { MeResponse } from "../api";
+import type { MeResponse } from "../model/auth.types";
 
 export function getToken() {
   return localStorage.getItem("token");
