@@ -1,12 +1,11 @@
 import { NavLink, Navigate, Outlet, useNavigate } from "react-router-dom";
-import { getCurrentUser, logout } from "../features/auth/utils/auth.storage";
+import { getCurrentUser, logout } from "../../features/auth/utils/auth.storage";
 
 export default function AdminLayout() {
   const navigate = useNavigate();
   const user = getCurrentUser();
 
-  const isStaff =
-    user?.role === "Admin" || user?.role === "Medarbejder";
+  const isStaff = user?.role === "Admin" || user?.role === "Medarbejder";
 
   function handleLogout() {
     logout();
@@ -29,36 +28,28 @@ export default function AdminLayout() {
           <NavLink
             to="/admin"
             end
-            className={({ isActive }) =>
-              isActive ? "adminLink active" : "adminLink"
-            }
+            className={({ isActive }) => (isActive ? "adminLink active" : "adminLink")}
           >
             Dashboard
           </NavLink>
 
           <NavLink
             to="/admin/busser"
-            className={({ isActive }) =>
-              isActive ? "adminLink active" : "adminLink"
-            }
+            className={({ isActive }) => (isActive ? "adminLink active" : "adminLink")}
           >
             Busser
           </NavLink>
 
           <NavLink
             to="/admin/rejser"
-            className={({ isActive }) =>
-              isActive ? "adminLink active" : "adminLink"
-            }
+            className={({ isActive }) => (isActive ? "adminLink active" : "adminLink")}
           >
             Rejser
           </NavLink>
 
           <NavLink
             to="/admin/bookings"
-            className={({ isActive }) =>
-              isActive ? "adminLink active" : "adminLink"
-            }
+            className={({ isActive }) => (isActive ? "adminLink active" : "adminLink")}
           >
             Bookings
           </NavLink>
@@ -73,10 +64,11 @@ export default function AdminLayout() {
           </div>
 
           <div className="adminTopbarActions">
-            <button className="btn secondary" onClick={() => navigate("/")}>
+            <button type="button" className="btn secondary" onClick={() => navigate("/")}>
               Til hjemmeside
             </button>
-            <button className="btn" onClick={handleLogout}>
+
+            <button type="button" className="btn" onClick={handleLogout}>
               Log ud
             </button>
           </div>

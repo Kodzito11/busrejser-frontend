@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
 import logo from "../../assets/busplanen-high-resolution-logo-transparent.png";
@@ -7,18 +7,23 @@ import { getCurrentUser, logout } from "../../features/auth/utils/auth.storage";
 export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
-  const [user, setUser] = useState(getCurrentUser());
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const user = getCurrentUser();
+  const isCustomer = user?.role === "Kunde";
+  const isStaff = user?.role === "Admin" || user?.role === "Medarbejder";
+
   useEffect(() => {
-    setUser(getCurrentUser());
+    setMenuOpen(false);
   }, [location.pathname]);
 
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      const target = e.target as HTMLElement;
-      if (!target.closest(".userMenu")) {
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target as Node;
+
+      if (menuRef.current && !menuRef.current.contains(target)) {
         setMenuOpen(false);
       }
     }
@@ -29,13 +34,9 @@ export default function Header() {
 
   function handleLogout() {
     logout();
-    setUser(null);
     setMenuOpen(false);
     navigate("/");
   }
-
-  const isCustomer = user?.role === "Kunde";
-  const isStaff = user?.role === "Admin" || user?.role === "Medarbejder";
 
   return (
     <header className="topbar">
@@ -84,11 +85,11 @@ export default function Header() {
             Login
           </NavLink>
         ) : (
-          <div className="userMenu">
+          <div ref={menuRef} className="userMenu">
             <button
               type="button"
               className="userMenuButton"
-              onClick={() => setMenuOpen((v) => !v)}
+              onClick={() => setMenuOpen((open) => !open)}
             >
               {user.username} ▾
             </button>
@@ -104,6 +105,18 @@ export default function Header() {
                     }}
                   >
                     Mit dashboard
+                  </button>
+                )}
+
+                {isStaff && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      navigate("/admin");
+                    }}
+                  >
+                    Admin panel
                   </button>
                 )}
 

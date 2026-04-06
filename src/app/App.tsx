@@ -31,8 +31,8 @@ import AdminRejsePage from "../features/rejse/pages/AdminRejsePage";
 import AdminBookingPage from "../features/booking/pages/AdminBookingPage";
 import AdminHomePage from "../features/admin/pages/AdminHomePage";
 
-import MainLayout from "../layouts/MainLayout";
-import AdminLayout from "../layouts/AdminLayout";
+import MainLayout from "../app/layouts/MainLayout";
+import AdminLayout from "../app/layouts/AdminLayout";
 
 import { getCurrentUser } from "../features/auth/utils/auth.storage";
 

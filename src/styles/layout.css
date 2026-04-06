@@ -37,29 +37,83 @@
 
 .nav {
   display: flex;
+  align-items: center;
   gap: 10px;
   flex-wrap: wrap;
   margin-left: auto;
 }
 
-.navLink {
+.navLink,
+.userMenuButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
   padding: 8px 12px;
   border-radius: 10px;
   border: 1px solid var(--border);
   background: transparent;
+  color: inherit;
   opacity: 0.82;
   transition: 0.15s ease;
+  text-decoration: none;
+  cursor: pointer;
+  font: inherit;
 }
 
-.navLink:hover {
+.navLink:hover,
+.userMenuButton:hover {
   opacity: 1;
   background: rgba(255, 255, 255, 0.06);
   border-color: var(--border-2);
 }
 
-.navLink.active {
+.navLink.active,
+.userMenuButton.active {
   opacity: 1;
   background: rgba(255, 255, 255, 0.08);
+  border-color: var(--border-2);
+}
+
+.userMenu {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.userDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--topbar-bg);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  z-index: 20;
+}
+
+.userDropdown button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.userDropdown button:hover {
+  background: rgba(255, 255, 255, 0.06);
   border-color: var(--border-2);
 }
 
@@ -81,5 +135,10 @@
 
   .nav {
     margin-left: 0;
+  }
+
+  .userDropdown {
+    right: auto;
+    left: 0;
   }
 }
