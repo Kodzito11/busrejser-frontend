@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 
 import "../styles/app.css";
 import "../styles/layout.css";
@@ -34,16 +34,16 @@ import AdminHomePage from "../features/admin/pages/AdminHomePage";
 import MainLayout from "../app/layouts/MainLayout";
 import AdminLayout from "../app/layouts/AdminLayout";
 
-import { getCurrentUser } from "../features/auth/utils/auth.storage";
+import ProfilePage from "../features/user/pages/ProfilePage";
+
+import RequireStaff from "../features/auth/components/RequireStaff";
+import RequireCustomer from "../features/auth/components/RequireCustomer";
+import RequireStaffRedirect from "../features/auth/components/RequireStaffRedirect";
 
 export default function App() {
-  const user = getCurrentUser();
-
-  const isCustomer = user?.role === "Kunde";
-  const isStaff = user?.role === "Admin" || user?.role === "Medarbejder";
-
   return (
     <Routes>
+      {/* PUBLIC + MAIN LAYOUT */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/om" element={<AboutPage />} />
@@ -59,32 +59,29 @@ export default function App() {
         <Route path="/glemt-adgangskode" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-        <Route
-          path="/kunde"
-          element={isCustomer ? <KundeDashboardPage /> : <Navigate to="/" replace />}
-        />
+        <Route path="/profil" element={<ProfilePage />} />
 
-        <Route
-          path="/mine-bookinger"
-          element={isCustomer ? <MineBookingerPage /> : <Navigate to="/" replace />}
-        />
+        {/* CUSTOMER PROTECTED */}
+        <Route element={<RequireCustomer />}>
+          <Route path="/kunde" element={<KundeDashboardPage />} />
+          <Route path="/mine-bookinger" element={<MineBookingerPage />} />
+        </Route>
 
+        {/* OPTIONAL REDIRECT */}
         <Route
           path="/busser"
-          element={
-            isStaff ? <Navigate to="/admin/busser" replace /> : <Navigate to="/" replace />
-          }
+          element={<RequireStaffRedirect/>}
         />
       </Route>
 
-      <Route
-        path="/admin"
-        element={isStaff ? <AdminLayout /> : <Navigate to="/" replace />}
-      >
-        <Route index element={<AdminHomePage />} />
-        <Route path="busser" element={<AdminBusPage />} />
-        <Route path="rejser" element={<AdminRejsePage />} />
-        <Route path="bookings" element={<AdminBookingPage />} />
+      {/* ADMIN PROTECTED */}
+      <Route element={<RequireStaff />}>
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminHomePage />} />
+          <Route path="busser" element={<AdminBusPage />} />
+          <Route path="rejser" element={<AdminRejsePage />} />
+          <Route path="bookings" element={<AdminBookingPage />} />
+        </Route>
       </Route>
     </Routes>
   );

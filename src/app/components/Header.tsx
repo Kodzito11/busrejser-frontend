@@ -12,6 +12,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const user = getCurrentUser();
+
   const isCustomer = user?.role === "Kunde";
   const isStaff = user?.role === "Admin" || user?.role === "Medarbejder";
 
@@ -96,27 +97,25 @@ export default function Header() {
 
             {menuOpen && (
               <div className="userDropdown">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    navigate("/profil");
+                  }}
+                >
+                  Min profil
+                </button>
+
                 {isCustomer && (
                   <button
                     type="button"
                     onClick={() => {
                       setMenuOpen(false);
-                      navigate("/kunde");
+                      navigate("/mine-bookinger");
                     }}
                   >
-                    Mit dashboard
-                  </button>
-                )}
-
-                {isStaff && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMenuOpen(false);
-                      navigate("/admin");
-                    }}
-                  >
-                    Admin panel
+                    Mine bookinger
                   </button>
                 )}
 
