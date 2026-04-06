@@ -19,8 +19,8 @@ import AdminHomePage from "../features/admin/pages/AdminHomePage";
 import RejserPage from "../features/rejse/pages/RejserPage";
 import RejseDetaljePage from "../features/rejse/pages/RejseDetaljePage";
 
-import LoginPage from "../auth/pages/LoginPage";
-import RegisterPage from "../auth/pages/RegisterPage";
+import LoginPage from "../features/auth/pages/LoginPage";
+import RegisterPage from "../features/auth/pages/RegisterPage";
 
 import KundeDashboardPage from "../features/customer/pages/KundeDashboardPage";
 
@@ -33,10 +33,11 @@ import BetalingCancelPage from "../features/payment/pages/BetalingCancelPage";
 import AdminLayout from "../layouts/AdminLayout";
 
 import logo from "../assets/busplanen-high-resolution-logo-transparent.png";
-import { getCurrentUser, logout } from "../auth/auth";
 
-import ForgotPasswordPage from "../auth/pages/ForgotPasswordPage";
-import ResetPasswordPage from "../auth/pages/ResetPasswordPage";
+import { getCurrentUser, logout } from "../features/auth/utils/auth.storage";
+
+import ForgotPasswordPage from "../features/auth/pages/ForgotPasswordPage";
+import ResetPasswordPage from "../features/auth/pages/ResetPasswordPage";
 
 export default function App() {
   const navigate = useNavigate();

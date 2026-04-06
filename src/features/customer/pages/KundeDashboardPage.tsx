@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { api } from "../../../shared/api/api";
-import { getCurrentUser } from "../../../auth/auth";
+import { getCurrentUser } from "../../../features/auth/utils/auth.storage";
 import {
   BookingStatus,
   type Booking,
