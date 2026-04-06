@@ -22,6 +22,8 @@ import RejseDetaljePage from "../features/rejse/pages/RejseDetaljePage";
 import LoginPage from "../auth/pages/LoginPage";
 import RegisterPage from "../auth/pages/RegisterPage";
 
+import KundeDashboardPage from "../features/customer/pages/KundeDashboardPage";
+
 import BookRejsePage from "../features/booking/pages/CheckoutPage";
 import MineBookingerPage from "../features/booking/pages/MineBookinger";
 
@@ -78,13 +80,12 @@ export default function App() {
 
           {isCustomer && (
             <NavLink
-              to="/mine-bookinger"
+              to="/kunde"
               className={({ isActive }) => (isActive ? "navLink active" : "navLink")}
             >
-              Mine bookinger
+              Mit dashboard
             </NavLink>
           )}
-
           {isStaff && (
             <NavLink
               to="/admin"
@@ -128,6 +129,10 @@ export default function App() {
           <Route path="/glemt-adgangskode" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
 
+          <Route
+            path="/kunde"
+            element={isCustomer ? <KundeDashboardPage /> : <Navigate to="/" replace />}
+          />
 
           <Route
             path="/mine-bookinger"

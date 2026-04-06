@@ -24,9 +24,8 @@ export default function Login() {
       navigate("/admin", { replace: true });
       return;
     }
-
     if (user.role === "Kunde") {
-      navigate("/mine-bookinger", { replace: true });
+      navigate("/kunde", { replace: true });
       return;
     }
 
@@ -54,7 +53,7 @@ export default function Login() {
       if (me.role === "Admin" || me.role === "Medarbejder") {
         navigate("/admin", { replace: true });
       } else if (me.role === "Kunde") {
-        navigate("/mine-bookinger", { replace: true });
+        navigate("/kunde", { replace: true });
       } else {
         navigate("/", { replace: true });
       }
