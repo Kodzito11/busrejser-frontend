@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../../../shared/api/api";
-import { getCurrentUser } from "../../../auth/auth";
+import { getCurrentUser } from "../../../features/auth/utils/auth.storage";
 import type { Booking } from "../model/booking.types";
 import type { Rejse } from "../../rejse/model/rejse.types";
 import { BookingStatus } from "../model/booking.types";

@@ -1,6 +1,6 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { api } from "../../shared/api/api";
+import { api } from "../../../shared/api/api";
 
 export default function ResetPasswordPage() {
   const [params] = useSearchParams();

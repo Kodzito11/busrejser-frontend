@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../../../shared/api/api";
-import { hasRole, isAdmin } from "../../../auth/auth";
+import { hasRole, isAdmin } from "../../../features/auth/utils/auth.storage";
 
 import type { Bus } from "../model/bus.types";
 import type { BusForm } from "../model/bus.types";

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 
 import { api } from "../../../shared/api/api";
-import { getCurrentUser } from "../../../auth/auth";
+import { getCurrentUser } from "../../../features/auth/utils/auth.storage";
 import type { Rejse } from "../../rejse/model/rejse.types";
 
 export default function CheckoutPage() {

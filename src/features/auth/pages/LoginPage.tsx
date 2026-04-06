@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { api } from "../../shared/api/api";
-import { getCurrentUser } from "../auth";
+import { api } from "../../../shared/api/api";
+import { getCurrentUser } from "../utils/auth.storage";
 
 export default function Login() {
   const navigate = useNavigate();

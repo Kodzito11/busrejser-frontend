@@ -5,7 +5,7 @@ import { api } from "../../../shared/api/api";
 import type { Rejse, RejseCreate } from "../model/rejse.types";
 import type { Bus } from "../../bus/model/bus.types";
 import TripCalendar from "../components/RejseKalender";
-import { hasRole, isAdmin } from "../../../auth/auth";
+import { hasRole, isAdmin } from "../../../features/auth/utils/auth.storage";
 
 type Form = {
   title: string;

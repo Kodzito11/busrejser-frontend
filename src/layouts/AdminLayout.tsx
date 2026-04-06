@@ -1,5 +1,5 @@
 import { NavLink, Navigate, Outlet, useNavigate } from "react-router-dom";
-import { getCurrentUser, logout } from "../auth/auth";
+import { getCurrentUser, logout } from "../features/auth/utils/auth.storage";
 
 export default function AdminLayout() {
   const navigate = useNavigate();
