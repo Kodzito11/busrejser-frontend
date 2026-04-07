@@ -186,10 +186,6 @@ export default function Rejser() {
   const canCreateTrips = hasRole("Admin", "Medarbejder");
   const canDeleteTrips = isAdmin();
 
-  const publishedRejser = useMemo(() => {
-    return rejser.filter((r) => r.isPublished);
-  }, [rejser]);
-
   const visibleRejser = useMemo(() => {
     let result = rejser.filter((r) => r.isPublished);
 
@@ -252,16 +248,87 @@ export default function Rejser() {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          gap: "1rem",
+          flexWrap: "wrap",
         }}
       >
-        <button onClick={prevMonth}>←</button>
+        <button onClick={prevMonth} type="button">
+          ← Forrige
+        </button>
+
         <div style={{ fontWeight: 800, textTransform: "capitalize" }}>
           {monthLabel}
         </div>
-        <button onClick={nextMonth}>→</button>
+
+        <button onClick={nextMonth} type="button">
+          Næste →
+        </button>
       </section>
 
-      <TripCalendar trips={publishedRejser} currentMonth={currentMonth} />
+      <section className="card">
+        <div
+          style={{
+            display: "grid",
+            gap: "1rem",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            alignItems: "end",
+          }}
+        >
+          <label>
+            Søg
+            <input
+              type="text"
+              placeholder="Søg på titel eller destination"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </label>
+
+          <label>
+            Sortering
+            <select value={sort} onChange={(e) => setSort(e.target.value)}>
+              <option value="date-asc">Tidligste afgang</option>
+              <option value="date-desc">Seneste afgang</option>
+              <option value="price-asc">Billigste</option>
+              <option value="price-desc">Dyreste</option>
+            </select>
+          </label>
+
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              minHeight: "42px",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={onlyAvailable}
+              onChange={(e) => setOnlyAvailable(e.target.checked)}
+            />
+            Kun ledige pladser
+          </label>
+
+          <div>
+            <button
+              type="button"
+              className="ghost"
+              onClick={resetFilters}
+              disabled={!hasActiveFilters}
+            >
+              Nulstil filtre
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <TripCalendar
+        trips={visibleRejser}
+        currentMonth={currentMonth}
+        availableSeats={availableSeats}
+        onTripClick={(trip) => navigate(`/rejse/${trip.rejseId}`)}
+      />
 
       {canCreateTrips && (
         <section className="card">
@@ -410,64 +477,6 @@ export default function Rejser() {
           </div>
         </section>
       )}
-
-      <section className="card">
-        <div
-          style={{
-            display: "grid",
-            gap: "1rem",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            alignItems: "end",
-          }}
-        >
-          <label>
-            Søg
-            <input
-              type="text"
-              placeholder="Søg på titel eller destination"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </label>
-
-          <label>
-            Sortering
-            <select value={sort} onChange={(e) => setSort(e.target.value)}>
-              <option value="date-asc">Tidligste afgang</option>
-              <option value="date-desc">Seneste afgang</option>
-              <option value="price-asc">Billigste</option>
-              <option value="price-desc">Dyreste</option>
-            </select>
-          </label>
-
-          <label
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              minHeight: "42px",
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={onlyAvailable}
-              onChange={(e) => setOnlyAvailable(e.target.checked)}
-            />
-            Kun ledige pladser
-          </label>
-
-          <div>
-            <button
-              type="button"
-              className="ghost"
-              onClick={resetFilters}
-              disabled={!hasActiveFilters}
-            >
-              Nulstil filtre
-            </button>
-          </div>
-        </div>
-      </section>
 
       <section className="cards">
         <h2>Kommende rejser ({visibleRejser.length})</h2>
