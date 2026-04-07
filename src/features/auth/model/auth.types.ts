@@ -37,7 +37,7 @@ export type ResetPasswordResponse = {
 
 export type MeResponse = {
   userId: string;
-  username: string;
+  fullname: string;
   email: string;
   role: string;
 };

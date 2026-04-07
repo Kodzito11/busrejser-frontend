@@ -25,7 +25,6 @@ export default function ProfilePage() {
   const [passwordSuccess, setPasswordSuccess] = useState("");
 
   const [profileForm, setProfileForm] = useState<UpdateMyProfileRequest>({
-    username: "",
     email: "",
     fullName: "",
     phone: "",
@@ -59,7 +58,6 @@ export default function ProfilePage() {
       setUser(me);
 
       setProfileForm({
-        username: me.username ?? "",
         email: me.email ?? "",
         fullName: me.fullName ?? "",
         phone: me.phone ?? "",
@@ -80,7 +78,6 @@ export default function ProfilePage() {
       "me",
       JSON.stringify({
         userId: String(profile.userId),
-        username: profile.username,
         email: profile.email,
         role: profile.role,
         fullName: profile.fullName ?? null,
@@ -116,7 +113,6 @@ export default function ProfilePage() {
 
   const canSaveProfile = useMemo(() => {
     return (
-      profileForm.username.trim().length > 0 &&
       profileForm.email.trim().length > 0
     );
   }, [profileForm]);
@@ -140,7 +136,6 @@ export default function ProfilePage() {
 
     try {
       const updated = await userApi.updateMe({
-        username: profileForm.username.trim(),
         email: profileForm.email.trim(),
         fullName: profileForm.fullName?.trim() || null,
         phone: profileForm.phone?.trim() || null,
@@ -148,7 +143,6 @@ export default function ProfilePage() {
 
       setUser(updated);
       setProfileForm({
-        username: updated.username ?? "",
         email: updated.email ?? "",
         fullName: updated.fullName ?? "",
         phone: updated.phone ?? "",
@@ -260,11 +254,6 @@ export default function ProfilePage() {
           style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", marginTop: 12 }}
         >
           <div>
-            <strong>Brugernavn</strong>
-            <div>{user.username}</div>
-          </div>
-
-          <div>
             <strong>Email</strong>
             <div>{user.email}</div>
           </div>
@@ -300,16 +289,6 @@ export default function ProfilePage() {
         {profileSuccess && <div className="success">{profileSuccess}</div>}
 
         <form onSubmit={handleProfileSubmit} className="authForm" style={{ marginTop: 12 }}>
-          <label>
-            Brugernavn
-            <input
-              type="text"
-              value={profileForm.username}
-              onChange={(e) => onProfileFieldChange("username", e.target.value)}
-              placeholder="Brugernavn"
-            />
-          </label>
-
           <label>
             Email
             <input

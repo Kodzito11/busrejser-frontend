@@ -92,7 +92,7 @@ export default function Header() {
               className="userMenuButton"
               onClick={() => setMenuOpen((open) => !open)}
             >
-              {user.username} ▾
+              {user.fullname || user.email} ▾
             </button>
 
             {menuOpen && (
