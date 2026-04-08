@@ -53,6 +53,9 @@ import "../styles/features/admin/dashboard/info-panels.css";
 import "../styles/features/admin/dashboard/chart-list.css";
 import "../styles/features/admin/dashboard/insight-cards.css";
 
+import "../styles/features/public/rejser-status.css";
+import "../styles/features/public/rejse-kalender.css";
+
 import HomePage from "../features/public/pages/HomePage";
 import AboutPage from "../features/public/pages/AboutPage";
 

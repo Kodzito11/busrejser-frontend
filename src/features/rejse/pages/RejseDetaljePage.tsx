@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../../../shared/api/api";
 import type { Rejse } from "../model/rejse.types";
-import "../../../styles/rejse.css";
+import "../../../styles/features/public/rejser-status.css";
 
 export default function RejseDetalje() {
   const { id } = useParams();

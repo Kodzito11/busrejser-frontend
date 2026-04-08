@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Rejse } from "../model/rejse.types";
-import "../../../styles/rejseKalender.css";
+import "../../../styles/features/public/rejse-kalender.css";
 
 function ymd(date: Date) {
   const pad = (n: number) => String(n).padStart(2, "0");
