@@ -1,0 +1,89 @@
+.dashboardChart {
+  display: grid;
+  gap: 14px;
+}
+
+.dashboardChart h3 {
+  margin: 0;
+}
+
+.dashboardChartList {
+  display: grid;
+  gap: 12px;
+}
+
+.dashboardChartRow {
+  display: grid;
+  grid-template-columns: minmax(140px, 1.2fr) minmax(120px, 2fr) auto;
+  gap: 12px;
+  align-items: center;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  width: 100%;
+  text-align: left;
+}
+
+.dashboardChartLabel p {
+  margin: 4px 0 0;
+}
+
+.dashboardChartBarWrap {
+  width: 100%;
+}
+
+.dashboardChartBar {
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.dashboardChartBarFill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.dashboardChartBarFill.default {
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+}
+
+.dashboardChartBarFill.success {
+  background: linear-gradient(90deg, #16a34a, #4ade80);
+}
+
+.dashboardChartBarFill.warning {
+  background: linear-gradient(90deg, #d97706, #f59e0b);
+}
+
+.dashboardChartBarFill.danger {
+  background: linear-gradient(90deg, #dc2626, #f87171);
+}
+
+.dashboardChartValue {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.dashboardChartRow.clickable {
+  cursor: pointer;
+  padding: 10px 12px;
+  border-radius: 12px;
+  transition: 0.2s ease;
+}
+
+.dashboardChartRow.clickable:hover {
+  background: var(--surface-2);
+}
+
+.dashboardChartRow:disabled {
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .dashboardChartRow {
+    grid-template-columns: 1fr;
+  }
+}

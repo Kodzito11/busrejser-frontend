@@ -1,0 +1,67 @@
+.dashboardStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.dashboardStatsGrid--v2 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.statCard {
+  min-height: 130px;
+}
+
+.statCardButton {
+  all: unset;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-height: 170px;
+  padding: 20px 24px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: 0.2s ease;
+  text-align: left;
+}
+
+.statCardButton:hover {
+  transform: translateY(-2px);
+  background: var(--surface-2);
+}
+
+.statCardButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.statCardButton p {
+  margin: 0;
+}
+
+.statCardButton h2 {
+  margin: 12px 0;
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+@media (max-width: 900px) {
+  .dashboardStatsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboardStatsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1100px) {
+  .dashboardStatsGrid--v2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

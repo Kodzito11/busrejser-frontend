@@ -1,0 +1,11 @@
+.adminForm {
+  display: grid;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}

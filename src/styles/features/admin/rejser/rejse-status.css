@@ -1,0 +1,33 @@
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.statusBadge.kommende {
+  background: rgba(59, 130, 246, 0.14);
+  color: #2563eb;
+}
+
+.statusBadge.igang {
+  background: rgba(16, 185, 129, 0.14);
+  color: #059669;
+}
+
+.statusBadge.afsluttet {
+  background: rgba(120, 120, 120, 0.14);
+  color: #6b7280;
+}
+
+.statusBadge.cancelled {
+  opacity: 0.8;
+}
+
+.statusBadge.active {
+  font-weight: 600;
+}

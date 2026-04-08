@@ -1,0 +1,144 @@
+.dashboardInfoGrid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.dashboardPanel {
+  min-height: 100%;
+}
+
+.dashboardMetricList {
+  display: grid;
+  gap: 12px;
+}
+
+.dashboardMetricRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.dashboardMetricRow:last-child {
+  border-bottom: none;
+}
+
+.dashboardMetricRow p {
+  margin: 4px 0 0;
+}
+
+.dashboardMetricValue {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.dashboardHighlight {
+  display: grid;
+  gap: 14px;
+}
+
+.dashboardHighlight h3 {
+  margin: 0;
+}
+
+.dashboardHighlightMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.dashboardCapacity {
+  margin-top: 4px;
+}
+
+.dashboardQuickFacts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.dashboardQuickFact {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-2);
+  display: grid;
+  gap: 6px;
+}
+
+.dashboardPill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  font-weight: 700;
+}
+
+.dashboardList {
+  display: grid;
+  gap: 10px;
+}
+
+.dashboardListItem {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.dashboardListItem:hover {
+  transform: translateY(-1px);
+  background: var(--surface-2);
+}
+
+.dashboardListItem p {
+  margin: 4px 0 0;
+}
+
+.dashboardListItemRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: right;
+}
+
+@media (max-width: 1100px) {
+  .dashboardInfoGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboardQuickFacts {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboardListItem {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .dashboardListItemRight {
+    width: 100%;
+    justify-content: space-between;
+    text-align: left;
+  }
+}

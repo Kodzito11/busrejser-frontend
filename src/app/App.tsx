@@ -5,8 +5,8 @@ import "../styles/layout.css";
 import "../styles/home.css";
 import "../styles/auth.css";
 import "../styles/kunde.css";
-
 import "../styles/admin.css";
+
 
 import "../styles/foundation/tokens.css";
 import "../styles/foundation/base.css";
@@ -36,6 +36,22 @@ import "../styles/features/auth/password-field.css";
 import "../styles/features/customer/mine-bookinger.css";
 import "../styles/features/customer/booking-box.css";
 import "../styles/features/public/rejse-detalje.css";
+
+import "../styles/layout/admin-layout.css";
+
+import "../styles/features/admin/rejser/rejse-form.css";
+import "../styles/features/admin/rejser/rejse-status.css";
+import "../styles/features/admin/rejser/capacity.css";
+
+import "../styles/features/admin/bookings/booking-expand.css";
+import "../styles/features/admin/bookings/booking-status.css";
+import "../styles/features/admin/bookings/role-badge.css";
+import "../styles/features/admin/bookings/payment-badge.css";
+
+import "../styles/features/admin/dashboard/stats-cards.css";
+import "../styles/features/admin/dashboard/info-panels.css";
+import "../styles/features/admin/dashboard/chart-list.css";
+import "../styles/features/admin/dashboard/insight-cards.css";
 
 import HomePage from "../features/public/pages/HomePage";
 import AboutPage from "../features/public/pages/AboutPage";

@@ -1,0 +1,18 @@
+.miniStatus {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.miniStatus.active {
+  background: rgba(34, 197, 94, 0.12);
+  color: #15803d;
+}
+
+.miniStatus.cancelled {
+  background: rgba(239, 68, 68, 0.12);
+  color: #b91c1c;
+}
