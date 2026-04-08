@@ -1,11 +1,11 @@
 import { NavLink, Navigate, Outlet, useNavigate } from "react-router-dom";
-import { getCurrentUser, logout } from "../../features/auth/utils/auth.storage";
+import { canManageBuses, getCurrentUser, logout } from "../../features/auth/utils/auth.storage";
 
 export default function AdminLayout() {
   const navigate = useNavigate();
   const user = getCurrentUser();
 
-  const isStaff = user?.role === "Admin" || user?.role === "Medarbejder";
+  const isStaff = canManageBuses();
 
   function handleLogout() {
     logout();
@@ -60,7 +60,7 @@ export default function AdminLayout() {
         <header className="adminTopbar">
           <div>
             <p className="muted">Logget ind som</p>
-            <strong>{user?.username}</strong>
+            <strong>{user?.fullName || user?.email}</strong>
           </div>
 
           <div className="adminTopbarActions">

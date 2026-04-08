@@ -18,4 +18,11 @@ export type BusForm = {
   kapasitet: number;
 };
 
-export type BusCreate = Omit<Bus, "busId">;
+export type BusCreate = {
+  registreringnummer: string;
+  model: string;
+  busselskab: string;
+  status: number;
+  type: number;
+  kapasitet: number;
+};

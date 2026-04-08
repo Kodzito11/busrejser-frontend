@@ -1,5 +1,5 @@
 export type RegisterRequest = {
-  username: string;
+  fullName: string;
   email: string;
   password: string;
 };
@@ -37,7 +37,7 @@ export type ResetPasswordResponse = {
 
 export type MeResponse = {
   userId: string;
-  fullname: string;
+  fullName: string | null;
   email: string;
   role: string;
 };

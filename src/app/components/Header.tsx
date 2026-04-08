@@ -19,7 +19,7 @@ export default function Header() {
   const isStaff = isAdmin || isEmployee;
 
   const displayName =
-    user?.fullname ||
+    user?.fullName ||
     user?.email ||
     "Konto";
 

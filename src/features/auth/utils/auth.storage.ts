@@ -11,7 +11,14 @@ export function logout() {
 
 export function getCurrentUser(): MeResponse | null {
   const raw = localStorage.getItem("me");
-  return raw ? JSON.parse(raw) : null;
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(raw) as MeResponse;
+  } catch {
+    localStorage.removeItem("me");
+    return null;
+  }
 }
 
 export function hasRole(...roles: string[]) {
@@ -29,5 +36,9 @@ export function isEmployee() {
 }
 
 export function canManageBuses() {
+  return hasRole("Admin", "Medarbejder");
+}
+
+export function isStaff() {
   return hasRole("Admin", "Medarbejder");
 }

@@ -77,13 +77,13 @@ export default function ProfilePage() {
     localStorage.setItem(
       "me",
       JSON.stringify({
+        ...(existing ?? {}),
         userId: String(profile.userId),
         email: profile.email,
         role: profile.role,
         fullName: profile.fullName ?? null,
         phone: profile.phone ?? null,
         createdAt: profile.createdAt,
-        ...(existing ?? {}),
       })
     );
   }
