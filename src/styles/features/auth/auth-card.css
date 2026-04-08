@@ -1,0 +1,21 @@
+.authCard {
+  width: min(560px, 100%);
+  margin: 40px auto 0;
+  padding: 2rem;
+}
+
+.authIntro {
+  margin-bottom: 1.5rem;
+}
+
+.authSwitch {
+  margin-top: 1.5rem;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 0.4rem;
+}
+
+.authSwitch a {
+  font-weight: 600;
+}

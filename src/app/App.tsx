@@ -3,10 +3,10 @@ import { Route, Routes } from "react-router-dom";
 import "../styles/app.css";
 import "../styles/layout.css";
 import "../styles/home.css";
+import "../styles/auth.css";
 
 import "../styles/admin.css";
 import "../styles/kunde.css";
-import "../styles/auth.css";
 
 import "../styles/foundation/tokens.css";
 import "../styles/foundation/base.css";
@@ -28,6 +28,10 @@ import "../styles/layout/user-menu.css";
 import "../styles/features/home/hero.css";
 import "../styles/features/home/search-bar.css";
 import "../styles/features/home/trip-grid.css";
+
+import "../styles/features/auth/auth-card.css";
+import "../styles/features/auth/auth-form.css";
+import "../styles/features/auth/password-field.css";
 
 import HomePage from "../features/public/pages/HomePage";
 import AboutPage from "../features/public/pages/AboutPage";
