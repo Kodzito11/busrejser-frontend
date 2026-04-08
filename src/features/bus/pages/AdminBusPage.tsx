@@ -12,8 +12,11 @@ import { emptyBusForm } from "../utils/busHelpers";
 
 export default function AdminBusPage() {
   const [buses, setBuses] = useState<Bus[]>([]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const [loadingList, setLoadingList] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const [form, setForm] = useState<BusForm>(emptyBusForm);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -33,7 +36,7 @@ export default function AdminBusPage() {
   async function refresh() {
     try {
       setError("");
-      setLoading(true);
+      setLoadingList(true);
 
       const list = await api.buses.list();
       setBuses(Array.isArray(list) ? list : []);
@@ -41,7 +44,7 @@ export default function AdminBusPage() {
       setError(err instanceof Error ? err.message : "Kunne ikke hente busser.");
       setBuses([]);
     } finally {
-      setLoading(false);
+      setLoadingList(false);
     }
   }
 
@@ -50,7 +53,7 @@ export default function AdminBusPage() {
 
     try {
       setError("");
-      setLoading(true);
+      setCreating(true);
 
       const newBusId = await api.buses.create(form);
 
@@ -65,21 +68,21 @@ export default function AdminBusPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Kunne ikke oprette bus.");
     } finally {
-      setLoading(false);
+      setCreating(false);
     }
   }
 
   async function deleteBus(id: number) {
     try {
       setError("");
-      setLoading(true);
+      setDeletingId(id);
 
       await api.buses.delete(id);
       await refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Kunne ikke slette bus.");
     } finally {
-      setLoading(false);
+      setDeletingId(null);
     }
   }
 
@@ -114,8 +117,8 @@ export default function AdminBusPage() {
             <p className="muted">Opret og administrér busser.</p>
           </div>
 
-          <button className="btn" onClick={refresh} disabled={loading}>
-            {loading ? "Loader..." : "Refresh"}
+          <button className="btn" onClick={refresh} disabled={loadingList}>
+            {loadingList ? "Loader..." : "Refresh"}
           </button>
         </div>
 
@@ -236,9 +239,9 @@ export default function AdminBusPage() {
                 className="btn"
                 type="button"
                 onClick={createBus}
-                disabled={loading || !canCreate}
+                disabled={creating || !canCreate}
               >
-                Opret bus
+                {creating ? "Opretter..." : "Opret bus"}
               </button>
 
               {!canCreate && (
@@ -261,8 +264,9 @@ export default function AdminBusPage() {
 
         <AdminBusTable
           buses={buses}
-          loading={loading}
+          loading={loadingList}
           canDelete={canDeleteBus}
+          deletingId={deletingId}
           onDelete={deleteBus}
           onOpenImage={setOpenImage}
         />

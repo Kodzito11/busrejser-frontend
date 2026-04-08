@@ -1,20 +1,19 @@
 import type { Bus } from "../model/bus.types";
-import { API_BASE } from "../../../shared/api/http";
-import { getBusTypeLabel } from "../utils/busHelpers";
-import BusStatusBadge from "./BusStatusBadge";
 
 type Props = {
   buses: Bus[];
-  loading?: boolean;
-  canDelete?: boolean;
-  onDelete?: (id: number) => void;
-  onOpenImage?: (url: string) => void;
+  loading: boolean;
+  canDelete: boolean;
+  deletingId: number | null;
+  onDelete: (id: number) => void;
+  onOpenImage: (imageUrl: string) => void;
 };
 
 export default function AdminBusTable({
   buses,
-  loading = false,
-  canDelete = false,
+  loading,
+  canDelete,
+  deletingId,
   onDelete,
   onOpenImage,
 }: Props) {
@@ -23,61 +22,67 @@ export default function AdminBusTable({
   }
 
   if (buses.length === 0) {
-    return <p className="muted">Ingen busser endnu.</p>;
+    return <p className="muted">Ingen busser fundet.</p>;
   }
 
   return (
-    <div className="table">
-      <div className="tr head busser">
-        <div>ID</div>
-        <div>Billede</div>
-        <div>Reg</div>
-        <div>Model</div>
-        <div>Selskab</div>
-        <div>Status</div>
-        <div>Type</div>
-        <div>Kap</div>
-        {canDelete && <div></div>}
-      </div>
+    <div className="table-wrap">
+      <table className="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Billede</th>
+            <th>Registrering</th>
+            <th>Model</th>
+            <th>Selskab</th>
+            <th>Kapacitet</th>
+            <th>Status</th>
+            <th>Type</th>
+            {canDelete && <th>Handlinger</th>}
+          </tr>
+        </thead>
+        <tbody>
+          {buses.map((bus) => (
+            <tr key={bus.busId}>
+              <td>{bus.busId}</td>
 
-      {buses.map((b) => (
-        <div className="tr busser" key={b.busId}>
-          <div>{b.busId}</div>
+              <td>
+                {bus.imageUrl ? (
+                  <button
+                    type="button"
+                    className="ghost"
+                    onClick={() => onOpenImage(bus.imageUrl!)}
+                  >
+                    Se billede
+                  </button>
+                ) : (
+                  <span className="muted">-</span>
+                )}
+              </td>
 
-          <div>
-            {b.imageUrl ? (
-              <img
-                src={`${API_BASE}${b.imageUrl}`}
-                alt={b.model}
-                className="busThumb"
-                onClick={() =>
-                  onOpenImage?.(`${API_BASE}${b.imageUrl}`)
-                }
-              />
-            ) : (
-              <span className="muted">Ingen</span>
-            )}
-          </div>
+              <td>{bus.registreringnummer}</td>
+              <td>{bus.model}</td>
+              <td>{bus.busselskab}</td>
+              <td>{bus.kapasitet}</td>
+              <td>{bus.status}</td>
+              <td>{bus.type}</td>
 
-          <div>{b.registreringnummer}</div>
-          <div>{b.model}</div>
-          <div>{b.busselskab}</div>
-          <div>{<BusStatusBadge status={b.status} />}</div>
-          <div>{getBusTypeLabel(b.type)}</div>
-          <div>{b.kapasitet}</div>
-
-          {canDelete && (
-            <div className="actions">
-              <button
-                className="danger"
-                onClick={() => onDelete?.(b.busId)}
-              >
-                Slet
-              </button>
-            </div>
-          )}
-        </div>
-      ))}
+              {canDelete && (
+                <td>
+                  <button
+                    type="button"
+                    className="danger"
+                    onClick={() => onDelete(bus.busId)}
+                    disabled={deletingId === bus.busId}
+                  >
+                    {deletingId === bus.busId ? "Sletter..." : "Slet"}
+                  </button>
+                </td>
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
