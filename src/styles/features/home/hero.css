@@ -1,0 +1,157 @@
+.heroSection {
+  width: 100%;
+  margin: 0 0 56px;
+  overflow: hidden;
+}
+
+.heroImage {
+  position: relative;
+  width: 100%;
+  min-height: clamp(560px, 78vh, 860px);
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.02);
+  transition: transform 8s ease, background-image 0.45s ease;
+}
+
+.heroOverlay {
+  min-height: clamp(560px, 78vh, 860px);
+  padding: clamp(28px, 4vw, 56px);
+}
+
+.heroInner {
+  min-height: inherit;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 36px;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.heroInner.isHidden {
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+}
+
+.heroContent {
+  max-width: min(820px, 100%);
+  color: #fff;
+  padding-top: clamp(8px, 2vw, 28px);
+}
+
+.heroKicker {
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.heroTitle {
+  font-size: clamp(42px, 7vw, 96px);
+  line-height: 0.95;
+  margin: 0 0 18px;
+  max-width: 9ch;
+  color: #fff;
+}
+
+.heroTitleLong {
+  font-size: clamp(38px, 6vw, 76px);
+  max-width: 12ch;
+}
+
+.heroText {
+  max-width: 58ch;
+  font-size: clamp(1rem, 1.2vw, 1.2rem);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.heroArrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #fff;
+  font-size: clamp(36px, 3vw, 52px);
+  font-weight: 300;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.heroImage:hover .heroArrow {
+  opacity: 1;
+}
+
+.heroArrow:hover {
+  transform: translateY(-50%) scale(1.04);
+}
+
+.heroArrowLeft {
+  left: 24px;
+}
+
+.heroArrowRight {
+  right: 24px;
+}
+
+.heroDots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.heroDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  padding: 0;
+  transition: 0.2s ease;
+}
+
+.heroDot:hover {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.heroDot.active {
+  width: 30px;
+  background: #fff;
+}
+
+@media (max-width: 768px) {
+  .heroSection {
+    margin-bottom: 36px;
+  }
+
+  .heroImage,
+  .heroOverlay {
+    min-height: auto;
+  }
+
+  .heroOverlay {
+    padding: 20px;
+    gap: 24px;
+  }
+
+  .heroTitle {
+    max-width: 11ch;
+    line-height: 1;
+  }
+
+  .heroTitleLong {
+    max-width: 12ch;
+  }
+
+  .heroArrow {
+    display: none;
+  }
+}

@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import "../styles/app.css";
 import "../styles/layout.css";
 import "../styles/home.css";
+
 import "../styles/admin.css";
 import "../styles/kunde.css";
 import "../styles/auth.css";
@@ -23,6 +24,10 @@ import "../styles/features/admin/bus/bus-image-modal.css";
 
 import "../styles/layout/topbar.css";
 import "../styles/layout/user-menu.css";
+
+import "../styles/features/home/hero.css";
+import "../styles/features/home/search-bar.css";
+import "../styles/features/home/trip-grid.css";
 
 import HomePage from "../features/public/pages/HomePage";
 import AboutPage from "../features/public/pages/AboutPage";
