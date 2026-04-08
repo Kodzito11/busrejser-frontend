@@ -4,9 +4,9 @@ import "../styles/app.css";
 import "../styles/layout.css";
 import "../styles/home.css";
 import "../styles/auth.css";
+import "../styles/kunde.css";
 
 import "../styles/admin.css";
-import "../styles/kunde.css";
 
 import "../styles/foundation/tokens.css";
 import "../styles/foundation/base.css";
@@ -32,6 +32,10 @@ import "../styles/features/home/trip-grid.css";
 import "../styles/features/auth/auth-card.css";
 import "../styles/features/auth/auth-form.css";
 import "../styles/features/auth/password-field.css";
+
+import "../styles/features/customer/mine-bookinger.css";
+import "../styles/features/customer/booking-box.css";
+import "../styles/features/public/rejse-detalje.css";
 
 import HomePage from "../features/public/pages/HomePage";
 import AboutPage from "../features/public/pages/AboutPage";

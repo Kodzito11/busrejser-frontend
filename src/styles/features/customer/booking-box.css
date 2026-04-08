@@ -1,0 +1,23 @@
+.booking-box {
+  display: grid;
+  gap: 12px;
+  max-width: 360px;
+  margin-top: 8px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+}
+
+.booking-box label {
+  margin: 0;
+}
+
+.booking-box input {
+  width: 100%;
+}
+
+.booking-box button {
+  width: 100%;
+}

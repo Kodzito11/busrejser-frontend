@@ -1,4 +1,4 @@
-/* .login {
+.login {
   text-align: center;
 }
 
@@ -84,50 +84,6 @@
   min-width: 110px;
 }
 
-.rejse-info {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
-  margin: 20px 0 28px;
-}
-
-.rejse-info > div {
-  padding: 14px 16px;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: var(--surface-2);
-}
-
-.rejse-info strong {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 0.9rem;
-}
-
-.booking-box {
-  display: grid;
-  gap: 12px;
-  max-width: 360px;
-  margin-top: 8px;
-  padding: 20px;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  background: var(--surface);
-  box-shadow: var(--shadow-lg);
-}
-
-.booking-box label {
-  margin: 0;
-}
-
-.booking-box input {
-  width: 100%;
-}
-
-.booking-box button {
-  width: 100%;
-}
-
 @media (max-width: 768px) {
   .trip-card-top {
     flex-direction: column;
@@ -145,4 +101,4 @@
   .trip-actions button {
     width: 100%;
   }
-} */
+}

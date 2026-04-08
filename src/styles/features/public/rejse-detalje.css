@@ -1,0 +1,19 @@
+.rejse-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin: 20px 0 28px;
+}
+
+.rejse-info > div {
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-2);
+}
+
+.rejse-info strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
