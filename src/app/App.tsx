@@ -1,13 +1,5 @@
 import { Route, Routes } from "react-router-dom";
 
-import "../styles/app.css";
-import "../styles/layout.css";
-import "../styles/home.css";
-import "../styles/auth.css";
-import "../styles/kunde.css";
-import "../styles/admin.css";
-
-
 import "../styles/foundation/tokens.css";
 import "../styles/foundation/base.css";
 
