@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import RejseFilters from "../components/public/RejseFilters";
+import RejseCardList from "../components/public/RejseCardList";
+
 import { api } from "../../../shared/api/api";
 import type { Rejse } from "../model/rejse.types";
 import TripCalendar from "../components/RejseKalender";
@@ -153,66 +156,16 @@ export default function Rejser() {
         </button>
       </section>
 
-      <section className="card">
-        <div
-          style={{
-            display: "grid",
-            gap: "1rem",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            alignItems: "end",
-          }}
-        >
-          <label>
-            Søg
-            <input
-              type="text"
-              placeholder="Søg på titel eller destination"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </label>
-
-          <label>
-            Sortering
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value as SortOption)}
-            >
-              <option value="date-asc">Tidligste afgang</option>
-              <option value="date-desc">Seneste afgang</option>
-              <option value="price-asc">Billigste</option>
-              <option value="price-desc">Dyreste</option>
-            </select>
-          </label>
-
-          <label
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              minHeight: "42px",
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={onlyAvailable}
-              onChange={(e) => setOnlyAvailable(e.target.checked)}
-            />
-            Kun ledige pladser
-          </label>
-
-          <div>
-            <button
-              type="button"
-              className="ghost"
-              onClick={resetFilters}
-              disabled={!hasActiveFilters}
-            >
-              Nulstil filtre
-            </button>
-          </div>
-        </div>
-      </section>
+      <RejseFilters
+        search={search}
+        setSearch={setSearch}
+        sort={sort}
+        setSort={setSort}
+        onlyAvailable={onlyAvailable}
+        setOnlyAvailable={setOnlyAvailable}
+        onReset={resetFilters}
+        hasActiveFilters={hasActiveFilters}
+      />
 
       <TripCalendar
         trips={visibleRejser}
@@ -224,80 +177,12 @@ export default function Rejser() {
       <section className="cards">
         <h2>Kommende rejser ({visibleRejser.length})</h2>
 
-        {loading && visibleRejser.length === 0 ? (
-          <p className="muted">Loader rejser...</p>
-        ) : visibleRejser.length === 0 ? (
-          <p className="muted">Ingen rejser matcher din søgning eller filter.</p>
-        ) : (
-          <div className="trip-cards">
-            {visibleRejser.map((r) => {
-              const seatsLeft = availableSeats[r.rejseId] ?? r.maxSeats;
-
-              return (
-                <article className="trip-card" key={r.rejseId}>
-                  {r.imageUrl && (
-                    <div
-                      style={{
-                        height: "150px",
-                        backgroundImage: `url(${r.imageUrl})`,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                        borderRadius: "12px 12px 0 0",
-                        marginBottom: "1rem",
-                      }}
-                    />
-                  )}
-
-                  <div className="trip-card-top">
-                    <div>
-                      <p className="trip-card-id">Rejse #{r.rejseId}</p>
-                      <h3>{r.title}</h3>
-                      <p className="muted">{r.destination}</p>
-                      {r.shortDescription && <p>{r.shortDescription}</p>}
-                    </div>
-
-                    <div
-                      className={`trip-badge ${seatsLeft <= 0 ? "soldout" : ""}`}
-                    >
-                      {seatsLeft <= 0 ? "Udsolgt" : `${seatsLeft} ledige`}
-                    </div>
-                  </div>
-
-                  <div className="trip-meta">
-                    <div>
-                      <span className="muted">Start</span>
-                      <strong>{new Date(r.startAt).toLocaleString()}</strong>
-                    </div>
-
-                    <div>
-                      <span className="muted">Slut</span>
-                      <strong>{new Date(r.endAt).toLocaleString()}</strong>
-                    </div>
-
-                    <div>
-                      <span className="muted">Pris</span>
-                      <strong>{r.price} kr</strong>
-                    </div>
-
-                    <div>
-                      <span className="muted">Bus</span>
-                      <strong>{r.busId ?? "-"}</strong>
-                    </div>
-                  </div>
-
-                  <div className="trip-actions">
-                    <button
-                      onClick={() => navigate(`/rejse/${r.rejseId}`)}
-                      disabled={seatsLeft <= 0}
-                    >
-                      {seatsLeft <= 0 ? "Udsolgt" : "Se detaljer"}
-                    </button>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        )}
+        <RejseCardList
+          rejser={visibleRejser}
+          availableSeats={availableSeats}
+          loading={loading}
+          onOpen={(id) => navigate(`/rejse/${id}`)}
+        />
       </section>
     </div>
   );
