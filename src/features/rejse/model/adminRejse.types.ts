@@ -1,0 +1,1 @@
+export type RejseSortBy = "start" | "price" | "fill";

@@ -3,13 +3,7 @@ import { getCurrentUser } from "../utils/auth.storage";
 
 export default function RequireStaffRedirect() {
   const user = getCurrentUser();
+  const isStaff = user?.role === "Admin" || user?.role === "Medarbejder";
 
-  const isStaff =
-    user?.role === "Admin" || user?.role === "Medarbejder";
-
-  if (!isStaff) {
-    return <Navigate to="/" replace />;
-  }
-
-  return <Navigate to="/admin/busser" replace />;
+  return <Navigate to={isStaff ? "/admin/busser" : "/"} replace />;
 }

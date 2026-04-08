@@ -14,7 +14,14 @@ export default function Header() {
   const user = getCurrentUser();
 
   const isCustomer = user?.role === "Kunde";
-  const isStaff = user?.role === "Admin" || user?.role === "Medarbejder";
+  const isEmployee = user?.role === "Medarbejder";
+  const isAdmin = user?.role === "Admin";
+  const isStaff = isAdmin || isEmployee;
+
+  const displayName =
+    user?.fullname ||
+    user?.email ||
+    "Konto";
 
   useEffect(() => {
     setMenuOpen(false);
@@ -32,6 +39,11 @@ export default function Header() {
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
+
+  function goTo(path: string) {
+    setMenuOpen(false);
+    navigate(path);
+  }
 
   function handleLogout() {
     logout();
@@ -92,31 +104,57 @@ export default function Header() {
               className="userMenuButton"
               onClick={() => setMenuOpen((open) => !open)}
             >
-              {user.fullname || user.email} ▾
+              {displayName} ▾
             </button>
 
             {menuOpen && (
               <div className="userDropdown">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    navigate("/profil");
-                  }}
-                >
+                <button type="button" onClick={() => goTo("/profil")}>
                   Min profil
                 </button>
 
                 {isCustomer && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMenuOpen(false);
-                      navigate("/mine-bookinger");
-                    }}
-                  >
-                    Mine bookinger
-                  </button>
+                  <>
+                    <button type="button" onClick={() => goTo("/kunde")}>
+                      Mit dashboard
+                    </button>
+
+                    <button type="button" onClick={() => goTo("/mine-bookinger")}>
+                      Mine bookinger
+                    </button>
+                  </>
+                )}
+
+                {isStaff && (
+                  <>
+                    <button type="button" onClick={() => goTo("/admin")}>
+                      Admin panel
+                    </button>
+
+                    <button type="button" onClick={() => goTo("/admin/rejser")}>
+                      Administrér rejser
+                    </button>
+
+                    <button type="button" onClick={() => goTo("/admin/busser")}>
+                      Administrér busser
+                    </button>
+
+                    <button type="button" onClick={() => goTo("/admin/bookings")}>
+                      Administrér bookinger
+                    </button>
+                  </>
+                )}
+
+                {isAdmin && (
+                  <div className="muted" style={{ padding: "8px 12px" }}>
+                    Admin adgang
+                  </div>
+                )}
+
+                {isEmployee && (
+                  <div className="muted" style={{ padding: "8px 12px" }}>
+                    Medarbejder adgang
+                  </div>
                 )}
 
                 <button type="button" onClick={handleLogout}>
