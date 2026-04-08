@@ -1,0 +1,82 @@
+.table {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.tr {
+  display: grid;
+  gap: 12px;
+  padding: 12px 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  align-items: center;
+}
+
+.tr.head {
+  border-top: none;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.tr.rejser {
+  grid-template-columns: 50px 1.5fr 1.2fr 155px 155px 80px 100px 60px 120px;
+}
+
+.tr.rejser.withDelete {
+  grid-template-columns: 50px 1.5fr 1.2fr 155px 155px 80px 100px 60px 120px 80px;
+}
+
+.tr.busser {
+  grid-template-columns: 60px 90px 110px 1fr 1fr 120px 140px 90px 90px;
+}
+
+.tr.mine-bookinger {
+  grid-template-columns: 140px 1.3fr 1fr 180px 90px 110px 120px;
+  align-items: center;
+}
+
+.tr.mine-bookinger button {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+}
+
+.tr.mine-bookinger.cancelled {
+  opacity: 0.55;
+}
+
+.tr.mine-bookinger .status-active {
+  color: #2e8b57;
+  font-weight: 500;
+}
+
+.tr.mine-bookinger .status-cancelled {
+  color: #b94a48;
+  font-weight: 500;
+}
+
+.tr.rejser .actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.tr.rejser .actions button {
+  min-width: 96px;
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+
+.tr > div {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tr.rejser > div:nth-child(4),
+.tr.rejser > div:nth-child(5),
+.tr.rejser > div:nth-child(6),
+.tr.rejser > div:nth-child(7),
+.tr.rejser > div:nth-child(8) {
+  white-space: nowrap;
+}

@@ -1,0 +1,17 @@
+.error {
+  margin: 12px 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(220, 50, 50, 0.25);
+  background: rgba(220, 50, 50, 0.08);
+  color: inherit;
+}
+
+.success {
+  margin: 12px 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(34, 197, 94, 0.22);
+  background: rgba(34, 197, 94, 0.08);
+  color: inherit;
+}

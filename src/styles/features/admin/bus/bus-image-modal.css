@@ -1,0 +1,59 @@
+.busThumb {
+  width: 90px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.18s ease;
+}
+
+.busThumb:hover {
+  transform: scale(1.04);
+}
+
+.imageModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 2000;
+  opacity: 0;
+  animation: modalFadeIn 0.22s ease forwards;
+}
+
+.imageModalContent {
+  max-width: min(1100px, 92vw);
+  max-height: 88vh;
+  width: auto;
+  height: auto;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  transform: scale(0.96);
+  opacity: 0;
+  animation: modalImageIn 0.22s ease forwards;
+}
+
+@keyframes modalFadeIn {
+  from {
+    background: rgba(0, 0, 0, 0);
+    opacity: 0;
+  }
+  to {
+    background: rgba(0, 0, 0, 0.72);
+    opacity: 1;
+  }
+}
+
+@keyframes modalImageIn {
+  from {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

@@ -1,0 +1,48 @@
+.shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+.content {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0 0 56px;
+}
+
+.page {
+  width: 100%;
+}
+
+.pageContainer,
+.wrap,
+.sectionBox,
+.homeSection,
+.footer {
+  width: min(var(--site-max), calc(100% - 40px));
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.sectionBox {
+  margin-bottom: 24px;
+}
+
+.footer {
+  padding: 18px 0 24px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 0.9rem;
+  opacity: 0.78;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --site-pad: 16px;
+  }
+
+  .content {
+    padding: 20px 0 40px;
+  }
+}

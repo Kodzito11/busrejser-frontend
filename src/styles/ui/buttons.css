@@ -1,0 +1,44 @@
+button,
+.btn {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  cursor: pointer;
+  transition: 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font: inherit;
+}
+
+button:hover,
+.btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--border-2);
+}
+
+button:disabled,
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn.ghost,
+.btn.secondary {
+  background: transparent;
+  border: 1px solid var(--border);
+}
+
+button.danger,
+.btn.danger {
+  border-color: rgba(255, 80, 80, 0.35);
+}
+
+button:focus,
+.btn:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.18);
+  outline-offset: 2px;
+}
