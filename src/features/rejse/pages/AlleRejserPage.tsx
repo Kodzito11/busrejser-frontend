@@ -39,7 +39,7 @@ export default function AlleRejserPage() {
           <p className="rejserHero__eyebrow">Busrejser</p>
           <h1>Find din næste tur</h1>
           <p className="muted">
-            Udforsk kommende afgange, filtrer paa destination og gå direkte videre
+            Udforsk kommende afgange, filtrer på destination og gå direkte videre
             til booking, når den rigtige rejse dukker op.
           </p>
         </div>
