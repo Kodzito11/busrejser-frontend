@@ -1,0 +1,186 @@
+.rejserHero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.rejserHero h1 {
+  margin-bottom: 0.5rem;
+}
+
+.rejserHero__eyebrow,
+.lavprisGroup__eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.rejserHero__actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.rejserPageNav {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.rejserPageNav__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+}
+
+.rejserPageNav__link--active {
+  border-color: var(--accent, var(--border-2));
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.rejserMonthBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.rejserMonthBar__label {
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.sectionHeader h2 {
+  margin-bottom: 0.35rem;
+}
+
+.lavprisSpotlight {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.lavprisSpotlight__card {
+  display: grid;
+  gap: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.25rem;
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.12), transparent 35%),
+    var(--surface);
+}
+
+.lavprisSpotlight__rank {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+
+.lavprisSpotlight__destination {
+  margin: 0 0 0.35rem;
+  opacity: 0.7;
+}
+
+.lavprisSpotlight__card h2 {
+  margin-bottom: 0.35rem;
+}
+
+.lavprisSpotlight__price {
+  font-size: 1.7rem;
+  font-weight: 800;
+}
+
+.lavprisBoard__groups {
+  display: grid;
+  gap: 1rem;
+}
+
+.lavprisGroup__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.lavprisGroup__header h3 {
+  margin-bottom: 0;
+}
+
+.lavprisGroup__fromPrice {
+  font-size: 1.1rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.lavprisGroup__list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.lavprisTripRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  text-align: left;
+}
+
+.lavprisTripRow__main,
+.lavprisTripRow__meta {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.lavprisTripRow__meta {
+  justify-items: end;
+}
+
+.lavprisTripRow__featured {
+  font-size: 0.8rem;
+  font-weight: 700;
+  opacity: 0.7;
+}
+
+@media (max-width: 768px) {
+  .lavprisTripRow,
+  .lavprisGroup__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .lavprisTripRow__meta {
+    justify-items: start;
+  }
+}

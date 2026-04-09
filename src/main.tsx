@@ -31,6 +31,7 @@ import "./styles/features/customer/booking-box.css";
 import "./styles/features/public/rejse-detalje.css";
 import "./styles/features/public/rejser-status.css";
 import "./styles/features/public/rejse-kalender.css";
+import "./styles/features/public/rejser-pages.css";
 
 import "./styles/features/admin/bus/bus-image-modal.css";
 

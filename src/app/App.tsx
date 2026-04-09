@@ -4,6 +4,8 @@ import HomePage from "../features/public/pages/HomePage";
 import AboutPage from "../features/public/pages/AboutPage";
 
 import RejserPage from "../features/rejse/pages/RejserPage";
+import RejseKalenderPage from "../features/rejse/pages/RejseKalenderPage";
+import RejseLavPrisKalenderPage from "../features/rejse/pages/RejseLavPrisKalenderPage";
 import RejseDetaljePage from "../features/rejse/pages/RejseDetaljePage";
 
 import LoginPage from "../features/auth/pages/LoginPage";
@@ -41,6 +43,8 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/om" element={<AboutPage />} />
         <Route path="/rejser" element={<RejserPage />} />
+        <Route path="/rejser/kalender" element={<RejseKalenderPage />} />
+        <Route path="/rejser/lavpris" element={<RejseLavPrisKalenderPage />} />
         <Route path="/rejse/:id" element={<RejseDetaljePage />} />
         <Route path="/book/:id" element={<BookRejsePage />} />
 

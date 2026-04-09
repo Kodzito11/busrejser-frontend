@@ -1,4 +1,4 @@
-type SortOption = "date-asc" | "date-desc" | "price-asc" | "price-desc";
+import type { SortOption } from "../../utils/publicRejseFilters";
 
 type Props = {
   search: string;
@@ -7,6 +7,11 @@ type Props = {
   setSort: (v: SortOption) => void;
   onlyAvailable: boolean;
   setOnlyAvailable: (v: boolean) => void;
+  destinations?: string[];
+  selectedDestination?: string;
+  setSelectedDestination?: (v: string) => void;
+  onlyFeatured?: boolean;
+  setOnlyFeatured?: (v: boolean) => void;
   onReset: () => void;
   hasActiveFilters: boolean;
 };
@@ -18,6 +23,11 @@ export default function RejseFilters({
   setSort,
   onlyAvailable,
   setOnlyAvailable,
+  destinations = [],
+  selectedDestination = "",
+  setSelectedDestination,
+  onlyFeatured = false,
+  setOnlyFeatured,
   onReset,
   hasActiveFilters,
 }: Props) {
@@ -32,14 +42,31 @@ export default function RejseFilters({
         }}
       >
         <label>
-          Søg
+          Soeg
           <input
             type="text"
-            placeholder="Søg på titel eller destination"
+            placeholder="Søg på titel, destination eller tekst"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </label>
+
+        {setSelectedDestination && (
+          <label>
+            Destination
+            <select
+              value={selectedDestination}
+              onChange={(e) => setSelectedDestination(e.target.value)}
+            >
+              <option value="">Alle destinationer</option>
+              {destinations.map((destination) => (
+                <option key={destination} value={destination}>
+                  {destination}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
 
         <label>
           Sortering
@@ -69,6 +96,24 @@ export default function RejseFilters({
           />
           Kun ledige pladser
         </label>
+
+        {setOnlyFeatured && (
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              minHeight: "42px",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={onlyFeatured}
+              onChange={(e) => setOnlyFeatured(e.target.checked)}
+            />
+            Kun featured
+          </label>
+        )}
 
         <div>
           <button
