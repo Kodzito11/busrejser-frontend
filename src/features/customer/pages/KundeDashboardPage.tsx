@@ -149,7 +149,7 @@ export default function KundeDashboardPage() {
     <div className="wrap">
       <header className="header">
         <div>
-          <h1>Velkommen tilbage, {currentUser.username}</h1>
+          <h1>Velkommen tilbage, {currentUser.fullName ?? currentUser.email}</h1>
           <p className="muted">
             Her er dit overblik over dine rejser og bookinger.
           </p>

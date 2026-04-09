@@ -1,6 +1,9 @@
 import type { Bus } from "../../bus/model/bus.types";
 import type { Rejse } from "../../rejse/model/rejse.types";
-import type { BookingListItem } from "../../booking/model/booking.types";
+import {
+  BookingStatus,
+  type BookingListItem,
+} from "../../booking/model/booking.types";
 import type {
   DashboardStats,
   TripInsight,
@@ -19,7 +22,7 @@ export function buildTripInsights(
   for (const booking of bookings) {
     const seats = booking.antalPladser ?? 0;
 
-    if (booking.isCancelled) {
+    if (booking.status === BookingStatus.Cancelled) {
       cancelledSeatsByRejse[booking.rejseId] =
         (cancelledSeatsByRejse[booking.rejseId] ?? 0) + seats;
 
@@ -73,13 +76,17 @@ export function buildDashboardStats(
   bookings: BookingListItem[],
   tripInsights: TripInsight[]
 ): DashboardStats {
-  const activeBookings = bookings.filter((b) => !b.isCancelled);
-  const cancelledBookings = bookings.filter((b) => b.isCancelled);
+  const activeBookings = bookings.filter(
+    (b) => b.status !== BookingStatus.Cancelled
+  );
+  const cancelledBookings = bookings.filter(
+    (b) => b.status === BookingStatus.Cancelled
+  );
 
   const activeRevenue = tripInsights.reduce((sum, trip) => sum + trip.revenue, 0);
 
   const cancelledRevenue = bookings.reduce((sum, booking) => {
-    if (!booking.isCancelled) return sum;
+    if (booking.status !== BookingStatus.Cancelled) return sum;
 
     const trip = rejser.find((r) => r.rejseId === booking.rejseId);
     if (!trip) return sum;

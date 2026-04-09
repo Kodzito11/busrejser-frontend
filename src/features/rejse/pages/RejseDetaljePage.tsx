@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../../../shared/api/api";
 import type { Rejse } from "../model/rejse.types";
 import "../../../styles/features/public/rejser-status.css";
+import { getErrorMessage } from "../../../shared/utils/error";
 
 export default function RejseDetalje() {
   const { id } = useParams();
@@ -25,8 +26,8 @@ export default function RejseDetalje() {
 
       const r = await api.rejser.get(rejseId);
       setRejse(r);
-    } catch (e: any) {
-      setErr(e?.message ?? "Kunne ikke hente rejse.");
+    } catch (error: unknown) {
+      setErr(getErrorMessage(error, "Kunne ikke hente rejse."));
     } finally {
       setLoading(false);
     }

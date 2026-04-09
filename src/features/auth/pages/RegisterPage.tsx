@@ -2,11 +2,12 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { api } from "../../../shared/api/api";
+import { getErrorMessage } from "../../../shared/utils/error";
 
 export default function Register() {
   const navigate = useNavigate();
 
-  const [username, setUsername] = useState("");
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -15,7 +16,7 @@ export default function Register() {
   const [success, setSuccess] = useState("");
 
   const canSubmit =
-    username.trim().length > 0 &&
+    fullName.trim().length > 0 &&
     email.trim().length > 0 &&
     password.trim().length > 0;
 
@@ -28,8 +29,8 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const res = await api.auth.register({
-        username: username.trim(),
+        const res = await api.auth.register({
+        fullName: fullName.trim(),
         email: email.trim(),
         password,
       });
@@ -39,8 +40,8 @@ export default function Register() {
       setTimeout(() => {
         navigate("/login");
       }, 1000);
-    } catch (e: any) {
-      setErr(e?.message ?? "Registrering fejlede.");
+    } catch (error: unknown) {
+      setErr(getErrorMessage(error, "Registrering fejlede."));
     } finally {
       setLoading(false);
     }
@@ -56,11 +57,11 @@ export default function Register() {
 
         <form onSubmit={handleRegister} className="authForm">
           <label>
-            Brugernavn
+            Fulde navn
             <input
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Dit brugernavn"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Dit navn"
             />
           </label>
 

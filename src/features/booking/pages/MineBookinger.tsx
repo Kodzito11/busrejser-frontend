@@ -79,7 +79,7 @@ export default function MineBookinger() {
             <header className="header">
                 <div>
                     <h1>Mine bookinger</h1>
-                    <p className="muted">{currentUser.username}</p>
+                    <p className="muted">{currentUser.fullName ?? currentUser.email}</p>
                 </div>
                 <button onClick={load} disabled={loading}>
                     Genindlæs

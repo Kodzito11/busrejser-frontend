@@ -4,6 +4,7 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../../shared/api/api";
 import { getCurrentUser } from "../../../features/auth/utils/auth.storage";
 import type { Rejse } from "../../rejse/model/rejse.types";
+import { getErrorMessage } from "../../../shared/utils/error";
 
 export default function CheckoutPage() {
   const { id } = useParams();
@@ -50,9 +51,9 @@ export default function CheckoutPage() {
         setKundeNavn(currentUser.fullName ?? "");
         setKundeEmail(currentUser.email ?? "");
       }
-    } catch (e: any) {
+    } catch (error: unknown) {
       setMsgType("error");
-      setMsg(e?.message ?? "Kunne ikke hente rejse.");
+      setMsg(getErrorMessage(error, "Kunne ikke hente rejse."));
     } finally {
       setPageLoading(false);
     }
@@ -78,9 +79,9 @@ export default function CheckoutPage() {
       }
 
       window.location.href = res.url;
-    } catch (e: any) {
+    } catch (error: unknown) {
       setMsgType("error");
-      setMsg(e?.message ?? "Kunne ikke starte betaling.");
+      setMsg(getErrorMessage(error, "Kunne ikke starte betaling."));
       setLoading(false);
     }
   }

@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { bookingApi } from "../api/bookingApi";
-import AdminBookingTable, {
-  type AdminBookingRow,
-} from "../components/AdminBookingTable";
+import AdminBookingTable from "../components/AdminBookingTable";
+import { BookingStatus, type BookingListItem } from "../model/booking.types";
 
 export default function AdminBookingPage() {
-  const [bookings, setBookings] = useState<AdminBookingRow[]>([]);
+  const [bookings, setBookings] = useState<BookingListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
@@ -71,7 +70,7 @@ export default function AdminBookingPage() {
         b.kundeEmail,
         b.antalPladser,
         b.role ?? "",
-        b.isCancelled ? "annulleret" : "aktiv",
+        b.status === BookingStatus.Cancelled ? "annulleret" : "aktiv",
       ]
         .join(" ")
         .toLowerCase()

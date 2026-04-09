@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { stripeApi } from "../api/stripeApi";
+import { getErrorMessage } from "../../../shared/utils/error";
 
 export default function BetalingSuccessPage() {
   const [searchParams] = useSearchParams();
@@ -22,8 +23,10 @@ export default function BetalingSuccessPage() {
       return;
     }
 
-    let interval: number;
-    let timeout: number;
+    const timers = {
+      interval: 0,
+      timeout: 0,
+    };
 
     async function poll() {
       try {
@@ -34,8 +37,8 @@ export default function BetalingSuccessPage() {
         if (res.status === "booking_created") {
           setBookingRef(res.bookingReference ?? null);
 
-          clearInterval(interval);
-          clearTimeout(timeout);
+          clearInterval(timers.interval);
+          clearTimeout(timers.timeout);
 
           setTimeout(() => {
             navigate("/mine-bookinger");
@@ -44,32 +47,31 @@ export default function BetalingSuccessPage() {
 
         if (res.status === "unpaid") {
           setError("Betaling ikke gennemført");
-          clearInterval(interval);
-          clearTimeout(timeout);
+          clearInterval(timers.interval);
+          clearTimeout(timers.timeout);
         }
-      } catch (e: any) {
-        setError(e?.message ?? "Noget gik galt");
-        clearInterval(interval);
-        clearTimeout(timeout);
+      } catch (error: unknown) {
+        setError(getErrorMessage(error, "Noget gik galt"));
+        clearInterval(timers.interval);
+        clearTimeout(timers.timeout);
       }
     }
 
     poll();
 
-    interval = window.setInterval(() => {
+    timers.interval = window.setInterval(() => {
       setSeconds((s) => s + 2);
       poll();
     }, 2000);
 
-    
-    timeout = window.setTimeout(() => {
-      clearInterval(interval);
+    timers.timeout = window.setTimeout(() => {
+      clearInterval(timers.interval);
       setError("Tog for lang tid... prøv igen eller tjek dine bookinger");
     }, 30000);
 
     return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
+      clearInterval(timers.interval);
+      clearTimeout(timers.timeout);
     };
   }, [sessionId, navigate]);
 

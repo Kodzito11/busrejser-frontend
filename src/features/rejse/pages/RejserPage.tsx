@@ -7,6 +7,7 @@ import RejseCardList from "../components/public/RejseCardList";
 import { api } from "../../../shared/api/api";
 import type { Rejse } from "../model/rejse.types";
 import TripCalendar from "../components/RejseKalender";
+import { getErrorMessage } from "../../../shared/utils/error";
 
 type SortOption = "date-asc" | "date-desc" | "price-asc" | "price-desc";
 
@@ -67,8 +68,8 @@ export default function Rejser() {
       );
 
       setAvailableSeats(Object.fromEntries(seatEntries));
-    } catch (e: any) {
-      setErr(e?.message ?? String(e));
+    } catch (error: unknown) {
+      setErr(getErrorMessage(error, "Kunne ikke hente rejser."));
     } finally {
       setLoading(false);
     }
