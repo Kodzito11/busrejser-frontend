@@ -1,7 +1,12 @@
 export const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
 
 export async function http<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = localStorage.getItem("token");
+  const rawToken = localStorage.getItem("token");
+  const token =
+    rawToken && rawToken !== "undefined" && rawToken !== "null"
+      ? rawToken
+      : null;
+
   const isFormData = options?.body instanceof FormData;
 
   const res = await fetch(`${API_BASE}${path}`, {

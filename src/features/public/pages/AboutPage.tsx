@@ -10,7 +10,7 @@ export default function About() {
 
           <div className="about-lead">
             <p>
-              Busrejser er ikke et kompromis – det er en smartere måde at rejse på.            </p>
+              Busrejser er ikke et kompromis – det er en smartere måde at opleve på.            </p>
 
             <p>
               I dag er mange rejser spredt og svære at sammenligne. BusPlanen samler ruter, priser og muligheder ét sted, så du hurtigt kan finde og booke den rigtige tur.
