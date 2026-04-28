@@ -7,7 +7,8 @@ import { getErrorMessage } from "../../../shared/utils/error";
 export default function Register() {
   const navigate = useNavigate();
 
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -16,7 +17,8 @@ export default function Register() {
   const [success, setSuccess] = useState("");
 
   const canSubmit =
-    fullName.trim().length > 0 &&
+    firstName.trim().length > 0 &&
+    lastName.trim().length > 0 &&
     email.trim().length > 0 &&
     password.trim().length > 0;
 
@@ -30,7 +32,8 @@ export default function Register() {
 
     try {
         const res = await api.auth.register({
-        fullName: fullName.trim(),
+        firstName : firstName.trim(),
+        lastName : lastName.trim(),
         email: email.trim(),
         password,
       });
@@ -57,10 +60,19 @@ export default function Register() {
 
         <form onSubmit={handleRegister} className="authForm">
           <label>
-            Fulde navn
+            Fornavn
             <input
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder="Dit navn"
+            />
+          </label>
+
+          <label>
+            Efternavn
+            <input
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
               placeholder="Dit navn"
             />
           </label>

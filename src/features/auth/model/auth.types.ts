@@ -1,5 +1,6 @@
 export type RegisterRequest = {
-  fullName: string;
+  FirstName: string;
+  LastName : string;
   email: string;
   password: string;
 };
@@ -15,7 +16,16 @@ export type LoginRequest = {
 };
 
 export type LoginResponse = {
-  token: string;
+  tokenType: string;
+  accessToken: string;
+  accessTokenExpiresAt: string;
+  refreshToken: string;
+  refreshTokenExpiresAt: string;
+  user: {
+    userId: number;
+    email: string;
+    role: string;
+  };
 };
 
 export type ForgotPasswordRequest = {
@@ -37,7 +47,10 @@ export type ResetPasswordResponse = {
 
 export type MeResponse = {
   userId: string;
-  fullName: string | null;
+  firstName: string;
+  lastName : string;
   email: string;
   role: string;
+  createdAt : string;
+  phone? : string;
 };

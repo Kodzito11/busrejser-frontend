@@ -45,7 +45,7 @@ export default function Login() {
         password,
       });
 
-      localStorage.setItem("token", res.token);
+      localStorage.setItem("token", res.accessToken);
 
       const me = await api.auth.me();
       localStorage.setItem("me", JSON.stringify(me));

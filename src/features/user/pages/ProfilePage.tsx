@@ -26,7 +26,8 @@ export default function ProfilePage() {
 
   const [profileForm, setProfileForm] = useState<UpdateMyProfileRequest>({
     email: "",
-    fullName: "",
+    firstName: "",
+    lastName: "",
     phone: "",
   });
 
@@ -59,7 +60,8 @@ export default function ProfilePage() {
 
       setProfileForm({
         email: me.email ?? "",
-        fullName: me.fullName ?? "",
+        firstName: me.firstName ?? "",
+        lastName: me.lastName ?? "",
         phone: me.phone ?? "",
       });
 
@@ -81,7 +83,8 @@ export default function ProfilePage() {
         userId: String(profile.userId),
         email: profile.email,
         role: profile.role,
-        fullName: profile.fullName ?? null,
+        firstName: profile.firstName ?? null,
+        lastName: profile.lastname ?? null,
         phone: profile.phone ?? null,
         createdAt: profile.createdAt,
       })
@@ -137,14 +140,16 @@ export default function ProfilePage() {
     try {
       const updated = await userApi.updateMe({
         email: profileForm.email.trim(),
-        fullName: profileForm.fullName?.trim() || null,
+        firstName: profileForm.fullName.trim() || null,
+        lastName: profileForm.lastName.trim() || null,
         phone: profileForm.phone?.trim() || null,
       });
 
       setUser(updated);
       setProfileForm({
         email: updated.email ?? "",
-        fullName: updated.fullName ?? "",
+        firstName: updated.firstName ?? "",
+        lastName: updated.lastname ?? "",
         phone: updated.phone ?? "",
       });
 
@@ -253,15 +258,14 @@ export default function ProfilePage() {
           className="grid"
           style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", marginTop: 12 }}
         >
-          <div>
-            <strong>Email</strong>
-            <div>{user.email}</div>
-          </div>
-
-          <div>
-            <strong>Fulde navn</strong>
-            <div>{user.fullName || "-"}</div>
-          </div>
+<div>
+  <strong>Fulde navn</strong>
+  <div>
+    {user.firstName || user.lastName
+      ? `${user.firstName} ${user.lastName}`.trim()
+      : "-"}
+  </div>
+</div>
 
           <div>
             <strong>Telefon</strong>
@@ -300,12 +304,22 @@ export default function ProfilePage() {
           </label>
 
           <label>
-            Fulde navn
+            Fornavn
             <input
               type="text"
-              value={profileForm.fullName ?? ""}
-              onChange={(e) => onProfileFieldChange("fullName", e.target.value)}
-              placeholder="Dit navn"
+              value={profileForm.firstName ?? ""}
+              onChange={(e) => onProfileFieldChange("firstName", e.target.value)}
+              placeholder="Dit fornavn"
+            />
+          </label>
+
+          <label>
+            Efternavn
+            <input
+              type="text"
+              value={profileForm.lastName ?? ""}
+              onChange={(e) => onProfileFieldChange("lastName", e.target.value)}
+              placeholder="Dit efternavn"
             />
           </label>
 

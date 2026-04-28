@@ -19,7 +19,7 @@ export default function Header() {
   const isStaff = isAdmin || isEmployee;
 
   const displayName =
-    user?.fullName ||
+    user?.lastName ||
     user?.email ||
     "Konto";
 
@@ -77,7 +77,7 @@ export default function Header() {
             to="/kunde"
             className={({ isActive }) => (isActive ? "navLink active" : "navLink")}
           >
-            Mit dashboard
+            Mit Overblik
           </NavLink>
         )}
 

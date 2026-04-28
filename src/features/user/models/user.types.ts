@@ -5,13 +5,15 @@ export interface UserProfile {
   email: string;
   role: UserRole;
   createdAt: string;
-  fullName?: string | null;
+  firstName: string;
+  lastName: string;
   phone?: string | null;
 }
 
 export interface UpdateMyProfileRequest {
   email: string;
-  fullName?: string | null;
+  firstName: string;
+  lastName: string;
   phone?: string | null;
 }
 
