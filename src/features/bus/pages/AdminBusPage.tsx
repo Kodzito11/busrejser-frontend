@@ -15,17 +15,19 @@ export default function AdminBusPage() {
   const [error, setError] = useState("");
 
   const [loadingList, setLoadingList] = useState(false);
-  const [creating, setCreating] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   const [form, setForm] = useState<BusForm>(emptyBusForm);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [openImage, setOpenImage] = useState<string | null>(null);
 
   const canCreateBus = hasRole("Admin", "Medarbejder");
+  const canEditBus = hasRole("Admin", "Medarbejder");
   const canDeleteBus = isAdmin();
 
-  const canCreate = useMemo(() => {
+  const canSave = useMemo(() => {
     return (
       form.registreringnummer.trim().length > 0 &&
       form.model.trim().length > 0 &&
@@ -48,28 +50,60 @@ export default function AdminBusPage() {
     }
   }
 
-  async function createBus() {
-    if (!canCreate) return;
+  function resetForm() {
+    setForm(emptyBusForm);
+    setSelectedImage(null);
+    setEditingId(null);
+  }
+
+  async function saveBus() {
+    if (!canSave) return;
 
     try {
       setError("");
-      setCreating(true);
+      setSaving(true);
 
-      const newBusId = await api.buses.create(form);
+      const payload = {
+        ...form,
+        kapasitet: Number(form.kapasitet),
+        status: Number(form.status),
+        type: Number(form.type),
+      };
 
-      if (selectedImage) {
-        await api.buses.uploadImage(newBusId, selectedImage);
+      const busId = editingId ?? (await api.buses.create(payload));
+
+      if (editingId !== null) {
+        await api.buses.update(editingId, payload);
       }
 
-      setForm(emptyBusForm);
-      setSelectedImage(null);
+      if (selectedImage) {
+        await api.buses.uploadImage(busId, selectedImage);
+      }
+
+      resetForm();
 
       await refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Kunne ikke oprette bus.");
+      setError(err instanceof Error ? err.message : "Kunne ikke gemme bus.");
     } finally {
-      setCreating(false);
+      setSaving(false);
     }
+  }
+
+  function startEdit(bus: Bus) {
+    setEditingId(bus.busId);
+    setSelectedImage(null);
+    setError("");
+    setForm({
+      registreringnummer: bus.registreringnummer,
+      model: bus.model,
+      busselskab: bus.busselskab,
+      status: bus.status,
+      type: bus.type,
+      kapasitet: bus.kapasitet,
+    });
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   async function deleteBus(id: number) {
@@ -78,6 +112,11 @@ export default function AdminBusPage() {
       setDeletingId(id);
 
       await api.buses.delete(id);
+
+      if (editingId === id) {
+        resetForm();
+      }
+
       await refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Kunne ikke slette bus.");
@@ -126,6 +165,10 @@ export default function AdminBusPage() {
 
         {canCreateBus && (
           <div className="adminForm">
+            {editingId !== null && (
+              <p className="muted">Redigerer bus #{editingId}</p>
+            )}
+
             <div className="grid">
               <label>
                 Registreringnummer
@@ -226,6 +269,7 @@ export default function AdminBusPage() {
               <label>
                 Busbillede
                 <input
+                  key={editingId ?? "new"}
                   className="input"
                   type="file"
                   accept=".jpg,.jpeg,.png,.webp"
@@ -238,13 +282,28 @@ export default function AdminBusPage() {
               <button
                 className="btn"
                 type="button"
-                onClick={createBus}
-                disabled={creating || !canCreate}
+                onClick={saveBus}
+                disabled={saving || !canSave}
               >
-                {creating ? "Opretter..." : "Opret bus"}
+                {saving
+                  ? "Gemmer..."
+                  : editingId !== null
+                  ? "Gem ændringer"
+                  : "Opret bus"}
               </button>
 
-              {!canCreate && (
+              {editingId !== null && (
+                <button
+                  className="btn ghost"
+                  type="button"
+                  onClick={resetForm}
+                  disabled={saving}
+                >
+                  Annuller
+                </button>
+              )}
+
+              {!canSave && (
                 <span className="muted">
                   Registreringnummer, model og kapacitet kræves.
                 </span>
@@ -265,8 +324,10 @@ export default function AdminBusPage() {
         <AdminBusTable
           buses={buses}
           loading={loadingList}
+          canEdit={canEditBus}
           canDelete={canDeleteBus}
           deletingId={deletingId}
+          onEdit={startEdit}
           onDelete={deleteBus}
           onOpenImage={setOpenImage}
         />

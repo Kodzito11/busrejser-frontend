@@ -10,6 +10,11 @@ export const busApi = {
       method: "POST",
       body: JSON.stringify(payload),
     }),
+  update: (id: number, payload: BusCreate) =>
+    http<void>(`/api/bus/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    }),
   delete: (id: number) => http<void>(`/api/bus/${id}`, { method: "DELETE" }),
 
   faciliteter: (id: number) =>

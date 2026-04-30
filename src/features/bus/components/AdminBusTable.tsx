@@ -3,8 +3,10 @@ import type { Bus } from "../model/bus.types";
 type Props = {
   buses: Bus[];
   loading: boolean;
+  canEdit: boolean;
   canDelete: boolean;
   deletingId: number | null;
+  onEdit: (bus: Bus) => void;
   onDelete: (id: number) => void;
   onOpenImage: (imageUrl: string) => void;
 };
@@ -12,8 +14,10 @@ type Props = {
 export default function AdminBusTable({
   buses,
   loading,
+  canEdit,
   canDelete,
   deletingId,
+  onEdit,
   onDelete,
   onOpenImage,
 }: Props) {
@@ -38,7 +42,7 @@ export default function AdminBusTable({
             <th>Kapacitet</th>
             <th>Status</th>
             <th>Type</th>
-            {canDelete && <th>Handlinger</th>}
+            {(canEdit || canDelete) && <th>Handlinger</th>}
           </tr>
         </thead>
         <tbody>
@@ -67,16 +71,30 @@ export default function AdminBusTable({
               <td>{bus.status}</td>
               <td>{bus.type}</td>
 
-              {canDelete && (
+              {(canEdit || canDelete) && (
                 <td>
-                  <button
-                    type="button"
-                    className="danger"
-                    onClick={() => onDelete(bus.busId)}
-                    disabled={deletingId === bus.busId}
-                  >
-                    {deletingId === bus.busId ? "Sletter..." : "Slet"}
-                  </button>
+                  <div className="row">
+                    {canEdit && (
+                      <button
+                        type="button"
+                        className="btn ghost"
+                        onClick={() => onEdit(bus)}
+                      >
+                        Rediger
+                      </button>
+                    )}
+
+                    {canDelete && (
+                      <button
+                        type="button"
+                        className="danger"
+                        onClick={() => onDelete(bus.busId)}
+                        disabled={deletingId === bus.busId}
+                      >
+                        {deletingId === bus.busId ? "Sletter..." : "Slet"}
+                      </button>
+                    )}
+                  </div>
                 </td>
               )}
             </tr>
