@@ -5,8 +5,29 @@ type Props = {
   earnedBadges: UserBadge[];
 };
 
+function getBadgeIcon(tier: string, isEarned: boolean) {
+  if (!isEarned) return "🔒";
+
+  switch (tier.toLowerCase()) {
+    case "bronze":
+      return "🥉";
+    case "silver":
+      return "🥈";
+    case "gold":
+      return "🥇";
+    case "platinum":
+      return "💎";
+    default:
+      return "🏆";
+  }
+}
+
 export default function BadgeGrid({ allBadges, earnedBadges }: Props) {
   const earnedById = new Map(earnedBadges.map((b) => [b.badgeId, b]));
+
+  if (allBadges.length === 0) {
+    return <p className="muted">Der er ingen badges endnu.</p>;
+  }
 
   return (
     <div className="badge-grid">
@@ -21,11 +42,14 @@ export default function BadgeGrid({ allBadges, earnedBadges }: Props) {
               isEarned ? "badge-card--earned" : "badge-card--locked"
             }`}
           >
-            <div className="badge-card__icon">{isEarned ? "🏆" : "🔒"}</div>
+            <div className="badge-card__icon">
+              {getBadgeIcon(badge.tier, isEarned)}
+            </div>
 
-            <div>
+            <div className="badge-card__content">
               <div className="badge-card__top">
                 <h3>{badge.name}</h3>
+
                 <span
                   className={`badge-tier badge-tier--${badge.tier.toLowerCase()}`}
                 >
@@ -33,7 +57,7 @@ export default function BadgeGrid({ allBadges, earnedBadges }: Props) {
                 </span>
               </div>
 
-              <p className="muted">{badge.description}</p>
+              <p className="badge-card__description">{badge.description}</p>
 
               {isEarned ? (
                 <p className="badge-card__earned">
