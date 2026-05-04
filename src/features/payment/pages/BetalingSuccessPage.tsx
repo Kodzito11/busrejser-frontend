@@ -39,10 +39,6 @@ export default function BetalingSuccessPage() {
 
           clearInterval(timers.interval);
           clearTimeout(timers.timeout);
-
-          setTimeout(() => {
-            navigate("/mine-bookinger");
-          }, 3000);
         }
 
         if (res.status === "unpaid") {
@@ -100,7 +96,9 @@ export default function BetalingSuccessPage() {
               </div>
             )}
 
-            <p className="muted">Du viderestilles automatisk...</p>
+            <p className="muted">
+              Din booking er klar. Du kan nu se den under dine bookinger eller gå videre til din progression.
+            </p>
           </>
         )}
 
@@ -122,6 +120,19 @@ export default function BetalingSuccessPage() {
           </Link>
         </div>
       </section>
+      <div className="card" style={{ marginTop: 16 }}>
+        <h2>Din rejse tæller med i din progression</h2>
+        <p className="muted">
+          Når rejsen er gennemført, bliver den en del af dit rejsekort og kan låse badges op.
+        </p>
+
+        <div className="row" style={{ marginTop: 12 }}>
+          <button onClick={() => navigate("/progression")}>
+            Se min progression
+          </button>
+        </div>
+      </div>
+
     </div>
   );
 }
