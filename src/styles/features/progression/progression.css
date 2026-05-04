@@ -1,0 +1,21 @@
+.progression-map {
+  height: 420px;
+  width: 100%;
+  margin-top: 16px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #e5e7eb;
+}
+
+.progression-map__leaflet {
+  height: 100%;
+  width: 100%;
+}
+
+.progression-map-empty {
+  margin-top: 16px;
+  padding: 24px;
+  border-radius: 18px;
+  background: #f4f4f4;
+  color: #666;
+}

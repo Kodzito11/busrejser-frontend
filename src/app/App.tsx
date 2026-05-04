@@ -14,6 +14,7 @@ import ForgotPasswordPage from "../features/auth/pages/ForgotPasswordPage";
 import ResetPasswordPage from "../features/auth/pages/ResetPasswordPage";
 
 import KundeDashboardPage from "../features/customer/pages/KundeDashboardPage";
+import ProgressionPage from "../features/progression/pages/ProgressionPage";
 
 import BookRejsePage from "../features/booking/pages/CheckoutPage";
 import MineBookingerPage from "../features/booking/pages/MineBookinger";
@@ -62,6 +63,7 @@ export default function App() {
         <Route element={<RequireCustomer />}>
           <Route path="/kunde" element={<KundeDashboardPage />} />
           <Route path="/mine-bookinger" element={<MineBookingerPage />} />
+          <Route path="/progression" element={<ProgressionPage />} />
         </Route>
 
         {/* OPTIONAL REDIRECT */}

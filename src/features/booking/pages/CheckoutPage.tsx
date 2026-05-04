@@ -12,6 +12,11 @@ export default function CheckoutPage() {
   const [searchParams] = useSearchParams();
 
   const currentUser = getCurrentUser();
+
+  const currentUserName = currentUser
+  ? `${currentUser.firstName ?? ""} ${currentUser.lastName ?? ""}`.trim()
+  : "";
+
   const isLoggedIn = !!currentUser;
 
   const rejseId = Number(id);
@@ -48,9 +53,12 @@ export default function CheckoutPage() {
       }
 
       if (isLoggedIn && currentUser) {
-        setKundeNavn(currentUser.fullName ?? "");
+        const fullName = `${currentUser.firstName ?? ""} ${currentUser.lastName ?? ""}`.trim();
+
+        setKundeNavn(fullName);
         setKundeEmail(currentUser.email ?? "");
       }
+
     } catch (error: unknown) {
       setMsgType("error");
       setMsg(getErrorMessage(error, "Kunne ikke hente rejse."));
@@ -67,7 +75,7 @@ export default function CheckoutPage() {
     try {
       const payload = {
         rejseId,
-        kundeNavn: isLoggedIn ? currentUser?.fullName ?? "" : kundeNavn.trim(),
+        kundeNavn: isLoggedIn ? currentUserName : kundeNavn.trim(),
         kundeEmail: isLoggedIn ? currentUser?.email ?? "" : kundeEmail.trim(),
         antalPladser: Number(antalPladser),
       };
@@ -171,7 +179,7 @@ export default function CheckoutPage() {
         {isLoggedIn ? (
           <div className="card" style={{ marginBottom: 16 }}>
             <strong>Du betaler som:</strong>
-            <div>{currentUser?.fullName || currentUser?.email}</div>
+            <div>{currentUserName || currentUser?.email}</div>
             <div className="muted">{currentUser?.email}</div>
           </div>
         ) : (
