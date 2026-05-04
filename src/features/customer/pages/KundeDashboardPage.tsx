@@ -9,6 +9,8 @@ import {
   type BookingStatusType,
 } from "../../booking/model/booking.types";
 import type { Rejse } from "../../rejse/model/rejse.types";
+import type { ProgressionMapResponse } from "../../progression/model/progression.types";
+import type { UserBadge } from "../../badges/model/badge.types";
 
 type BookingWithTrip = Booking & {
   rejse?: Rejse | null;
@@ -19,6 +21,9 @@ export default function KundeDashboardPage() {
   const currentUser = getCurrentUser();
 
   const [bookings, setBookings] = useState<BookingWithTrip[]>([]);
+  const [progression, setProgression] = useState<ProgressionMapResponse | null>(null);
+  const [earnedBadges, setEarnedBadges] = useState<UserBadge[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [err, setErr] = useState("");
@@ -33,7 +38,11 @@ export default function KundeDashboardPage() {
     }
 
     try {
-      const mine = await api.bookings.mine();
+      const [mine, progressionResult, earnedBadgeResult] = await Promise.all([
+        api.bookings.mine(),
+        api.progression.getMap(),
+        api.badges.getMine(),
+      ]);
 
       const enriched = await Promise.all(
         mine.map(async (b) => {
@@ -47,6 +56,8 @@ export default function KundeDashboardPage() {
       );
 
       setBookings(enriched);
+      setProgression(progressionResult);
+      setEarnedBadges(earnedBadgeResult);
     } catch (e: any) {
       setErr(e?.message ?? "Kunne ikke hente dashboard.");
     } finally {
@@ -149,7 +160,7 @@ export default function KundeDashboardPage() {
     <div className="wrap">
       <header className="header">
         <div>
-          <h1>Velkommen tilbage, {currentUser.fullName ?? currentUser.email}</h1>
+          <h1>Velkommen tilbage, {currentUser.lastName ?? currentUser.email}</h1>
           <p className="muted">
             Her er dit overblik over dine rejser og bookinger.
           </p>
@@ -185,6 +196,15 @@ export default function KundeDashboardPage() {
             {nextBooking?.rejse?.startAt
               ? formatDate(nextBooking.rejse.startAt)
               : "Ingen kommende rejser"}
+          </p>
+        </div>
+
+        <div className="card">
+          <p className="muted">Progression</p>
+          <h2>{earnedBadges.length} badges</h2>
+          <p className="muted">
+            {progression?.visitedLocationCount ?? 0} destinationer ·{" "}
+            {progression?.visitedCountryCount ?? 0} lande
           </p>
         </div>
       </section>
@@ -243,6 +263,38 @@ export default function KundeDashboardPage() {
       <br />
 
       <section className="card">
+        <h2>Min progression</h2>
+        <p className="muted">
+          Følg dine gennemførte rejser, destinationer og badges.
+        </p>
+
+        <div className="grid" style={{ marginTop: 12 }}>
+          <div>
+            <strong>{progression?.visitedLocationCount ?? 0}</strong>
+            <div className="muted">destinationer</div>
+          </div>
+
+          <div>
+            <strong>{progression?.visitedCountryCount ?? 0}</strong>
+            <div className="muted">lande</div>
+          </div>
+
+          <div>
+            <strong>{earnedBadges.length}</strong>
+            <div className="muted">badges</div>
+          </div>
+        </div>
+
+        <div className="row" style={{ marginTop: 16 }}>
+          <button onClick={() => navigate("/progression")}>
+            Se progression
+          </button>
+        </div>
+      </section>
+
+      <br />
+
+      <section className="card">
         <h2>Hurtige handlinger</h2>
         <p className="muted">Gå hurtigt videre til det vigtigste.</p>
 
@@ -253,6 +305,10 @@ export default function KundeDashboardPage() {
 
           <button className="ghost" onClick={() => navigate("/rejser")}>
             Find nye rejser
+          </button>
+
+          <button className="ghost" onClick={() => navigate("/progression")}>
+            Min progression
           </button>
         </div>
       </section>

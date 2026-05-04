@@ -122,6 +122,10 @@ export default function Header() {
                     <button type="button" onClick={() => goTo("/mine-bookinger")}>
                       Mine bookinger
                     </button>
+
+                    <button type="button" onClick={() => goTo("/progression")}>
+                      Min progression
+                    </button>
                   </>
                 )}
 
