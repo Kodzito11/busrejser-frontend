@@ -16,4 +16,13 @@ export type ProgressionMapResponse = {
   visitedLocationCount: number;
   visitedCountryCount: number;
   locations: VisitedLocationMapItem[];
+  regions: RegionProgressItem[];
+};
+
+export type RegionProgressItem = {
+  country: string;
+  region: string;
+  visitedLocationCount: number;
+  totalVisitCount: number;
+  lastVisitedAt: string;
 };

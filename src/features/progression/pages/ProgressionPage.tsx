@@ -9,6 +9,8 @@ import type { Badge, UserBadge } from "../../badges/model/badge.types";
 
 import "../../../styles/features/progression/progression.css";
 
+import RegionProgressList from "../components/RegionProgressList";
+
 export default function ProgressionPage() {
   const [data, setData] = useState<ProgressionMapResponse | null>(null);
   const [allBadges, setAllBadges] = useState<Badge[]>([]);
@@ -110,6 +112,19 @@ export default function ProgressionPage() {
         <br />
 
         <BadgeGrid allBadges={allBadges} earnedBadges={earnedBadges} />
+      </section>
+
+      <br />
+
+      <section className="card">
+        <h2>Regioner</h2>
+        <p className="muted">
+          Se hvilke områder du allerede har begyndt at udforske.
+        </p>
+
+        <br />
+
+        <RegionProgressList regions={data.regions ?? []} />
       </section>
     </div>
   );
