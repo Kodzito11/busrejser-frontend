@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
 import { api } from "../../../shared/api/api";
+
 import type { ProgressionMapResponse } from "../model/progression.types";
 import ProgressionMap from "../components/ProgressionMap";
-import "../../../styles/features/progression/progression.css";
+
 import BadgeGrid from "../../badges/components/BadgeGrid";
 import type { Badge, UserBadge } from "../../badges/model/badge.types";
 
+import "../../../styles/features/progression/progression.css";
+
 export default function ProgressionPage() {
   const [data, setData] = useState<ProgressionMapResponse | null>(null);
+  const [allBadges, setAllBadges] = useState<Badge[]>([]);
+  const [earnedBadges, setEarnedBadges] = useState<UserBadge[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
@@ -16,8 +21,16 @@ export default function ProgressionPage() {
       try {
         setErr("");
         setLoading(true);
-        const result = await api.progression.getMap();
-        setData(result);
+
+        const [mapResult, allBadgeResult, mineBadgeResult] = await Promise.all([
+          api.progression.getMap(),
+          api.badges.getAll(),
+          api.badges.getMine(),
+        ]);
+
+        setData(mapResult);
+        setAllBadges(allBadgeResult);
+        setEarnedBadges(mineBadgeResult);
       } catch (e: any) {
         setErr(e?.message ?? "Kunne ikke hente progression.");
       } finally {
@@ -70,6 +83,11 @@ export default function ProgressionPage() {
           <p className="muted">Besøgte lande</p>
           <h2>{data.visitedCountryCount}</h2>
         </div>
+
+        <div className="card">
+          <p className="muted">Optjente badges</p>
+          <h2>{earnedBadges.length}</h2>
+        </div>
       </section>
 
       <br />
@@ -81,6 +99,17 @@ export default function ProgressionPage() {
         <br />
 
         <ProgressionMap locations={data.locations} />
+      </section>
+
+      <br />
+
+      <section className="card">
+        <h2>Mine badges</h2>
+        <p className="muted">Badges du har optjent gennem dine rejser.</p>
+
+        <br />
+
+        <BadgeGrid allBadges={allBadges} earnedBadges={earnedBadges} />
       </section>
     </div>
   );
