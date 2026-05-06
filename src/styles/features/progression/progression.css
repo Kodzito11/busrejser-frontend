@@ -132,3 +132,26 @@
 .region-progress-card__stats strong {
   font-size: 1.8rem;
 }
+
+.progression-map {
+  height: 420px;
+  width: 100%;
+  margin-top: 16px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #e5e7eb;
+}
+
+.progression-map__leaflet {
+  height: 100%;
+  width: 100%;
+}
+
+.progression-map-empty {
+  margin-top: 16px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  color: #64748b;
+}
