@@ -105,6 +105,37 @@
   color: #075985;
 }
 
+.travel-history-list {
+  display: grid;
+  gap: 12px;
+}
+
+.travel-history-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 18px;
+  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.travel-history-card h3 {
+  margin: 0;
+}
+
+.travel-history-card__meta {
+  display: grid;
+  gap: 4px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.travel-history-card__meta span {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
 .region-progress-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -154,4 +185,14 @@
   background: #f8fafc;
   border: 1px solid rgba(15, 23, 42, 0.08);
   color: #64748b;
+}
+
+@media (max-width: 640px) {
+  .travel-history-card {
+    flex-direction: column;
+  }
+
+  .travel-history-card__meta {
+    text-align: left;
+  }
 }
