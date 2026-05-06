@@ -6,6 +6,8 @@ import ProgressionMap from "../components/ProgressionMap";
 
 import BadgeGrid from "../../badges/components/BadgeGrid";
 import type { Badge, UserBadge } from "../../badges/model/badge.types";
+import TravelHistoryList from "../../travel-history/components/TravelHistoryList";
+import type { TravelHistoryItem } from "../../travel-history/model/travelHistory.types";
 
 import "../../../styles/features/progression/progression.css";
 
@@ -15,6 +17,7 @@ export default function ProgressionPage() {
   const [data, setData] = useState<ProgressionMapResponse | null>(null);
   const [allBadges, setAllBadges] = useState<Badge[]>([]);
   const [earnedBadges, setEarnedBadges] = useState<UserBadge[]>([]);
+  const [travelHistory, setTravelHistory] = useState<TravelHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
@@ -24,15 +27,17 @@ export default function ProgressionPage() {
         setErr("");
         setLoading(true);
 
-        const [mapResult, allBadgeResult, mineBadgeResult] = await Promise.all([
+        const [mapResult, allBadgeResult, mineBadgeResult, travelHistoryResult] = await Promise.all([
           api.progression.getMap(),
           api.badges.getAll(),
           api.badges.getMine(),
+          api.travelHistory.getMine(),
         ]);
 
         setData(mapResult);
         setAllBadges(allBadgeResult);
         setEarnedBadges(mineBadgeResult);
+        setTravelHistory(travelHistoryResult);
       } catch (e: any) {
         setErr(e?.message ?? "Kunne ikke hente progression.");
       } finally {
@@ -77,6 +82,11 @@ export default function ProgressionPage() {
         style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}
       >
         <div className="card">
+          <p className="muted">Gennemførte rejser</p>
+          <h2>{travelHistory.length}</h2>
+        </div>
+
+        <div className="card">
           <p className="muted">Besøgte lokationer</p>
           <h2>{data.visitedLocationCount}</h2>
         </div>
@@ -90,6 +100,17 @@ export default function ProgressionPage() {
           <p className="muted">Optjente badges</p>
           <h2>{earnedBadges.length}</h2>
         </div>
+      </section>
+
+      <br />
+
+      <section className="card">
+        <h2>Gennemførte rejser</h2>
+        <p className="muted">Dine afsluttede rejser vises her.</p>
+
+        <br />
+
+        <TravelHistoryList items={travelHistory} />
       </section>
 
       <br />
