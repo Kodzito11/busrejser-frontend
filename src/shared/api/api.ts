@@ -6,7 +6,7 @@ import { rejseApi } from "../../features/rejse/api/rejseApi";
 import { userApi } from "../../features/user/api/userApi";
 import { badgeApi } from "../../features/badges/api/badgeApi";
 import { progressionApi } from "../../features/progression/api/progressionApi";
-
+import { travelHistoryApi } from "../../features/travel-history/api/travelHistoryApi";
 
 export const api = {
   auth: authApi,
@@ -17,4 +17,5 @@ export const api = {
   user: userApi,
   badges: badgeApi,
   progression: progressionApi,
+  travelHistory: travelHistoryApi,
 };
