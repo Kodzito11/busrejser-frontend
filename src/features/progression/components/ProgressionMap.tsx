@@ -1,5 +1,6 @@
 import "leaflet/dist/leaflet.css";
-import { MapContainer, Marker, Popup, TileLayer, Polygon, GeoJSON } from "react-leaflet";
+import { useEffect } from "react";
+import { MapContainer, Marker, Popup, TileLayer, Polygon, GeoJSON, useMap } from "react-leaflet";
 import type { FeatureCollection, Geometry } from "geojson";
 
 import type { VisitedLocationMapItem } from "../model/progression.types";
@@ -14,6 +15,48 @@ type Props = {
   onSelectZone: (key: SelectedProgressionZoneKey) => void;
 };
 
+
+
+function ProgressionMapController({
+  selectedZoneKey,
+}: {
+  selectedZoneKey: SelectedProgressionZoneKey;
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (selectedZoneKey === "dk") {
+      map.flyTo([56.2639, 9.5018], 7, {
+        duration: 0.8,
+      });
+
+      return;
+    }
+
+    if (selectedZoneKey === "germany") {
+      map.flyTo([51.1657, 10.4515], 6, {
+        duration: 0.8,
+      });
+
+      return;
+    }
+
+    if (selectedZoneKey === "prague") {
+      map.flyTo([50.0755, 14.4378], 10, {
+        duration: 0.8,
+      });
+
+      return;
+    }
+
+    map.flyTo([55.6761, 12.5683], 5, {
+      duration: 0.8,
+    });
+  }, [map, selectedZoneKey]);
+
+  return null;
+}
+
 export default function ProgressionMap({
   locations,
   selectedZoneKey,
@@ -24,6 +67,10 @@ export default function ProgressionMap({
   );
 
   const zones = buildProgressionZones(locations);
+
+  const visibleZones = selectedZoneKey
+  ? zones.filter((zone) => zone.key === selectedZoneKey)
+  : zones;
 
   return (
     <>
@@ -44,6 +91,8 @@ export default function ProgressionMap({
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
+          
+          <ProgressionMapController selectedZoneKey={selectedZoneKey} />
 
           {selectedZoneKey === "dk" && (
             <GeoJSON
@@ -56,7 +105,7 @@ export default function ProgressionMap({
             />
           )}
 
-          {zones.map((zone) => {
+         {visibleZones.map((zone) => {
             if (zone.geoJson) {
               return (
                 <GeoJSON
@@ -111,7 +160,7 @@ export default function ProgressionMap({
             </Marker>
           ))}
 
-          {zones.map((zone) => (
+          {visibleZones.map((zone) => (
             <Marker
               key={`zone-${zone.key}`}
               position={[zone.latitude, zone.longitude]}
