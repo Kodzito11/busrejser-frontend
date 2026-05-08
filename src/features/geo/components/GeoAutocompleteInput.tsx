@@ -13,17 +13,23 @@ export default function GeoAutocompleteInput({
     value,
     onChange,
     onSelect,
-    placeholder
+    placeholder,
 }: Props) {
     const [results, setResults] = useState<GeoPlace[]>([]);
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
+    const [selectedGeoNameId, setSelectedGeoNameId] = useState<number | null>(null);
 
     const debounceRef = useRef<number | null>(null);
 
     useEffect(() => {
         if (value.trim().length < 2) {
             setResults([]);
+            setOpen(false);
+            return;
+        }
+
+        if (selectedGeoNameId) {
             return;
         }
 
@@ -39,11 +45,10 @@ export default function GeoAutocompleteInput({
 
                 setResults(data);
                 setOpen(true);
-            }
-            catch (err) {
+            } catch (err) {
                 console.error(err);
-            }
-            finally {
+                setResults([]);
+            } finally {
                 setLoading(false);
             }
         }, 250);
@@ -56,65 +61,43 @@ export default function GeoAutocompleteInput({
     }, [value]);
 
     return (
-        <div style={{ position: "relative" }}>
+        <div className="geoAutocomplete">
             <input
+                className="input"
                 type="text"
                 value={value}
                 placeholder={placeholder}
-                onChange={(e) => onChange(e.target.value)}
+                onChange={(e) => {
+                    setSelectedGeoNameId(null);
+                    onChange(e.target.value);
+                }}
                 autoComplete="off"
             />
 
-            {loading && (
-                <div className="geo-loading">
-                    Søger...
-                </div>
-            )}
+            {loading && <div className="geoLoading">Søger...</div>}
 
             {open && results.length > 0 && (
-                <div
-                    className="geo-dropdown"
-                    style={{
-                        position: "absolute",
-                        top: "100%",
-                        left: 0,
-                        right: 0,
-                        background: "#fff",
-                        border: "1px solid #ccc",
-                        zIndex: 1000,
-                        maxHeight: "300px",
-                        overflowY: "auto"
-                    }}
-                >
+                <div className="geoDropdown">
                     {results.map((place) => (
                         <button
                             key={place.geoNameId}
                             type="button"
+                            className="geoOption"
                             onClick={() => {
+                                setSelectedGeoNameId(place.geoNameId);
                                 onSelect(place);
-                                onChange(place.name);
                                 setOpen(false);
-                            }}
-                            style={{
-                                display: "block",
-                                width: "100%",
-                                textAlign: "left",
-                                padding: "10px",
-                                border: "none",
-                                background: "white",
-                                cursor: "pointer"
                             }}
                         >
                             <strong>{place.name}</strong>
-                            {" "}
-                            ({place.countryCode})
 
-                            {place.admin1Code && (
-                                <>
-                                    {" "}
-                                    - {place.admin1Code}
-                                </>
-                            )}
+                            <span className="geoOptionMeta">
+                                {place.countryCode}
+                                {place.admin1Code ? ` · ${place.admin1Code}` : ""}
+                                {place.population > 0
+                                    ? ` · ${place.population.toLocaleString("da-DK")} indb.`
+                                    : ""}
+                            </span>
                         </button>
                     ))}
                 </div>
