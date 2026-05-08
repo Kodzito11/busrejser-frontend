@@ -5,12 +5,20 @@ import type { FeatureCollection, Geometry } from "geojson";
 import type { VisitedLocationMapItem } from "../model/progression.types";
 import { buildProgressionZones } from "../game/progressionZones";
 import municipalitiesGeoJson from "../game/geojson/denmark-municipalities.json";
+import type { SelectedProgressionZoneKey } from "../model/progressionView.types";
+
 
 type Props = {
   locations: VisitedLocationMapItem[];
+  selectedZoneKey: SelectedProgressionZoneKey;
+  onSelectZone: (key: SelectedProgressionZoneKey) => void;
 };
 
-export default function ProgressionMap({ locations }: Props) {
+export default function ProgressionMap({
+  locations,
+  selectedZoneKey,
+  onSelectZone,
+}: Props) {
   const points = locations.filter(
     (x) => x.hasCoordinates && x.latitude != null && x.longitude != null
   );
@@ -37,14 +45,16 @@ export default function ProgressionMap({ locations }: Props) {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
-          <GeoJSON
-            data={municipalitiesGeoJson as FeatureCollection<Geometry>}
-            style={{
-              color: "grey",
-              weight: 1,
-              fillOpacity: 0,
-            }}
-          />
+          {selectedZoneKey === "dk" && (
+            <GeoJSON
+              data={municipalitiesGeoJson as FeatureCollection<Geometry>}
+              style={{
+                color: "#64748b",
+                weight: 1,
+                fillOpacity: 0,
+              }}
+            />
+          )}
 
           {zones.map((zone) => {
             if (zone.geoJson) {
@@ -52,6 +62,9 @@ export default function ProgressionMap({ locations }: Props) {
                 <GeoJSON
                   key={`zone-geojson-${zone.key}`}
                   data={zone.geoJson}
+                  eventHandlers={{
+                    click: () => onSelectZone(zone.key),
+                  }}
                   style={{
                     color: zone.status === "unlocked" ? "#16a34a" : "#64748b",
                     fillColor: zone.status === "unlocked" ? "#22c55e" : "#94a3b8",

@@ -1,0 +1,1 @@
+export type SelectedProgressionZoneKey = "dk" | "germany" | "prague" | null;

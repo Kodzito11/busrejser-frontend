@@ -1,8 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api } from "../../../shared/api/api";
 
 import type { ProgressionMapResponse } from "../model/progression.types";
+import type { SelectedProgressionZoneKey } from "../model/progressionView.types";
+
 import ProgressionMap from "../components/ProgressionMap";
+import ProgressionSidebar from "../components/ProgressionSidebar";
+import RegionProgressList from "../components/RegionProgressList";
+
+import { buildProgressionZones } from "../game/progressionZones";
 
 import BadgeGrid from "../../badges/components/BadgeGrid";
 import type { Badge, UserBadge } from "../../badges/model/badge.types";
@@ -11,7 +17,6 @@ import type { TravelHistoryItem } from "../../travel-history/model/travelHistory
 
 import "../../../styles/features/progression/progression.css";
 
-import RegionProgressList from "../components/RegionProgressList";
 export default function ProgressionPage() {
   const [data, setData] = useState<ProgressionMapResponse | null>(null);
   const [allBadges, setAllBadges] = useState<Badge[]>([]);
@@ -19,6 +24,8 @@ export default function ProgressionPage() {
   const [travelHistory, setTravelHistory] = useState<TravelHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
+  const [selectedZoneKey, setSelectedZoneKey] =
+    useState<SelectedProgressionZoneKey>(null);
 
   useEffect(() => {
     async function load() {
@@ -26,7 +33,12 @@ export default function ProgressionPage() {
         setErr("");
         setLoading(true);
 
-        const [mapResult, allBadgeResult, mineBadgeResult, travelHistoryResult] = await Promise.all([
+        const [
+          mapResult,
+          allBadgeResult,
+          mineBadgeResult,
+          travelHistoryResult,
+        ] = await Promise.all([
           api.progression.getMap(),
           api.badges.getAll(),
           api.badges.getMine(),
@@ -46,6 +58,11 @@ export default function ProgressionPage() {
 
     load();
   }, []);
+
+  const zones = useMemo(
+    () => buildProgressionZones(data?.locations ?? []),
+    [data?.locations]
+  );
 
   if (loading) {
     return (
@@ -104,23 +121,37 @@ export default function ProgressionPage() {
       <br />
 
       <section className="card">
+        <div className="progression-dashboard">
+          <div className="progression-dashboard__map">
+            <h2>Dit rejsekort</h2>
+            <p className="muted">
+              Udforsk verden og følg din progression.
+            </p>
+
+            <ProgressionMap
+              locations={data.locations}
+              selectedZoneKey={selectedZoneKey}
+              onSelectZone={setSelectedZoneKey}
+            />
+          </div>
+
+          <ProgressionSidebar
+            zones={zones}
+            selectedZoneKey={selectedZoneKey}
+            onSelectZone={setSelectedZoneKey}
+          />
+        </div>
+      </section>
+
+      <br />
+
+      <section className="card">
         <h2>Gennemførte rejser</h2>
         <p className="muted">Dine afsluttede rejser vises her.</p>
 
         <br />
 
         <TravelHistoryList items={travelHistory} />
-      </section>
-
-      <br />
-
-      <section className="card">
-        <h2>Dit rejsekort</h2>
-        <p className="muted">Dine gennemførte rejser vist på kort.</p>
-
-        <br />
-
-        <ProgressionMap locations={data.locations} />
       </section>
 
       <br />

@@ -196,3 +196,66 @@
     text-align: left;
   }
 }
+
+.progression-dashboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+  align-items: start;
+}
+
+.progression-sidebar {
+  display: grid;
+  gap: 14px;
+}
+
+.progression-sidebar__list {
+  display: grid;
+  gap: 12px;
+}
+
+.progression-bar-card {
+  width: 100%;
+  border: 0;
+  background: #f8fafc;
+  border-radius: 18px;
+  padding: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.progression-bar-card:hover {
+  transform: translateY(-1px);
+  background: #f1f5f9;
+}
+
+.progression-bar-card--active {
+  outline: 2px solid #22c55e;
+  background: #f0fdf4;
+}
+
+.progression-bar-card__top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.progression-bar-card__track {
+  height: 10px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.progression-bar-card__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(to right, #22c55e, #16a34a);
+}
+
+@media (max-width: 1100px) {
+  .progression-dashboard {
+    grid-template-columns: 1fr;
+  }
+}
