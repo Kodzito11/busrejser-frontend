@@ -1,6 +1,7 @@
 import "leaflet/dist/leaflet.css";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import type { VisitedLocationMapItem } from "../model/progression.types";
+import { buildProgressionZones } from "../game/progressionZones";
 
 type Props = {
   locations: VisitedLocationMapItem[];
@@ -10,6 +11,8 @@ export default function ProgressionMap({ locations }: Props) {
   const points = locations.filter(
     (x) => x.hasCoordinates && x.latitude != null && x.longitude != null
   );
+
+  const zones = buildProgressionZones(locations);
 
   return (
     <>
@@ -33,7 +36,7 @@ export default function ProgressionMap({ locations }: Props) {
 
           {points.map((location) => (
             <Marker
-              key={location.visitedLocationId}
+              key={`location-${location.visitedLocationId}`}
               position={[location.latitude!, location.longitude!]}
             >
               <Popup>
@@ -45,7 +48,33 @@ export default function ProgressionMap({ locations }: Props) {
                 {location.visitCount === 1
                   ? "1 gang"
                   : `${location.visitCount} gange`}
+              </Popup>
+            </Marker>
+          ))}
 
+          {zones.map((zone) => (
+            <Marker key={`zone-${zone.key}`} position={[zone.latitude, zone.longitude]}>
+              <Popup>
+                <strong>
+                  {zone.status === "unlocked" ? "🟢" : "🔒"} {zone.title}
+                </strong>
+
+                <br />
+
+                {zone.description}
+
+                <br />
+                <br />
+
+                {zone.status === "unlocked" ? (
+                  <>
+                    Zone unlocked
+                    <br />
+                    Besøgt {zone.visitCount} gange
+                  </>
+                ) : (
+                  <>Ikke besøgt endnu</>
+                )}
               </Popup>
             </Marker>
           ))}
