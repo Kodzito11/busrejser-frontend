@@ -353,3 +353,7 @@
 .active-zone-card {
   width: 100%;
 }
+
+.progression-bar-card--locked {
+  opacity: 0.65;
+}
