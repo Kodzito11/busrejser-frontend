@@ -19,6 +19,12 @@ export type Rejse = {
 export type RejseCreate = {
   title: string;
   destination: string;
+  country: string;
+  city: string;
+  region?: string | null;
+  municipality?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   startAt: string;
   endAt: string;
   price: number;

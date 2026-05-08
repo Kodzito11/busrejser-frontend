@@ -1,4 +1,6 @@
+import GeoAutocompleteInput from "../../../geo/components/GeoAutocompleteInput";
 import type { Dispatch, FormEvent, SetStateAction } from "react";
+
 
 import type { RejseCreate } from "../../model/rejse.types";
 import type { Bus } from "../../../bus/model/bus.types";
@@ -63,13 +65,27 @@ export default function AdminRejseForm({
 
             <label>
               Destination
-              <input
-                className="input"
+              <GeoAutocompleteInput
                 value={form.destination}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, destination: e.target.value }))
+                placeholder="Fx Berlin, København eller Prague"
+                onChange={(value) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    destination: value,
+                  }))
                 }
-                placeholder="Fx Berlin"
+                onSelect={(place) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    destination: place.name,
+                    city: place.name,
+                    country: place.countryCode,
+                    region: place.admin1Code ?? "",
+                    municipality: null,
+                    latitude: place.latitude ?? null,
+                    longitude: place.longitude ?? null,
+                  }))
+                }
               />
             </label>
 

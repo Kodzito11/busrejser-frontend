@@ -3,6 +3,12 @@ import type { Rejse, RejseCreate } from "../model/rejse.types";
 export const emptyForm: RejseCreate = {
   title: "",
   destination: "",
+  country: "",
+  city: "",
+  region: "",
+  municipality: "",
+  latitude: null,
+  longitude: null,
   startAt: "",
   endAt: "",
   price: 0,
