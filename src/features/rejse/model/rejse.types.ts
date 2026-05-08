@@ -2,6 +2,12 @@ export type Rejse = {
   rejseId: number;
   title: string;
   destination: string;
+  country?: string | null;
+  city?: string | null;
+  region?: string | null;
+  municipality?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   startAt: string;
   endAt: string;
   price: number;

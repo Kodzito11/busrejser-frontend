@@ -1,4 +1,5 @@
 import type { SortOption } from "../../utils/publicRejseFilters";
+import GeoAutocompleteInput from "../../../geo/components/GeoAutocompleteInput";
 
 type Props = {
   search: string;
@@ -42,12 +43,19 @@ export default function RejseFilters({
         }}
       >
         <label>
-          Soeg
-          <input
-            type="text"
-            placeholder="Søg på titel, destination eller tekst"
+          Destination
+
+          <GeoAutocompleteInput
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Søg efter by eller destination"
+            onChange={setSearch}
+            onSelect={(place) => {
+              setSearch(place.name);
+
+              if (setSelectedDestination) {
+                setSelectedDestination(place.name);
+              }
+            }}
           />
         </label>
 
