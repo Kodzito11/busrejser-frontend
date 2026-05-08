@@ -17,6 +17,8 @@ import type { TravelHistoryItem } from "../../travel-history/model/travelHistory
 
 import "../../../styles/features/progression/progression.css";
 
+import ActiveZoneDetailCard from "../components/ActiveZoneDetailCard";
+
 export default function ProgressionPage() {
   const [data, setData] = useState<ProgressionMapResponse | null>(null);
   const [allBadges, setAllBadges] = useState<Badge[]>([]);
@@ -63,6 +65,9 @@ export default function ProgressionPage() {
     () => buildProgressionZones(data?.locations ?? []),
     [data?.locations]
   );
+
+  const selectedZone =
+    zones.find((x) => x.key === selectedZoneKey) ?? null;
 
   if (loading) {
     return (
@@ -133,13 +138,17 @@ export default function ProgressionPage() {
               selectedZoneKey={selectedZoneKey}
               onSelectZone={setSelectedZoneKey}
             />
+
+            <ActiveZoneDetailCard zone={selectedZone} />
           </div>
 
-          <ProgressionSidebar
-            zones={zones}
-            selectedZoneKey={selectedZoneKey}
-            onSelectZone={setSelectedZoneKey}
-          />
+          <div className="progression-dashboard__side">
+            <ProgressionSidebar
+              zones={zones}
+              selectedZoneKey={selectedZoneKey}
+              onSelectZone={setSelectedZoneKey}
+            />
+          </div>
         </div>
       </section>
 
@@ -178,5 +187,5 @@ export default function ProgressionPage() {
         <RegionProgressList regions={data.regions ?? []} />
       </section>
     </div>
-  );
-}
+  )
+};  
