@@ -35,6 +35,8 @@ import "./styles/features/public/rejser-pages.css";
 
 import "./styles/features/admin/bus/bus-image-modal.css";
 
+import "./styles/features/geo/geo-autocomplete.css";
+
 import "./styles/features/admin/rejser/rejse-form.css";
 import "./styles/features/admin/rejser/rejse-status.css";
 import "./styles/features/admin/rejser/capacity.css";
@@ -48,9 +50,6 @@ import "./styles/features/admin/dashboard/stats-cards.css";
 import "./styles/features/admin/dashboard/info-panels.css";
 import "./styles/features/admin/dashboard/chart-list.css";
 import "./styles/features/admin/dashboard/insight-cards.css";
-import "./styles/features/public/rejser-pages.css";
-import "./styles/features/geo/geo-autocomplete.css";
-import "./styles/features/admin/bus/bus-image-modal.css";
 
 import App from "./app/App";
 
