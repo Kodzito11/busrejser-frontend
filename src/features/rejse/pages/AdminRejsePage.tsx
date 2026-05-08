@@ -172,6 +172,12 @@ export default function AdminRejsePage() {
     setForm({
       title: rejse.title,
       destination: rejse.destination,
+      country: rejse.country ?? "",
+      city: rejse.city ?? "",
+      region: rejse.region ?? "",
+      municipality: rejse.municipality ?? "",
+      latitude: rejse.latitude ?? null,
+      longitude: rejse.longitude ?? null,
       startAt: toInputDateTime(rejse.startAt),
       endAt: toInputDateTime(rejse.endAt),
       price: rejse.price,
