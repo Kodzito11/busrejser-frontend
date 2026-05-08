@@ -1,5 +1,5 @@
 import "leaflet/dist/leaflet.css";
-import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import { MapContainer, Marker, Popup, TileLayer, Polygon, GeoJSON } from "react-leaflet";
 import type { VisitedLocationMapItem } from "../model/progression.types";
 import { buildProgressionZones } from "../game/progressionZones";
 
@@ -34,6 +34,40 @@ export default function ProgressionMap({ locations }: Props) {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
+          {zones.map((zone) => {
+            if (zone.geoJson) {
+              return (
+                <GeoJSON
+                  key={`zone-geojson-${zone.key}`}
+                  data={zone.geoJson}
+                  style={{
+                    color: zone.status === "unlocked" ? "#16a34a" : "#64748b",
+                    fillColor: zone.status === "unlocked" ? "#22c55e" : "#94a3b8",
+                    fillOpacity: zone.status === "unlocked" ? 0.18 : 0.08,
+                    weight: 2,
+                  }}
+                />
+              );
+            }
+
+            if (!zone.polygon) {
+              return null;
+            }
+
+            return (
+              <Polygon
+                key={`zone-polygon-${zone.key}`}
+                positions={zone.polygon}
+                pathOptions={{
+                  color: zone.status === "unlocked" ? "#16a34a" : "#64748b",
+                  fillColor: zone.status === "unlocked" ? "#22c55e" : "#94a3b8",
+                  fillOpacity: zone.status === "unlocked" ? 0.18 : 0.08,
+                  weight: 2,
+                }}
+              />
+            );
+          })}
+
           {points.map((location) => (
             <Marker
               key={`location-${location.visitedLocationId}`}
@@ -60,9 +94,7 @@ export default function ProgressionMap({ locations }: Props) {
                 </strong>
 
                 <br />
-
                 {zone.description}
-
                 <br />
                 <br />
 

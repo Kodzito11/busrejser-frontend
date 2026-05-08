@@ -12,7 +12,6 @@ import type { TravelHistoryItem } from "../../travel-history/model/travelHistory
 import "../../../styles/features/progression/progression.css";
 
 import RegionProgressList from "../components/RegionProgressList";
-
 export default function ProgressionPage() {
   const [data, setData] = useState<ProgressionMapResponse | null>(null);
   const [allBadges, setAllBadges] = useState<Badge[]>([]);
