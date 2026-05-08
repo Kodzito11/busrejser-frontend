@@ -1,7 +1,10 @@
 import "leaflet/dist/leaflet.css";
 import { MapContainer, Marker, Popup, TileLayer, Polygon, GeoJSON } from "react-leaflet";
+import type { FeatureCollection, Geometry } from "geojson";
+
 import type { VisitedLocationMapItem } from "../model/progression.types";
 import { buildProgressionZones } from "../game/progressionZones";
+import municipalitiesGeoJson from "../game/geojson/denmark-municipalities.json";
 
 type Props = {
   locations: VisitedLocationMapItem[];
@@ -32,6 +35,15 @@ export default function ProgressionMap({ locations }: Props) {
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+
+          <GeoJSON
+            data={municipalitiesGeoJson as FeatureCollection<Geometry>}
+            style={{
+              color: "grey",
+              weight: 1,
+              fillOpacity: 0,
+            }}
           />
 
           {zones.map((zone) => {
@@ -87,7 +99,10 @@ export default function ProgressionMap({ locations }: Props) {
           ))}
 
           {zones.map((zone) => (
-            <Marker key={`zone-${zone.key}`} position={[zone.latitude, zone.longitude]}>
+            <Marker
+              key={`zone-${zone.key}`}
+              position={[zone.latitude, zone.longitude]}
+            >
               <Popup>
                 <strong>
                   {zone.status === "unlocked" ? "🟢" : "🔒"} {zone.title}
