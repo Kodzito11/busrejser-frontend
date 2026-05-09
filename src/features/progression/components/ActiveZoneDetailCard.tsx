@@ -1,4 +1,5 @@
 import type { ProgressionZoneViewModel } from "../game/progressionZones";
+import { getZoneProgressionDetails } from "../game/progressionDetails";
 
 type Props = {
   zone: ProgressionZoneViewModel | null;
@@ -16,9 +17,7 @@ export default function ActiveZoneDetailCard({ zone }: Props) {
     );
   }
 
-  const percent = zone.status === "unlocked"
-    ? Math.min(100, zone.visitCount * 20)
-    : 0;
+  const details = getZoneProgressionDetails(zone);
 
   return (
     <div className="active-zone-card">
@@ -28,41 +27,41 @@ export default function ActiveZoneDetailCard({ zone }: Props) {
           <h3>{zone.title}</h3>
         </div>
 
-        <span className={`active-zone-card__status active-zone-card__status--${zone.status}`}>
+        <span
+          className={`active-zone-card__status active-zone-card__status--${zone.status}`}
+        >
           {zone.status === "unlocked" ? "Unlocked" : "Locked"}
         </span>
       </div>
 
       <div className="active-zone-card__percent">
-        <strong>{percent}%</strong>
+        <strong>{details.completionPercent}%</strong>
         <span className="muted">completion</span>
       </div>
 
       <div className="progression-bar-card__track">
         <div
           className="progression-bar-card__fill"
-          style={{ width: `${percent}%` }}
+          style={{ width: `${details.completionPercent}%` }}
         />
       </div>
 
       <div className="active-zone-card__stats">
         <div>
           <span className="muted">Besøg</span>
-          <strong>{zone.visitCount}</strong>
+          <strong>{details.visitedText}</strong>
         </div>
 
         <div>
-          <span className="muted">Status</span>
-          <strong>{zone.status === "unlocked" ? "Åben" : "Låst"}</strong>
+          <span className="muted">Tier</span>
+          <strong>{details.tierName}</strong>
         </div>
       </div>
 
       <div className="active-zone-card__next">
         <p className="muted">Næste mål</p>
         <ul>
-          <li>Flere destinationer</li>
-          <li>Kommuner</li>
-          <li>Region completion</li>
+          <li>{details.nextGoal}</li>
         </ul>
       </div>
     </div>
