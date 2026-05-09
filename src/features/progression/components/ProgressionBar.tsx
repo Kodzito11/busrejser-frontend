@@ -25,7 +25,6 @@ export default function ProgressionBar({
     >
       <div className="progression-bar-card__top">
         <strong>{label}</strong>
-        <span>{percent}%</span>
       </div>
 
       <div className="progression-bar-card__track">
