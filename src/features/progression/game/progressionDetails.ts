@@ -5,6 +5,8 @@ export type ZoneProgressionDetails = {
   tierName: string;
   visitedText: string;
   nextGoal: string;
+  missionTitle: string;
+  statusText: string;
 };
 
 export function getZoneProgressionDetails(
@@ -17,6 +19,8 @@ export function getZoneProgressionDetails(
       tierName: "Locked",
       visitedText: "Ingen besøg endnu",
       nextGoal: "Besøg området for at låse det op",
+      missionTitle: "Lås området op",
+      statusText: "Zonen er fuldt udforsket",
     };
   }
 
@@ -26,6 +30,8 @@ export function getZoneProgressionDetails(
       tierName: "Master Explorer",
       visitedText: `${zone.visitCount} besøg registreret`,
       nextGoal: "Alle kernemål fuldført",
+      missionTitle: "Zone mestring",
+      statusText: "Zonen er låst op",
     };
   }
 
@@ -35,6 +41,8 @@ export function getZoneProgressionDetails(
       tierName: "Explorer",
       visitedText: `${zone.visitCount} besøg registreret`,
       nextGoal: "Besøg flere destinationer",
+      missionTitle: "Første ekspedition",
+      statusText: "Zonen er låst op",
     };
   }
 
@@ -43,5 +51,7 @@ export function getZoneProgressionDetails(
     tierName: "Traveler",
     visitedText: `${zone.visitCount} besøg registreret`,
     nextGoal: "Opdag nye områder",
+    missionTitle: "Første ekspedition",
+    statusText: "Zonen er låst op",
   };
 }

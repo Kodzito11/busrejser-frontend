@@ -59,9 +59,10 @@ export default function ActiveZoneDetailCard({ zone }: Props) {
       </div>
 
       <div className="active-zone-card__next">
-        <p className="muted">Næste mål</p>
+        <p className="muted">{details.missionTitle}</p>
         <ul>
           <li>{details.nextGoal}</li>
+          <li>{details.statusText}</li>
         </ul>
       </div>
     </div>
