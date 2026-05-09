@@ -7,8 +7,10 @@ import type { SelectedProgressionZoneKey } from "../model/progressionView.types"
 import ProgressionMap from "../components/ProgressionMap";
 import ProgressionSidebar from "../components/ProgressionSidebar";
 import RegionProgressList from "../components/RegionProgressList";
+import ActiveZoneDetailCard from "../components/ActiveZoneDetailCard";
 
 import { buildProgressionZones } from "../game/progressionZones";
+import { getDenmarkMunicipalityProgression } from "../game/municipalityProgression";
 
 import BadgeGrid from "../../badges/components/BadgeGrid";
 import type { Badge, UserBadge } from "../../badges/model/badge.types";
@@ -16,8 +18,6 @@ import TravelHistoryList from "../../travel-history/components/TravelHistoryList
 import type { TravelHistoryItem } from "../../travel-history/model/travelHistory.types";
 
 import "../../../styles/features/progression/progression.css";
-
-import ActiveZoneDetailCard from "../components/ActiveZoneDetailCard";
 
 export default function ProgressionPage() {
   const [data, setData] = useState<ProgressionMapResponse | null>(null);
@@ -68,6 +68,9 @@ export default function ProgressionPage() {
 
   const selectedZone =
     zones.find((x) => x.key === selectedZoneKey) ?? null;
+
+  const municipalityProgression =
+    getDenmarkMunicipalityProgression(data?.locations ?? []);
 
   if (loading) {
     return (
@@ -139,7 +142,10 @@ export default function ProgressionPage() {
               onSelectZone={setSelectedZoneKey}
             />
 
-            <ActiveZoneDetailCard zone={selectedZone} />
+            <ActiveZoneDetailCard
+              zone={selectedZone}
+              municipalityProgression={municipalityProgression}
+            />
           </div>
 
           <div className="progression-dashboard__side">
@@ -187,5 +193,5 @@ export default function ProgressionPage() {
         <RegionProgressList regions={data.regions ?? []} />
       </section>
     </div>
-  )
-};  
+  );
+}

@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { MapContainer, Marker, Popup, TileLayer, Polygon, GeoJSON, useMap } from "react-leaflet";
 import type { FeatureCollection, Geometry } from "geojson";
 
+import { getDenmarkMunicipalityProgression } from "../game/municipalityProgression";
 import type { VisitedLocationMapItem } from "../model/progression.types";
 import { buildProgressionZones } from "../game/progressionZones";
 import municipalitiesGeoJson from "../game/geojson/denmark-municipalities.json";
@@ -14,8 +15,6 @@ type Props = {
   selectedZoneKey: SelectedProgressionZoneKey;
   onSelectZone: (key: SelectedProgressionZoneKey) => void;
 };
-
-
 
 function ProgressionMapController({
   selectedZoneKey,
@@ -68,9 +67,12 @@ export default function ProgressionMap({
 
   const zones = buildProgressionZones(locations);
 
+  const municipalityProgression =
+    getDenmarkMunicipalityProgression(locations);
+
   const visibleZones = selectedZoneKey
-  ? zones.filter((zone) => zone.key === selectedZoneKey)
-  : zones;
+    ? zones.filter((zone) => zone.key === selectedZoneKey)
+    : zones;
 
   return (
     <>
@@ -91,21 +93,32 @@ export default function ProgressionMap({
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          
+
           <ProgressionMapController selectedZoneKey={selectedZoneKey} />
 
           {selectedZoneKey === "dk" && (
             <GeoJSON
               data={municipalitiesGeoJson as FeatureCollection<Geometry>}
-              style={{
-                color: "#64748b",
-                weight: 1,
-                fillOpacity: 0,
+              style={(feature: any) => {
+                const municipalityName =
+                  feature?.properties?.label_dk ?? "";
+
+                const isVisited =
+                  municipalityProgression.visitedMunicipalities
+                    .map((x) => x.toLowerCase())
+                    .includes(municipalityName.toLowerCase());
+
+                return {
+                  color: isVisited ? "#16a34a" : "#64748b",
+                  fillColor: isVisited ? "#22c55e" : "#94a3b8",
+                  fillOpacity: isVisited ? 0.35 : 0.05,
+                  weight: isVisited ? 2 : 1,
+                };
               }}
             />
           )}
 
-         {visibleZones.map((zone) => {
+          {visibleZones.map((zone) => {
             if (zone.geoJson) {
               return (
                 <GeoJSON

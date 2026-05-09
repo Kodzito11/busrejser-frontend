@@ -1,11 +1,16 @@
 import type { ProgressionZoneViewModel } from "../game/progressionZones";
 import { getZoneProgressionDetails } from "../game/progressionDetails";
+import type { MunicipalityProgression } from "../game/municipalityProgression";
 
 type Props = {
   zone: ProgressionZoneViewModel | null;
+  municipalityProgression: MunicipalityProgression;
 };
 
-export default function ActiveZoneDetailCard({ zone }: Props) {
+export default function ActiveZoneDetailCard({
+  zone,
+  municipalityProgression,
+}: Props) {
   if (!zone) {
     return (
       <div className="active-zone-card active-zone-card--empty">
@@ -18,6 +23,7 @@ export default function ActiveZoneDetailCard({ zone }: Props) {
   }
 
   const details = getZoneProgressionDetails(zone);
+  const isDenmark = zone.key === "dk";
 
   return (
     <div className="active-zone-card">
@@ -35,14 +41,25 @@ export default function ActiveZoneDetailCard({ zone }: Props) {
       </div>
 
       <div className="active-zone-card__percent">
-        <strong>{details.completionPercent}%</strong>
+        <strong>
+          {isDenmark
+            ? municipalityProgression.completionPercent
+            : details.completionPercent}
+          %
+        </strong>
         <span className="muted">completion</span>
       </div>
 
       <div className="progression-bar-card__track">
         <div
           className="progression-bar-card__fill"
-          style={{ width: `${details.completionPercent}%` }}
+          style={{
+            width: `${
+              isDenmark
+                ? municipalityProgression.completionPercent
+                : details.completionPercent
+            }%`,
+          }}
         />
       </div>
 
@@ -56,6 +73,16 @@ export default function ActiveZoneDetailCard({ zone }: Props) {
           <span className="muted">Tier</span>
           <strong>{details.tierName}</strong>
         </div>
+
+        {isDenmark && (
+          <div>
+            <span className="muted">Kommuner</span>
+            <strong>
+              {municipalityProgression.visitedMunicipalityCount} /{" "}
+              {municipalityProgression.totalMunicipalityCount}
+            </strong>
+          </div>
+        )}
       </div>
 
       <div className="active-zone-card__next">
