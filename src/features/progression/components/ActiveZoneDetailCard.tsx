@@ -1,15 +1,24 @@
 import type { ProgressionZoneViewModel } from "../game/progressionZones";
 import { getZoneProgressionDetails } from "../game/progressionDetails";
 import type { MunicipalityProgression } from "../game/municipalityProgression";
+import type { VisitedLocationMapItem } from "../model/progression.types";
+
+import { getMunicipalityTier } from "../game/municipalityTiers";
+import { getMunicipalityObjectives } from "../game/municipalityObjectives";
+import { getMunicipalityMetadata } from "../game/municipalityMetadata";
 
 type Props = {
   zone: ProgressionZoneViewModel | null;
+  locations: VisitedLocationMapItem[];
   municipalityProgression: MunicipalityProgression;
+  selectedMunicipalityName: string | null;
 };
 
 export default function ActiveZoneDetailCard({
   zone,
+  locations,
   municipalityProgression,
+  selectedMunicipalityName,
 }: Props) {
   if (!zone) {
     return (
@@ -24,6 +33,74 @@ export default function ActiveZoneDetailCard({
 
   const details = getZoneProgressionDetails(zone);
   const isDenmark = zone.key === "dk";
+
+  if (isDenmark && selectedMunicipalityName) {
+    const visits = locations.filter(
+      (x) =>
+        x.municipality?.toLowerCase() ===
+        selectedMunicipalityName.toLowerCase()
+    );
+
+    const visitCount = visits.reduce((sum, x) => sum + x.visitCount, 0);
+    const tier = getMunicipalityTier(visitCount);
+    const metadata = getMunicipalityMetadata(selectedMunicipalityName);
+    const objectives = getMunicipalityObjectives(
+      selectedMunicipalityName,
+      locations
+    );
+
+    return (
+      <div className="active-zone-card">
+        <div className="active-zone-card__top">
+          <div>
+            <p className="muted">Aktiv kommune</p>
+            <h3>{selectedMunicipalityName}</h3>
+          </div>
+
+          <span className="active-zone-card__status active-zone-card__status--unlocked">
+            {visitCount > 0 ? "Besøgt" : "Uopdaget"}
+          </span>
+        </div>
+
+        <div className="active-zone-card__percent">
+          <strong>{visitCount}</strong>
+          <span className="muted">
+            {visitCount === 1 ? "besøg" : "besøg"}
+          </span>
+        </div>
+
+        <div className="active-zone-card__stats">
+          <div>
+            <span className="muted">Region</span>
+            <strong>{metadata.region}</strong>
+          </div>
+
+          <div>
+            <span className="muted">Tier</span>
+            <strong>{tier.label}</strong>
+          </div>
+
+          <div>
+            <span className="muted">Status</span>
+            <strong>{visitCount > 0 ? "Unlocked" : "Locked"}</strong>
+          </div>
+        </div>
+
+        <div className="active-zone-card__next">
+          <p className="muted">{tier.description}</p>
+
+          <ul>
+            {objectives.map((objective) => (
+              <li key={objective.id}>
+                {objective.completed ? "✅" : "⬜"} {objective.title} —{" "}
+                {objective.progressText}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="active-zone-card">

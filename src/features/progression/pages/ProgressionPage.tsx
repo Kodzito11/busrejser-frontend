@@ -26,8 +26,12 @@ export default function ProgressionPage() {
   const [travelHistory, setTravelHistory] = useState<TravelHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
+
   const [selectedZoneKey, setSelectedZoneKey] =
     useState<SelectedProgressionZoneKey>(null);
+
+  const [selectedMunicipalityName, setSelectedMunicipalityName] =
+    useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -35,17 +39,13 @@ export default function ProgressionPage() {
         setErr("");
         setLoading(true);
 
-        const [
-          mapResult,
-          allBadgeResult,
-          mineBadgeResult,
-          travelHistoryResult,
-        ] = await Promise.all([
-          api.progression.getMap(),
-          api.badges.getAll(),
-          api.badges.getMine(),
-          api.travelHistory.getMine(),
-        ]);
+        const [mapResult, allBadgeResult, mineBadgeResult, travelHistoryResult] =
+          await Promise.all([
+            api.progression.getMap(),
+            api.badges.getAll(),
+            api.badges.getMine(),
+            api.travelHistory.getMine(),
+          ]);
 
         setData(mapResult);
         setAllBadges(allBadgeResult);
@@ -66,11 +66,22 @@ export default function ProgressionPage() {
     [data?.locations]
   );
 
-  const selectedZone =
-    zones.find((x) => x.key === selectedZoneKey) ?? null;
+  const selectedZone = zones.find((x) => x.key === selectedZoneKey) ?? null;
 
-  const municipalityProgression =
-    getDenmarkMunicipalityProgression(data?.locations ?? []);
+  const municipalityProgression = useMemo(
+    () => getDenmarkMunicipalityProgression(data?.locations ?? []),
+    [data?.locations]
+  );
+
+  function handleSelectZone(zoneKey: SelectedProgressionZoneKey) {
+    setSelectedZoneKey(zoneKey);
+    setSelectedMunicipalityName(null);
+  }
+
+  function handleSelectMunicipality(municipalityName: string) {
+    setSelectedZoneKey("dk");
+    setSelectedMunicipalityName(municipalityName);
+  }
 
   if (loading) {
     return (
@@ -132,19 +143,21 @@ export default function ProgressionPage() {
         <div className="progression-dashboard">
           <div className="progression-dashboard__map">
             <h2>Dit rejsekort</h2>
-            <p className="muted">
-              Udforsk verden og følg din progression.
-            </p>
+            <p className="muted">Udforsk verden og følg din progression.</p>
 
             <ProgressionMap
               locations={data.locations}
               selectedZoneKey={selectedZoneKey}
-              onSelectZone={setSelectedZoneKey}
+              selectedMunicipalityName={selectedMunicipalityName}
+              onSelectZone={handleSelectZone}
+              onSelectMunicipality={handleSelectMunicipality}
             />
 
             <ActiveZoneDetailCard
               zone={selectedZone}
+              locations={data.locations}
               municipalityProgression={municipalityProgression}
+              selectedMunicipalityName={selectedMunicipalityName}
             />
           </div>
 
@@ -152,7 +165,7 @@ export default function ProgressionPage() {
             <ProgressionSidebar
               zones={zones}
               selectedZoneKey={selectedZoneKey}
-              onSelectZone={setSelectedZoneKey}
+              onSelectZone={handleSelectZone}
             />
           </div>
         </div>
@@ -163,9 +176,7 @@ export default function ProgressionPage() {
       <section className="card">
         <h2>Gennemførte rejser</h2>
         <p className="muted">Dine afsluttede rejser vises her.</p>
-
         <br />
-
         <TravelHistoryList items={travelHistory} />
       </section>
 
@@ -174,9 +185,7 @@ export default function ProgressionPage() {
       <section className="card">
         <h2>Mine badges</h2>
         <p className="muted">Badges du har optjent gennem dine rejser.</p>
-
         <br />
-
         <BadgeGrid allBadges={allBadges} earnedBadges={earnedBadges} />
       </section>
 
@@ -187,9 +196,7 @@ export default function ProgressionPage() {
         <p className="muted">
           Se hvilke områder du allerede har begyndt at udforske.
         </p>
-
         <br />
-
         <RegionProgressList regions={data.regions ?? []} />
       </section>
     </div>

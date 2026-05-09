@@ -1,6 +1,14 @@
 import "leaflet/dist/leaflet.css";
 import { useEffect } from "react";
-import { MapContainer, Marker, Popup, TileLayer, Polygon, GeoJSON, useMap } from "react-leaflet";
+import {
+  MapContainer,
+  Marker,
+  Popup,
+  TileLayer,
+  Polygon,
+  GeoJSON,
+  useMap,
+} from "react-leaflet";
 import type { FeatureCollection, Geometry } from "geojson";
 
 import { getDenmarkMunicipalityProgression } from "../game/municipalityProgression";
@@ -9,11 +17,12 @@ import { buildProgressionZones } from "../game/progressionZones";
 import municipalitiesGeoJson from "../game/geojson/denmark-municipalities.json";
 import type { SelectedProgressionZoneKey } from "../model/progressionView.types";
 
-
 type Props = {
   locations: VisitedLocationMapItem[];
   selectedZoneKey: SelectedProgressionZoneKey;
+  selectedMunicipalityName: string | null;
   onSelectZone: (key: SelectedProgressionZoneKey) => void;
+  onSelectMunicipality: (municipalityName: string) => void;
 };
 
 function ProgressionMapController({
@@ -25,32 +34,21 @@ function ProgressionMapController({
 
   useEffect(() => {
     if (selectedZoneKey === "dk") {
-      map.flyTo([56.2639, 9.5018], 7, {
-        duration: 0.8,
-      });
-
+      map.flyTo([56.2639, 9.5018], 7, { duration: 0.8 });
       return;
     }
 
     if (selectedZoneKey === "germany") {
-      map.flyTo([51.1657, 10.4515], 6, {
-        duration: 0.8,
-      });
-
+      map.flyTo([51.1657, 10.4515], 6, { duration: 0.8 });
       return;
     }
 
     if (selectedZoneKey === "prague") {
-      map.flyTo([50.0755, 14.4378], 10, {
-        duration: 0.8,
-      });
-
+      map.flyTo([50.0755, 14.4378], 10, { duration: 0.8 });
       return;
     }
 
-    map.flyTo([55.6761, 12.5683], 5, {
-      duration: 0.8,
-    });
+    map.flyTo([55.6761, 12.5683], 5, { duration: 0.8 });
   }, [map, selectedZoneKey]);
 
   return null;
@@ -59,20 +57,32 @@ function ProgressionMapController({
 export default function ProgressionMap({
   locations,
   selectedZoneKey,
+  selectedMunicipalityName,
   onSelectZone,
+  onSelectMunicipality,
 }: Props) {
   const points = locations.filter(
     (x) => x.hasCoordinates && x.latitude != null && x.longitude != null
   );
 
   const zones = buildProgressionZones(locations);
-
-  const municipalityProgression =
-    getDenmarkMunicipalityProgression(locations);
+  const municipalityProgression = getDenmarkMunicipalityProgression(locations);
 
   const visibleZones = selectedZoneKey
     ? zones.filter((zone) => zone.key === selectedZoneKey)
     : zones;
+
+  function isMunicipalityVisited(municipalityName: string) {
+    return municipalityProgression.visitedMunicipalities
+      .map((x) => x.toLowerCase())
+      .includes(municipalityName.toLowerCase());
+  }
+
+  function isMunicipalitySelected(municipalityName: string) {
+    return (
+      selectedMunicipalityName?.toLowerCase() === municipalityName.toLowerCase()
+    );
+  }
 
   return (
     <>
@@ -98,22 +108,36 @@ export default function ProgressionMap({
 
           {selectedZoneKey === "dk" && (
             <GeoJSON
+              key={`municipalities-${selectedMunicipalityName ?? "none"}`}
               data={municipalitiesGeoJson as FeatureCollection<Geometry>}
               style={(feature: any) => {
-                const municipalityName =
-                  feature?.properties?.label_dk ?? "";
-
-                const isVisited =
-                  municipalityProgression.visitedMunicipalities
-                    .map((x) => x.toLowerCase())
-                    .includes(municipalityName.toLowerCase());
+                const municipalityName = feature?.properties?.label_dk ?? "";
+                const visited = isMunicipalityVisited(municipalityName);
+                const selected = isMunicipalitySelected(municipalityName);
 
                 return {
-                  color: isVisited ? "#16a34a" : "#64748b",
-                  fillColor: isVisited ? "#22c55e" : "#94a3b8",
-                  fillOpacity: isVisited ? 0.35 : 0.05,
-                  weight: isVisited ? 2 : 1,
+                  color: selected ? "#facc15" : visited ? "#16a34a" : "#64748b",
+                  fillColor: selected
+                    ? "#facc15"
+                    : visited
+                    ? "#22c55e"
+                    : "#94a3b8",
+                  fillOpacity: selected ? 0.5 : visited ? 0.35 : 0.05,
+                  weight: selected ? 3 : visited ? 2 : 1,
                 };
+              }}
+              onEachFeature={(feature: any, layer) => {
+                const municipalityName = feature?.properties?.label_dk ?? "";
+                const visited = isMunicipalityVisited(municipalityName);
+
+                layer.bindTooltip(
+                  `${municipalityName} · ${visited ? "Besøgt" : "Uopdaget"}`,
+                  { sticky: true }
+                );
+
+                layer.on({
+                  click: () => onSelectMunicipality(municipalityName),
+                });
               }}
             />
           )}
@@ -129,7 +153,8 @@ export default function ProgressionMap({
                   }}
                   style={{
                     color: zone.status === "unlocked" ? "#16a34a" : "#64748b",
-                    fillColor: zone.status === "unlocked" ? "#22c55e" : "#94a3b8",
+                    fillColor:
+                      zone.status === "unlocked" ? "#22c55e" : "#94a3b8",
                     fillOpacity: zone.status === "unlocked" ? 0.18 : 0.08,
                     weight: 2,
                   }}
@@ -137,17 +162,19 @@ export default function ProgressionMap({
               );
             }
 
-            if (!zone.polygon) {
-              return null;
-            }
+            if (!zone.polygon) return null;
 
             return (
               <Polygon
                 key={`zone-polygon-${zone.key}`}
                 positions={zone.polygon}
+                eventHandlers={{
+                  click: () => onSelectZone(zone.key),
+                }}
                 pathOptions={{
                   color: zone.status === "unlocked" ? "#16a34a" : "#64748b",
-                  fillColor: zone.status === "unlocked" ? "#22c55e" : "#94a3b8",
+                  fillColor:
+                    zone.status === "unlocked" ? "#22c55e" : "#94a3b8",
                   fillOpacity: zone.status === "unlocked" ? 0.18 : 0.08,
                   weight: 2,
                 }}
@@ -182,12 +209,10 @@ export default function ProgressionMap({
                 <strong>
                   {zone.status === "unlocked" ? "🟢" : "🔒"} {zone.title}
                 </strong>
-
                 <br />
                 {zone.description}
                 <br />
                 <br />
-
                 {zone.status === "unlocked" ? (
                   <>
                     Zone unlocked
