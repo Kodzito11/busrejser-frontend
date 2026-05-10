@@ -21,6 +21,9 @@ import type { TravelHistoryItem } from "../../travel-history/model/travelHistory
 
 import "../../../styles/features/progression/progression.css";
 
+import RegionProgressionCards from "../components/RegionProgressionCards";
+import { buildRegionProgression } from "../game/regionProgression";
+
 export default function ProgressionPage() {
   const [data, setData] = useState<ProgressionMapResponse | null>(null);
   const [allBadges, setAllBadges] = useState<Badge[]>([]);
@@ -87,6 +90,11 @@ export default function ProgressionPage() {
         data?.locations ?? []
       ),
     [allMunicipalityNames, data?.locations]
+  );
+
+  const regionProgression = useMemo(
+    () => buildRegionProgression(data?.locations ?? []),
+    [data?.locations]
   );
 
   function handleSelectZone(zoneKey: SelectedProgressionZoneKey) {
@@ -215,6 +223,19 @@ export default function ProgressionPage() {
         </p>
         <br />
         <RegionProgressList regions={data.regions ?? []} />
+      </section>
+      <section className="card">
+        <h2>Territory Regions</h2>
+
+        <p className="muted">
+          Følg din progression gennem Danmarks regioner.
+        </p>
+
+        <br />
+
+        <RegionProgressionCards
+          regions={regionProgression}
+        />
       </section>
     </div>
   );
