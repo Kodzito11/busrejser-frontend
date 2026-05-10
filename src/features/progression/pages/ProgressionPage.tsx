@@ -11,6 +11,7 @@ import ActiveZoneDetailCard from "../components/ActiveZoneDetailCard";
 
 import { buildProgressionZones } from "../game/progressionZones";
 import { getDenmarkMunicipalityProgression } from "../game/municipalityProgression";
+import { buildWorldState } from "../game/worldState";
 
 import BadgeGrid from "../../badges/components/BadgeGrid";
 import type { Badge, UserBadge } from "../../badges/model/badge.types";
@@ -71,6 +72,15 @@ export default function ProgressionPage() {
   const municipalityProgression = useMemo(
     () => getDenmarkMunicipalityProgression(data?.locations ?? []),
     [data?.locations]
+  );
+
+  const worldState = useMemo(
+    () =>
+      buildWorldState(
+        municipalityProgression.visitedMunicipalities,
+        data?.locations ?? []
+      ),
+    [municipalityProgression, data?.locations]
   );
 
   function handleSelectZone(zoneKey: SelectedProgressionZoneKey) {
@@ -147,12 +157,12 @@ export default function ProgressionPage() {
 
             <ProgressionMap
               locations={data.locations}
+              worldState={worldState}
               selectedZoneKey={selectedZoneKey}
               selectedMunicipalityName={selectedMunicipalityName}
               onSelectZone={handleSelectZone}
               onSelectMunicipality={handleSelectMunicipality}
             />
-
             <ActiveZoneDetailCard
               zone={selectedZone}
               locations={data.locations}

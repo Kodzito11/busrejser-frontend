@@ -11,7 +11,12 @@ import {
 } from "react-leaflet";
 import type { FeatureCollection, Geometry } from "geojson";
 
-import { getDenmarkMunicipalityProgression } from "../game/municipalityProgression";
+import type { WorldState } from "../game/worldState";
+import {
+  getMunicipalityFogOpacity,
+  getMunicipalityWorldState,
+} from "../game/worldStateSelectors";
+
 import type { VisitedLocationMapItem } from "../model/progression.types";
 import { buildProgressionZones } from "../game/progressionZones";
 import municipalitiesGeoJson from "../game/geojson/denmark-municipalities.json";
@@ -19,6 +24,7 @@ import type { SelectedProgressionZoneKey } from "../model/progressionView.types"
 
 type Props = {
   locations: VisitedLocationMapItem[];
+  worldState: WorldState;
   selectedZoneKey: SelectedProgressionZoneKey;
   selectedMunicipalityName: string | null;
   onSelectZone: (key: SelectedProgressionZoneKey) => void;
@@ -56,6 +62,7 @@ function ProgressionMapController({
 
 export default function ProgressionMap({
   locations,
+  worldState,
   selectedZoneKey,
   selectedMunicipalityName,
   onSelectZone,
@@ -66,17 +73,11 @@ export default function ProgressionMap({
   );
 
   const zones = buildProgressionZones(locations);
-  const municipalityProgression = getDenmarkMunicipalityProgression(locations);
 
   const visibleZones = selectedZoneKey
     ? zones.filter((zone) => zone.key === selectedZoneKey)
     : zones;
 
-  function isMunicipalityVisited(municipalityName: string) {
-    return municipalityProgression.visitedMunicipalities
-      .map((x) => x.toLowerCase())
-      .includes(municipalityName.toLowerCase());
-  }
 
   function isMunicipalitySelected(municipalityName: string) {
     return (
@@ -112,26 +113,63 @@ export default function ProgressionMap({
               data={municipalitiesGeoJson as FeatureCollection<Geometry>}
               style={(feature: any) => {
                 const municipalityName = feature?.properties?.label_dk ?? "";
-                const visited = isMunicipalityVisited(municipalityName);
-                const selected = isMunicipalitySelected(municipalityName);
+
+                const selected =
+                  isMunicipalitySelected(municipalityName);
+
+                const municipalityWorldState =
+                  getMunicipalityWorldState(
+                    worldState,
+                    municipalityName
+                  );
+
+                const fogOpacity =
+                  getMunicipalityFogOpacity(
+                    worldState,
+                    municipalityName
+                  );
+
+                const unlocked =
+                  municipalityWorldState?.unlocked ?? false;
+
+                const mastered =
+                  municipalityWorldState?.mastered ?? false;
 
                 return {
-                  color: selected ? "#facc15" : visited ? "#16a34a" : "#64748b",
+                  color: selected
+                    ? "#facc15"
+                    : mastered
+                    ? "#22c55e"
+                    : unlocked
+                    ? "#16a34a"
+                    : "#475569",
+
                   fillColor: selected
                     ? "#facc15"
-                    : visited
+                    : mastered
                     ? "#22c55e"
-                    : "#94a3b8",
-                  fillOpacity: selected ? 0.5 : visited ? 0.35 : 0.05,
-                  weight: selected ? 3 : visited ? 2 : 1,
+                    : unlocked
+                    ? "#16a34a"
+                    : "#0f172a",
+
+                  fillOpacity: selected ? 0.6 : 1 - fogOpacity,
+
+                  weight: selected ? 3 : mastered ? 3 : unlocked ? 2 : 1,
                 };
               }}
               onEachFeature={(feature: any, layer) => {
                 const municipalityName = feature?.properties?.label_dk ?? "";
-                const visited = isMunicipalityVisited(municipalityName);
+
+                const municipalityWorldState =
+                  getMunicipalityWorldState(
+                    worldState,
+                    municipalityName
+                  );
 
                 layer.bindTooltip(
-                  `${municipalityName} · ${visited ? "Besøgt" : "Uopdaget"}`,
+                  `${municipalityName} · ${
+                    municipalityWorldState?.state ?? "unknown"
+                  }`,
                   { sticky: true }
                 );
 
