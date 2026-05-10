@@ -13,11 +13,12 @@ import type { FeatureCollection, Geometry } from "geojson";
 
 import type { WorldState } from "../game/worldState";
 import {
-  getMunicipalityFogOpacity,
   getMunicipalityWorldState,
 } from "../game/worldStateSelectors";
 
 import type { VisitedLocationMapItem } from "../model/progression.types";
+
+import { getTerritoryVisuals } from "../game/territoryVisuals";
 import { buildProgressionZones } from "../game/progressionZones";
 import municipalitiesGeoJson from "../game/geojson/denmark-municipalities.json";
 import type { SelectedProgressionZoneKey } from "../model/progressionView.types";
@@ -123,38 +124,18 @@ export default function ProgressionMap({
                     municipalityName
                   );
 
-                const fogOpacity =
-                  getMunicipalityFogOpacity(
-                    worldState,
-                    municipalityName
-                  );
-
-                const unlocked =
-                  municipalityWorldState?.unlocked ?? false;
-
-                const mastered =
-                  municipalityWorldState?.mastered ?? false;
+                const visuals = getTerritoryVisuals({
+                  state: municipalityWorldState,
+                  selected,
+                });
 
                 return {
-                  color: selected
-                    ? "#facc15"
-                    : mastered
-                    ? "#22c55e"
-                    : unlocked
-                    ? "#16a34a"
-                    : "#475569",
-
-                  fillColor: selected
-                    ? "#facc15"
-                    : mastered
-                    ? "#22c55e"
-                    : unlocked
-                    ? "#16a34a"
-                    : "#0f172a",
-
-                  fillOpacity: selected ? 0.6 : 1 - fogOpacity,
-
-                  weight: selected ? 3 : mastered ? 3 : unlocked ? 2 : 1,
+                  color: visuals.borderColor,
+                  fillColor: visuals.fillColor,
+                  fillOpacity: visuals.fillOpacity,
+                  weight: visuals.weight,
+                  dashArray: visuals.dashArray,
+                  className: "progression-map__municipality",
                 };
               }}
               onEachFeature={(feature: any, layer) => {
@@ -167,8 +148,7 @@ export default function ProgressionMap({
                   );
 
                 layer.bindTooltip(
-                  `${municipalityName} · ${
-                    municipalityWorldState?.state ?? "unknown"
+                  `${municipalityName} · ${municipalityWorldState?.state ?? "unknown"
                   }`,
                   { sticky: true }
                 );
