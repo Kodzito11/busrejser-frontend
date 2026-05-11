@@ -12,9 +12,7 @@ import {
 import type { FeatureCollection, Geometry } from "geojson";
 
 import type { WorldState } from "../game/worldState";
-import {
-  getMunicipalityWorldState,
-} from "../game/worldStateSelectors";
+import { getMunicipalityWorldState } from "../game/worldStateSelectors";
 
 import type { VisitedLocationMapItem } from "../model/progression.types";
 
@@ -22,6 +20,8 @@ import { getTerritoryVisuals } from "../game/territoryVisuals";
 import { buildProgressionZones } from "../game/progressionZones";
 import municipalitiesGeoJson from "../game/geojson/denmark-municipalities.json";
 import type { SelectedProgressionZoneKey } from "../model/progressionView.types";
+
+import { defaultMapCamera, getMapCameraForTerritory } from "../map/mapCamera";
 
 type Props = {
   locations: VisitedLocationMapItem[];
@@ -40,22 +40,9 @@ function ProgressionMapController({
   const map = useMap();
 
   useEffect(() => {
-    if (selectedZoneKey === "dk") {
-      map.flyTo([56.2639, 9.5018], 7, { duration: 0.8 });
-      return;
-    }
+    const camera = getMapCameraForTerritory(selectedZoneKey);
 
-    if (selectedZoneKey === "germany") {
-      map.flyTo([51.1657, 10.4515], 6, { duration: 0.8 });
-      return;
-    }
-
-    if (selectedZoneKey === "prague") {
-      map.flyTo([50.0755, 14.4378], 10, { duration: 0.8 });
-      return;
-    }
-
-    map.flyTo([55.6761, 12.5683], 5, { duration: 0.8 });
+    map.flyTo(camera.center, camera.zoom, { duration: 0.8 });
   }, [map, selectedZoneKey]);
 
   return null;
@@ -79,7 +66,6 @@ export default function ProgressionMap({
     ? zones.filter((zone) => zone.key === selectedZoneKey)
     : zones;
 
-
   function isMunicipalitySelected(municipalityName: string) {
     return (
       selectedMunicipalityName?.toLowerCase() === municipalityName.toLowerCase()
@@ -96,8 +82,8 @@ export default function ProgressionMap({
 
       <div className="progression-map">
         <MapContainer
-          center={[55.6761, 12.5683]}
-          zoom={5}
+          center={defaultMapCamera.center}
+          zoom={defaultMapCamera.zoom}
           scrollWheelZoom={false}
           className="progression-map__leaflet"
         >
@@ -115,14 +101,12 @@ export default function ProgressionMap({
               style={(feature: any) => {
                 const municipalityName = feature?.properties?.label_dk ?? "";
 
-                const selected =
-                  isMunicipalitySelected(municipalityName);
+                const selected = isMunicipalitySelected(municipalityName);
 
-                const municipalityWorldState =
-                  getMunicipalityWorldState(
-                    worldState,
-                    municipalityName
-                  );
+                const municipalityWorldState = getMunicipalityWorldState(
+                  worldState,
+                  municipalityName
+                );
 
                 const visuals = getTerritoryVisuals({
                   state: municipalityWorldState,
@@ -141,14 +125,14 @@ export default function ProgressionMap({
               onEachFeature={(feature: any, layer) => {
                 const municipalityName = feature?.properties?.label_dk ?? "";
 
-                const municipalityWorldState =
-                  getMunicipalityWorldState(
-                    worldState,
-                    municipalityName
-                  );
+                const municipalityWorldState = getMunicipalityWorldState(
+                  worldState,
+                  municipalityName
+                );
 
                 layer.bindTooltip(
-                  `${municipalityName} · ${municipalityWorldState?.state ?? "unknown"
+                  `${municipalityName} · ${
+                    municipalityWorldState?.state ?? "unknown"
                   }`,
                   { sticky: true }
                 );

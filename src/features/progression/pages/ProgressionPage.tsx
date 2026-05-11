@@ -22,6 +22,8 @@ import "../../../styles/features/progression/progression.css";
 import RegionProgressionCards from "../components/RegionProgressionCards";
 import { buildRegionProgression } from "../game/regionProgression";
 
+import { buildProgressionDashboardView } from "../view-model/buildProgressionDashboardView";
+
 export default function ProgressionPage() {
   const [data, setData] = useState<ProgressionMapResponse | null>(null);
   const [allBadges, setAllBadges] = useState<Badge[]>([]);
@@ -64,8 +66,15 @@ export default function ProgressionPage() {
     load();
   }, []);
 
-  const selectedTerritory =
-    data?.territories?.find((x) => x.key === selectedZoneKey) ?? null;
+  const dashboardView = useMemo(() => {
+    if (!data) return null;
+
+    return buildProgressionDashboardView({
+      data,
+      selectedZoneKey,
+      selectedMunicipalityName,
+    });
+  }, [data, selectedZoneKey, selectedMunicipalityName]);
 
   const allMunicipalityNames = useMemo(
     () => extractAllMunicipalityNames(),
@@ -114,7 +123,7 @@ export default function ProgressionPage() {
     );
   }
 
-  if (!data) return null;
+  if (!data || !dashboardView) return null;
 
   return (
     <div className="wrap">
@@ -138,12 +147,12 @@ export default function ProgressionPage() {
 
         <div className="card">
           <p className="muted">Besøgte lokationer</p>
-          <h2>{data.visitedLocationCount}</h2>
+          <h2>{dashboardView.stats.visitedLocationCount}</h2>
         </div>
 
         <div className="card">
           <p className="muted">Besøgte lande</p>
-          <h2>{data.visitedCountryCount}</h2>
+          <h2>{dashboardView.stats.visitedCountryCount}</h2>
         </div>
 
         <div className="card">
@@ -170,15 +179,15 @@ export default function ProgressionPage() {
             />
 
             <ActiveZoneDetailCard
-              territory={selectedTerritory}
-              municipalities={data.municipalities ?? []}
+              territory={dashboardView.selectedTerritory}
+              municipalities={dashboardView.municipalities}
               selectedMunicipalityName={selectedMunicipalityName}
             />
           </div>
 
           <div className="progression-dashboard__side">
             <ProgressionSidebar
-              territories={data.territories ?? []}
+              territories={dashboardView.territories}
               selectedZoneKey={selectedZoneKey}
               onSelectZone={handleSelectZone}
             />
