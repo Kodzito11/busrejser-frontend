@@ -36,6 +36,8 @@ import RequireStaff from "../features/auth/components/RequireStaff";
 import RequireCustomer from "../features/auth/components/RequireCustomer";
 import RequireStaffRedirect from "../features/auth/components/RequireStaffRedirect";
 
+import AdminProgressionTerritoriesPage from "../features/progression-admin/pages/AdminProgressionTerritoriesPage";
+
 export default function App() {
   return (
     <Routes>
@@ -80,6 +82,7 @@ export default function App() {
           <Route path="busser" element={<AdminBusPage />} />
           <Route path="rejser" element={<AdminRejsePage />} />
           <Route path="bookings" element={<AdminBookingPage />} />
+          <Route path="progression" element={<AdminProgressionTerritoriesPage />} />
         </Route>
       </Route>
     </Routes>
