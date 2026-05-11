@@ -9,8 +9,7 @@ import ProgressionSidebar from "../components/ProgressionSidebar";
 import RegionProgressList from "../components/RegionProgressList";
 import ActiveZoneDetailCard from "../components/ActiveZoneDetailCard";
 
-import { buildWorldState } from "../game/worldState";
-import { extractAllMunicipalityNames } from "../game/extractAllMunicipalityNames";
+import { buildMapMunicipalities } from "../map/mapMunicipalityAdapter";
 
 import BadgeGrid from "../../badges/components/BadgeGrid";
 import type { Badge, UserBadge } from "../../badges/model/badge.types";
@@ -84,20 +83,11 @@ export default function ProgressionPage() {
     return buildMapTerritories(dashboardView.territories);
   }, [dashboardView]);
 
-  const allMunicipalityNames = useMemo(
-    () => extractAllMunicipalityNames(),
-    []
-  );
+  const mapMunicipalities = useMemo(() => {
+    if (!dashboardView) return [];
 
-  // Beholdes midlertidigt til map layer
-  const worldState = useMemo(
-    () =>
-      buildWorldState(
-        allMunicipalityNames,
-        data?.locations ?? []
-      ),
-    [allMunicipalityNames, data?.locations]
-  );
+    return buildMapMunicipalities(dashboardView.municipalities);
+  }, [dashboardView]);
 
   // Beholdes midlertidigt til gamle region cards
   const regionProgression = useMemo(
@@ -180,7 +170,7 @@ export default function ProgressionPage() {
             <ProgressionMap
               locations={data.locations}
               territories={mapTerritories}
-              worldState={worldState}
+              municipalities={mapMunicipalities}
               selectedZoneKey={selectedZoneKey}
               selectedMunicipalityName={selectedMunicipalityName}
               onSelectZone={handleSelectZone}
