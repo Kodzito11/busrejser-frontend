@@ -50,6 +50,7 @@ import "./styles/features/admin/dashboard/stats-cards.css";
 import "./styles/features/admin/dashboard/info-panels.css";
 import "./styles/features/admin/dashboard/chart-list.css";
 import "./styles/features/admin/dashboard/insight-cards.css";
+import "./styles/features/admin/progression/progression-admin.css";
 
 import App from "./app/App";
 

@@ -117,51 +117,57 @@ export default function AdminProgressionTerritoriesPage() {
   }
 
   return (
-    <div>
-      <header className="adminPageHeader">
+    <div className="progression-admin-page">
+      <header className="progression-admin-header">
         <div>
           <h1>Progression territories</h1>
           <p className="muted">
             Styr hvilke lande og områder der er aktive i progression-systemet.
           </p>
         </div>
+
+        <button
+          type="button"
+          className="btn secondary"
+          onClick={() => {
+            setSelectedId(null);
+            setMessage("");
+            setErr("");
+          }}
+        >
+          Opret ny
+        </button>
       </header>
 
-      {err && (
-        <>
-          <div className="error">{err}</div>
-          <br />
-        </>
-      )}
+      {err && <div className="error">{err}</div>}
 
-      {message && (
-        <>
-          <div className="success">{message}</div>
-          <br />
-        </>
-      )}
+      {message && <div className="success">{message}</div>}
 
-      <div className="grid" style={{ gridTemplateColumns: "1fr" }}>
-        <ProgressionTerritoryTable
-          items={items}
-          selectedId={selectedId}
-          onEdit={(item) => setSelectedId(item.progressionTerritoryId)}
-        />
+      <div className="progression-admin-layout">
+        <div className="progression-admin-main">
+          <ProgressionTerritoryTable
+            items={items}
+            selectedId={selectedId}
+            onEdit={(item) => setSelectedId(item.progressionTerritoryId)}
+          />
+        </div>
 
-        <ProgressionTerritoryForm
-          selected={selected}
-          saving={saving}
-          onCancelEdit={() => setSelectedId(null)}
-          onCreate={handleCreate}
-          onUpdate={handleUpdate}
-        />
+        <div className="progression-admin-side">
+          <ProgressionTerritoryForm
+            selected={selected}
+            saving={saving}
+            onCancelEdit={() => setSelectedId(null)}
+            onCreate={handleCreate}
+            onUpdate={handleUpdate}
+          />
 
-        <ProgressionTerritoryAliasEditor
-          selected={selected}
-          saving={saving}
-          onAddAlias={handleAddAlias}
-          onRemoveAlias={handleRemoveAlias}
-        />
+          <ProgressionTerritoryAliasEditor
+            selected={selected}
+            saving={saving}
+            onAddAlias={handleAddAlias}
+            onRemoveAlias={handleRemoveAlias}
+          />
+        </div>
       </div>
     </div>
   );
