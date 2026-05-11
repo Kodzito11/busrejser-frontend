@@ -3,7 +3,7 @@ import type { VisitedLocationMapItem } from "../model/progression.types";
 import {
     denmarkGeoJson,
     germanyGeoJson,
-} from "./progressionGeoJson";
+} from "../game/progressionGeoJson";
 
 export type ProgressionZoneStatus = "locked" | "unlocked";
 

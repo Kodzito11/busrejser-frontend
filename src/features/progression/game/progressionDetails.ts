@@ -1,4 +1,4 @@
-import type { ProgressionZoneViewModel } from "./progressionZones";
+import type { ProgressionZoneViewModel } from "../map/staticTerritoryMetadata";
 
 export type ZoneProgressionDetails = {
   completionPercent: number;

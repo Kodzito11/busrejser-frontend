@@ -3,7 +3,7 @@ import type {
   ProgressionStatus,
   TerritoryProgressItem,
 } from "../model/progression.types";
-import { progressionZones } from "../game/progressionZones";
+import { progressionZones } from "./staticTerritoryMetadata";
 
 export type MapTerritory = {
   key: string;

@@ -17,6 +17,36 @@ function formatStatus(status: string) {
   return status;
 }
 
+function getProgressionHint(status: string, type: "territory" | "municipality") {
+  if (status === "locked") {
+    return type === "municipality"
+      ? "Tag en rejse hertil for at opdage kommunen."
+      : "Tag din første rejse hertil for at unlocke området.";
+  }
+
+  if (status === "mastered") {
+    return type === "municipality"
+      ? "Kommunen er mastered. Flot."
+      : "Området er mastered. Klar til næste territory.";
+  }
+
+  return type === "municipality"
+    ? "Kommunen er unlocked. Flere besøg øger progressionen."
+    : "Området er unlocked. Udforsk flere steder for højere completion.";
+}
+
+function getTopMunicipalities(municipalities: MunicipalityProgressItem[]) {
+  return [...municipalities]
+    .filter((municipality) => municipality.visitCount > 0 || municipality.status !== "locked")
+    .sort(
+      (a, b) =>
+        b.completionPercent - a.completionPercent ||
+        b.visitCount - a.visitCount ||
+        a.name.localeCompare(b.name, "da")
+    )
+    .slice(0, 5);
+}
+
 export default function ActiveZoneDetailCard({
   territory,
   municipalities,
@@ -28,7 +58,11 @@ export default function ActiveZoneDetailCard({
       ) ?? null
     : null;
 
+  const topMunicipalities = getTopMunicipalities(municipalities);
+
   if (selectedMunicipality) {
+    const hint = getProgressionHint(selectedMunicipality.status, "municipality");
+
     return (
       <div className="active-zone-card">
         <div className="active-zone-card__top">
@@ -76,10 +110,9 @@ export default function ActiveZoneDetailCard({
         <div className="active-zone-card__next">
           <p className="muted">Kommune progression</p>
           <ul>
+            <li>{hint}</li>
             <li>
-              {selectedMunicipality.visitCount > 0
-                ? "Denne kommune er opdaget."
-                : "Tag en rejse hertil for at unlocke kommunen."}
+              Denne kommune tæller med i {selectedMunicipality.region} progression.
             </li>
           </ul>
         </div>
@@ -97,6 +130,8 @@ export default function ActiveZoneDetailCard({
       </div>
     );
   }
+
+  const hint = getProgressionHint(territory.status, "territory");
 
   return (
     <div className="active-zone-card">
@@ -145,15 +180,27 @@ export default function ActiveZoneDetailCard({
       <div className="active-zone-card__next">
         <p className="muted">Næste mål</p>
         <ul>
-          <li>
-            {territory.status === "locked"
-              ? "Tag din første rejse hertil for at unlocke området."
-              : territory.status === "mastered"
-              ? "Området er mastered. Klar til næste territory."
-              : "Fortsæt med at udforske området for højere completion."}
-          </li>
+          <li>{hint}</li>
         </ul>
       </div>
+
+      {topMunicipalities.length > 0 && (
+        <div className="active-zone-card__next">
+          <p className="muted">Top kommuner</p>
+
+          <ul>
+            {topMunicipalities.map((municipality) => (
+              <li key={municipality.name}>
+                <strong>{municipality.name}</strong>{" "}
+                <span className="muted">
+                  · {formatStatus(municipality.status)} ·{" "}
+                  {municipality.completionPercent}%
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
