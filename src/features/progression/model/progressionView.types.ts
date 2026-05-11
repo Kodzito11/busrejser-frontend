@@ -1,1 +1,1 @@
-export type SelectedProgressionZoneKey = "dk" | "germany" | "prague" | null;
+export type SelectedProgressionZoneKey = string | null;

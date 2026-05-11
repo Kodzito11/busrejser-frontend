@@ -12,11 +12,32 @@ export type VisitedLocationMapItem = {
   hasCoordinates: boolean;
 };
 
+export type ProgressionStatus = "locked" | "unlocked" | "mastered";
+
+export type TerritoryProgressItem = {
+  key: string;
+  name: string;
+  type: string;
+  visitCount: number;
+  status: ProgressionStatus;
+  completionPercent: number;
+};
+
+export type MunicipalityProgressItem = {
+  name: string;
+  region: string;
+  visitCount: number;
+  status: ProgressionStatus;
+  completionPercent: number;
+};
+
 export type ProgressionMapResponse = {
   visitedLocationCount: number;
   visitedCountryCount: number;
   locations: VisitedLocationMapItem[];
   regions: RegionProgressItem[];
+  territories: TerritoryProgressItem[];
+  municipalities: MunicipalityProgressItem[];
 };
 
 export type RegionProgressItem = {

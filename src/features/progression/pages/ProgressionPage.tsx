@@ -9,8 +9,6 @@ import ProgressionSidebar from "../components/ProgressionSidebar";
 import RegionProgressList from "../components/RegionProgressList";
 import ActiveZoneDetailCard from "../components/ActiveZoneDetailCard";
 
-import { buildProgressionZones } from "../game/progressionZones";
-import { getDenmarkMunicipalityProgression } from "../game/municipalityProgression";
 import { buildWorldState } from "../game/worldState";
 import { extractAllMunicipalityNames } from "../game/extractAllMunicipalityNames";
 
@@ -66,23 +64,15 @@ export default function ProgressionPage() {
     load();
   }, []);
 
-  const zones = useMemo(
-    () => buildProgressionZones(data?.locations ?? []),
-    [data?.locations]
-  );
-
-  const selectedZone = zones.find((x) => x.key === selectedZoneKey) ?? null;
-
-  const municipalityProgression = useMemo(
-    () => getDenmarkMunicipalityProgression(data?.locations ?? []),
-    [data?.locations]
-  );
+  const selectedTerritory =
+    data?.territories?.find((x) => x.key === selectedZoneKey) ?? null;
 
   const allMunicipalityNames = useMemo(
     () => extractAllMunicipalityNames(),
     []
   );
 
+  // Beholdes midlertidigt til map layer
   const worldState = useMemo(
     () =>
       buildWorldState(
@@ -92,6 +82,7 @@ export default function ProgressionPage() {
     [allMunicipalityNames, data?.locations]
   );
 
+  // Beholdes midlertidigt til gamle region cards
   const regionProgression = useMemo(
     () => buildRegionProgression(data?.locations ?? []),
     [data?.locations]
@@ -179,16 +170,15 @@ export default function ProgressionPage() {
             />
 
             <ActiveZoneDetailCard
-              zone={selectedZone}
-              locations={data.locations}
-              municipalityProgression={municipalityProgression}
+              territory={selectedTerritory}
+              municipalities={data.municipalities ?? []}
               selectedMunicipalityName={selectedMunicipalityName}
             />
           </div>
 
           <div className="progression-dashboard__side">
             <ProgressionSidebar
-              zones={zones}
+              territories={data.territories ?? []}
               selectedZoneKey={selectedZoneKey}
               onSelectZone={handleSelectZone}
             />
@@ -224,6 +214,9 @@ export default function ProgressionPage() {
         <br />
         <RegionProgressList regions={data.regions ?? []} />
       </section>
+
+      <br />
+
       <section className="card">
         <h2>Territory Regions</h2>
 
@@ -233,9 +226,7 @@ export default function ProgressionPage() {
 
         <br />
 
-        <RegionProgressionCards
-          regions={regionProgression}
-        />
+        <RegionProgressionCards regions={regionProgression} />
       </section>
     </div>
   );
