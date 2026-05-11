@@ -6,8 +6,24 @@ type Props = {
   onEdit: (item: ProgressionTerritoryAdminItem) => void;
 };
 
-function yesNo(value: boolean) {
-  return value ? "Ja" : "Nej";
+function getTerritoryStatus(item: ProgressionTerritoryAdminItem) {
+  if (item.isComingSoon) return "Coming soon";
+  if (!item.isActive) return "Inaktiv";
+  if (!item.isVisible) return "Skjult";
+
+  return "Klar";
+}
+
+function getTerritoryStatusClass(item: ProgressionTerritoryAdminItem) {
+  if (item.isComingSoon) {
+    return "progression-admin-pill progression-admin-pill--soon";
+  }
+
+  if (!item.isActive || !item.isVisible) {
+    return "progression-admin-pill progression-admin-pill--inactive";
+  }
+
+  return "progression-admin-pill progression-admin-pill--active";
 }
 
 export default function ProgressionTerritoryTable({
@@ -16,7 +32,12 @@ export default function ProgressionTerritoryTable({
   onEdit,
 }: Props) {
   if (items.length === 0) {
-    return <div className="card muted">Ingen progression territories endnu.</div>;
+    return (
+      <div className="card">
+        <h2>Territories</h2>
+        <p className="muted">Ingen progression territories endnu.</p>
+      </div>
+    );
   }
 
   return (
@@ -28,16 +49,14 @@ export default function ProgressionTerritoryTable({
 
       <br />
 
-      <div className="tableWrap">
-        <table className="legacyTable">
+      <div className="table-wrap">
+        <table className="admin-table">
           <thead>
             <tr>
               <th>Navn</th>
               <th>Key</th>
               <th>Type</th>
-              <th>Aktiv</th>
-              <th>Synlig</th>
-              <th>Coming soon</th>
+              <th>Status</th>
               <th>Mastery</th>
               <th>Aliases</th>
               <th></th>
@@ -49,25 +68,49 @@ export default function ProgressionTerritoryTable({
               <tr
                 key={item.progressionTerritoryId}
                 className={
-                  selectedId === item.progressionTerritoryId ? "selected" : ""
+                  selectedId === item.progressionTerritoryId
+                    ? "progression-admin-table-row-selected"
+                    : ""
                 }
               >
                 <td>
                   <strong>{item.name}</strong>
+                  {item.description && (
+                    <>
+                      <br />
+                      <span className="muted">{item.description}</span>
+                    </>
+                  )}
                 </td>
+
                 <td>{item.key}</td>
                 <td>{item.type}</td>
-                <td>{yesNo(item.isActive)}</td>
-                <td>{yesNo(item.isVisible)}</td>
-                <td>{yesNo(item.isComingSoon)}</td>
+
+                <td>
+                  <span className={getTerritoryStatusClass(item)}>
+                    {getTerritoryStatus(item)}
+                  </span>
+                </td>
+
                 <td>{item.masteryTarget}</td>
+
                 <td>
                   {item.aliases.length === 0 ? (
                     <span className="muted">Ingen</span>
                   ) : (
-                    item.aliases.map((x) => x.value).join(", ")
+                    <div className="progression-admin-alias-list">
+                      {item.aliases.map((alias) => (
+                        <span
+                          key={alias.progressionTerritoryAliasId}
+                          className="progression-admin-alias"
+                        >
+                          {alias.value}
+                        </span>
+                      ))}
+                    </div>
                   )}
                 </td>
+
                 <td>
                   <button
                     type="button"

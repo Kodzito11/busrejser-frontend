@@ -44,7 +44,7 @@ export default function ProgressionTerritoryAliasEditor({
 
       <br />
 
-      <form className="row-actions" onSubmit={handleAdd}>
+      <form className="progression-admin-actions" onSubmit={handleAdd}>
         <input
           value={value}
           onChange={(e) => setValue(e.target.value)}
@@ -59,19 +59,21 @@ export default function ProgressionTerritoryAliasEditor({
       <br />
 
       {selected.aliases.length === 0 ? (
-        <p className="muted">Ingen aliases endnu.</p>
+        <div className="progression-admin-muted-box">
+          Ingen aliases endnu.
+        </div>
       ) : (
-        <div className="grid" style={{ gridTemplateColumns: "repeat(2, 1fr)" }}>
+        <div className="progression-admin-alias-grid">
           {selected.aliases.map((alias) => (
-            <div key={alias.progressionTerritoryAliasId} className="card">
+            <div
+              key={alias.progressionTerritoryAliasId}
+              className="progression-admin-alias-item"
+            >
               <strong>{alias.value}</strong>
-
-              <br />
-              <br />
 
               <button
                 type="button"
-                className="btn danger"
+                className="btn secondary"
                 disabled={saving}
                 onClick={() =>
                   onRemoveAlias(alias.progressionTerritoryAliasId)

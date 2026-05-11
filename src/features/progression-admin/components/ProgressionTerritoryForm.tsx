@@ -64,7 +64,7 @@ export default function ProgressionTerritoryForm({
       isComingSoon: selected.isComingSoon,
       masteryTarget: selected.masteryTarget,
       description: selected.description ?? "",
-      aliasesText: selected.aliases.map((x) => x.value).join(", "),
+      aliasesText: "",
     });
   }, [selected]);
 
@@ -122,7 +122,7 @@ export default function ProgressionTerritoryForm({
 
       <br />
 
-      <div className="grid" style={{ gridTemplateColumns: "repeat(2, 1fr)" }}>
+      <div className="progression-admin-form-grid">
         <label>
           Key
           <input
@@ -193,46 +193,46 @@ export default function ProgressionTerritoryForm({
       {selected && (
         <>
           <br />
-          <p className="muted">
-            Aliases redigeres i alias-sektionen under tabellen.
-          </p>
+          <div className="progression-admin-muted-box">
+            Aliases redigeres i alias-sektionen under formularen.
+          </div>
         </>
       )}
 
       <br />
 
-      <div className="grid" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
-        <label>
+      <div className="progression-admin-checks">
+        <label className="progression-admin-check">
           <input
             type="checkbox"
             checked={form.isActive}
             onChange={(e) => update("isActive", e.target.checked)}
-          />{" "}
+          />
           Aktiv
         </label>
 
-        <label>
+        <label className="progression-admin-check">
           <input
             type="checkbox"
             checked={form.isVisible}
             onChange={(e) => update("isVisible", e.target.checked)}
-          />{" "}
+          />
           Synlig
         </label>
 
-        <label>
+        <label className="progression-admin-check">
           <input
             type="checkbox"
             checked={form.isComingSoon}
             onChange={(e) => update("isComingSoon", e.target.checked)}
-          />{" "}
+          />
           Coming soon
         </label>
       </div>
 
       <br />
 
-      <div className="row-actions">
+      <div className="progression-admin-actions">
         <button type="submit" className="btn" disabled={saving}>
           {saving ? "Gemmer..." : selected ? "Gem ændringer" : "Opret"}
         </button>
