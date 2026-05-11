@@ -47,3 +47,16 @@ export type RegionProgressItem = {
   totalVisitCount: number;
   lastVisitedAt: string;
 };
+
+export type QuestProgressStatus = "locked" | "active" | "completed";
+
+export type QuestProgressItem = {
+  key: string;
+  title: string;
+  description: string;
+  status: QuestProgressStatus;
+  current: number;
+  target: number;
+  completionPercent: number;
+  rewardLabel: string;
+};

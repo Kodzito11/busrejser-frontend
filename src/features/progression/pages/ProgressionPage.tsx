@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../../../shared/api/api";
 
-import type { ProgressionMapResponse } from "../model/progression.types";
+import type {
+  ProgressionMapResponse,
+  QuestProgressItem,
+} from "../model/progression.types";
 import type { SelectedProgressionZoneKey } from "../model/progressionView.types";
 
 import ProgressionMap from "../components/ProgressionMap";
@@ -22,6 +25,8 @@ import { buildProgressionDashboardView } from "../view-model/buildProgressionDas
 
 import { buildMapTerritories } from "../map/mapTerritoryAdapter";
 
+import QuestProgressList from "../components/QuestProgressList";
+
 export default function ProgressionPage() {
   const [data, setData] = useState<ProgressionMapResponse | null>(null);
   const [allBadges, setAllBadges] = useState<Badge[]>([]);
@@ -29,6 +34,7 @@ export default function ProgressionPage() {
   const [travelHistory, setTravelHistory] = useState<TravelHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
+  const [quests, setQuests] = useState<QuestProgressItem[]>([]);
 
   const [selectedZoneKey, setSelectedZoneKey] =
     useState<SelectedProgressionZoneKey>(null);
@@ -42,15 +48,23 @@ export default function ProgressionPage() {
         setErr("");
         setLoading(true);
 
-        const [mapResult, allBadgeResult, mineBadgeResult, travelHistoryResult] =
-          await Promise.all([
-            api.progression.getMap(),
-            api.badges.getAll(),
-            api.badges.getMine(),
-            api.travelHistory.getMine(),
-          ]);
+        const [
+          mapResult,
+          questResult,
+          allBadgeResult,
+          mineBadgeResult,
+          travelHistoryResult,
+        ] = await Promise.all([
+          api.progression.getMap(),
+          api.progression.getQuests(),
+          api.badges.getAll(),
+          api.badges.getMine(),
+          api.travelHistory.getMine(),
+        ]);
+
 
         setData(mapResult);
+        setQuests(questResult);
         setAllBadges(allBadgeResult);
         setEarnedBadges(mineBadgeResult);
         setTravelHistory(travelHistoryResult);
@@ -192,6 +206,17 @@ export default function ProgressionPage() {
         <p className="muted">Dine afsluttede rejser vises her.</p>
         <br />
         <TravelHistoryList items={travelHistory} />
+      </section>
+
+      <br />
+
+      <section className="card">
+        <h2>Quests</h2>
+        <p className="muted">
+          Næste mål baseret på din rejseprogression.
+        </p>
+        <br />
+        <QuestProgressList quests={quests} />
       </section>
 
       <br />
