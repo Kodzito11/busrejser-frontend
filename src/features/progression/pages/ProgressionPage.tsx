@@ -24,6 +24,8 @@ import { buildRegionProgression } from "../game/regionProgression";
 
 import { buildProgressionDashboardView } from "../view-model/buildProgressionDashboardView";
 
+import { buildMapTerritories } from "../map/mapTerritoryAdapter";
+
 export default function ProgressionPage() {
   const [data, setData] = useState<ProgressionMapResponse | null>(null);
   const [allBadges, setAllBadges] = useState<Badge[]>([]);
@@ -75,6 +77,12 @@ export default function ProgressionPage() {
       selectedMunicipalityName,
     });
   }, [data, selectedZoneKey, selectedMunicipalityName]);
+
+  const mapTerritories = useMemo(() => {
+    if (!dashboardView) return [];
+
+    return buildMapTerritories(dashboardView.territories);
+  }, [dashboardView]);
 
   const allMunicipalityNames = useMemo(
     () => extractAllMunicipalityNames(),
@@ -171,6 +179,7 @@ export default function ProgressionPage() {
 
             <ProgressionMap
               locations={data.locations}
+              territories={mapTerritories}
               worldState={worldState}
               selectedZoneKey={selectedZoneKey}
               selectedMunicipalityName={selectedMunicipalityName}

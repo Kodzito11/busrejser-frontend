@@ -15,22 +15,57 @@ import type { WorldState } from "../game/worldState";
 import { getMunicipalityWorldState } from "../game/worldStateSelectors";
 
 import type { VisitedLocationMapItem } from "../model/progression.types";
+import type { SelectedProgressionZoneKey } from "../model/progressionView.types";
+import type { MapTerritory } from "../map/mapTerritoryAdapter";
 
 import { getTerritoryVisuals } from "../game/territoryVisuals";
-import { buildProgressionZones } from "../game/progressionZones";
 import municipalitiesGeoJson from "../game/geojson/denmark-municipalities.json";
-import type { SelectedProgressionZoneKey } from "../model/progressionView.types";
 
 import { defaultMapCamera, getMapCameraForTerritory } from "../map/mapCamera";
 
 type Props = {
   locations: VisitedLocationMapItem[];
+  territories: MapTerritory[];
   worldState: WorldState;
   selectedZoneKey: SelectedProgressionZoneKey;
   selectedMunicipalityName: string | null;
   onSelectZone: (key: SelectedProgressionZoneKey) => void;
   onSelectMunicipality: (municipalityName: string) => void;
 };
+
+function getTerritoryMapStyle(status: string) {
+  if (status === "mastered") {
+    return {
+      color: "#ca8a04",
+      fillColor: "#facc15",
+      fillOpacity: 0.22,
+      weight: 2,
+    };
+  }
+
+  if (status === "unlocked") {
+    return {
+      color: "#16a34a",
+      fillColor: "#22c55e",
+      fillOpacity: 0.18,
+      weight: 2,
+    };
+  }
+
+  return {
+    color: "#64748b",
+    fillColor: "#94a3b8",
+    fillOpacity: 0.08,
+    weight: 2,
+  };
+}
+
+function getTerritoryStatusIcon(status: string) {
+  if (status === "mastered") return "🏆";
+  if (status === "unlocked") return "🟢";
+
+  return "🔒";
+}
 
 function ProgressionMapController({
   selectedZoneKey,
@@ -50,6 +85,7 @@ function ProgressionMapController({
 
 export default function ProgressionMap({
   locations,
+  territories,
   worldState,
   selectedZoneKey,
   selectedMunicipalityName,
@@ -60,11 +96,9 @@ export default function ProgressionMap({
     (x) => x.hasCoordinates && x.latitude != null && x.longitude != null
   );
 
-  const zones = buildProgressionZones(locations);
-
-  const visibleZones = selectedZoneKey
-    ? zones.filter((zone) => zone.key === selectedZoneKey)
-    : zones;
+  const visibleTerritories = selectedZoneKey
+    ? territories.filter((territory) => territory.key === selectedZoneKey)
+    : territories;
 
   function isMunicipalitySelected(municipalityName: string) {
     return (
@@ -100,7 +134,6 @@ export default function ProgressionMap({
               data={municipalitiesGeoJson as FeatureCollection<Geometry>}
               style={(feature: any) => {
                 const municipalityName = feature?.properties?.label_dk ?? "";
-
                 const selected = isMunicipalitySelected(municipalityName);
 
                 const municipalityWorldState = getMunicipalityWorldState(
@@ -144,42 +177,30 @@ export default function ProgressionMap({
             />
           )}
 
-          {visibleZones.map((zone) => {
-            if (zone.geoJson) {
+          {visibleTerritories.map((territory) => {
+            if (territory.geoJson) {
               return (
                 <GeoJSON
-                  key={`zone-geojson-${zone.key}`}
-                  data={zone.geoJson}
+                  key={`territory-geojson-${territory.key}`}
+                  data={territory.geoJson}
                   eventHandlers={{
-                    click: () => onSelectZone(zone.key),
+                    click: () => onSelectZone(territory.key),
                   }}
-                  style={{
-                    color: zone.status === "unlocked" ? "#16a34a" : "#64748b",
-                    fillColor:
-                      zone.status === "unlocked" ? "#22c55e" : "#94a3b8",
-                    fillOpacity: zone.status === "unlocked" ? 0.18 : 0.08,
-                    weight: 2,
-                  }}
+                  style={getTerritoryMapStyle(territory.status)}
                 />
               );
             }
 
-            if (!zone.polygon) return null;
+            if (!territory.polygon) return null;
 
             return (
               <Polygon
-                key={`zone-polygon-${zone.key}`}
-                positions={zone.polygon}
+                key={`territory-polygon-${territory.key}`}
+                positions={territory.polygon}
                 eventHandlers={{
-                  click: () => onSelectZone(zone.key),
+                  click: () => onSelectZone(territory.key),
                 }}
-                pathOptions={{
-                  color: zone.status === "unlocked" ? "#16a34a" : "#64748b",
-                  fillColor:
-                    zone.status === "unlocked" ? "#22c55e" : "#94a3b8",
-                  fillOpacity: zone.status === "unlocked" ? 0.18 : 0.08,
-                  weight: 2,
-                }}
+                pathOptions={getTerritoryMapStyle(territory.status)}
               />
             );
           })}
@@ -202,27 +223,31 @@ export default function ProgressionMap({
             </Marker>
           ))}
 
-          {visibleZones.map((zone) => (
+          {visibleTerritories.map((territory) => (
             <Marker
-              key={`zone-${zone.key}`}
-              position={[zone.latitude, zone.longitude]}
+              key={`territory-${territory.key}`}
+              position={[territory.latitude, territory.longitude]}
             >
               <Popup>
                 <strong>
-                  {zone.status === "unlocked" ? "🟢" : "🔒"} {zone.title}
+                  {getTerritoryStatusIcon(territory.status)} {territory.name}
                 </strong>
                 <br />
-                {zone.description}
+                {territory.description}
                 <br />
                 <br />
-                {zone.status === "unlocked" ? (
-                  <>
-                    Zone unlocked
-                    <br />
-                    Besøgt {zone.visitCount} gange
-                  </>
-                ) : (
+                {territory.status === "locked" ? (
                   <>Ikke besøgt endnu</>
+                ) : (
+                  <>
+                    {territory.status === "mastered"
+                      ? "Territory mastered"
+                      : "Zone unlocked"}
+                    <br />
+                    Besøgt {territory.visitCount} gange
+                    <br />
+                    Completion {territory.completionPercent}%
+                  </>
                 )}
               </Popup>
             </Marker>
