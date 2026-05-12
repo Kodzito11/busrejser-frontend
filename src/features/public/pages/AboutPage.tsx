@@ -9,8 +9,8 @@ export default function About() {
           <p className="about-slogan">Billige ture, dyre minder.</p>
 
           <div className="about-lead">
-            <p>
-              Busrejser er ikke et kompromis – det er en smartere måde at opleve på.            </p>
+            <p>Busrejser er ikke et kompromis, 
+              det er en smartere måde at opleve på.</p>
 
             <p>
               I dag er mange rejser spredt og svære at sammenligne. BusPlanen samler ruter, priser og muligheder ét sted, så du hurtigt kan finde og booke den rigtige tur.
@@ -63,7 +63,7 @@ export default function About() {
         <h2>Hvorfor BusPlanen?</h2>
         <p>
           Busrejser er ofte rodet, uigennemskuelige og spredt på flere
-          platforme. Det g1r det sv1rere end n1dvendigt at finde den rigtige tur.
+          platforme. Det gør det sværere end nødvendigt at finde den rigtige tur.
         </p>
         <p>
           BusPlanen samler rejser, ruter og priser ét sted, så du hurtigere kan

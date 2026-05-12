@@ -69,7 +69,7 @@ export function buildMapTerritories(
     const staticKey = resolveStaticZoneKey(territory.key);
     const staticZone = progressionZones.find((zone) => zone.key === staticKey);
 
-    const hasMapMetadata = Boolean (staticZone);
+    const hasMapMetadata = Boolean(staticZone);
     return {
       key: territory.key,
       name: territory.name,
