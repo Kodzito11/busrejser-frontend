@@ -50,6 +50,18 @@ export default function AdminRejseRow({
                 <td>{rejse.title}</td>
                 <td>{rejse.destination}</td>
                 <td>
+                    {rejse.progressionTerritoryName ? (
+                        <span className="badge">
+                            {rejse.progressionTerritoryName}
+                            {rejse.progressionTerritoryKey
+                                ? ` · ${rejse.progressionTerritoryKey}`
+                                : ""}
+                        </span>
+                    ) : (
+                        <span className="muted">Auto</span>
+                    )}
+                </td>
+                <td>
                     <RejseStatusBadge rejse={rejse} />
                 </td>
                 <td>{formatDate(rejse.startAt)}</td>
@@ -102,7 +114,7 @@ export default function AdminRejseRow({
 
             {isExpanded && (
                 <tr className="bookingExpandRow">
-                    <td colSpan={10}>
+                    <td colSpan={11}>
                         <div className="bookingExpandBox">
                             <h4>
                                 Bookinger for rejse #{rejse.rejseId} · Total: {bookings.length}
@@ -128,6 +140,7 @@ export default function AdminRejseRow({
                             />
                         </div>
                     </td>
+
                 </tr>
             )}
         </Fragment>

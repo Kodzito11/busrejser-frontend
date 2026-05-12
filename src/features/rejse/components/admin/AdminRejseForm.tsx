@@ -1,6 +1,7 @@
 import GeoAutocompleteInput from "../../../geo/components/GeoAutocompleteInput";
 import type { Dispatch, FormEvent, SetStateAction } from "react";
 
+import type { ProgressionTerritoryAdminItem } from "../../../progression-admin/model/progressionTerritoryAdmin.types";
 
 import type { RejseCreate } from "../../model/rejse.types";
 import type { Bus } from "../../../bus/model/bus.types";
@@ -9,6 +10,7 @@ type Props = {
   form: RejseCreate;
   setForm: Dispatch<SetStateAction<RejseCreate>>;
   busser: Bus[];
+  territories: ProgressionTerritoryAdminItem[];
   editingId: number | null;
   saving: boolean;
   canSave: boolean;
@@ -22,6 +24,7 @@ export default function AdminRejseForm({
   form,
   setForm,
   busser,
+  territories,
   editingId,
   saving,
   canSave,
@@ -169,6 +172,33 @@ export default function AdminRejseForm({
                 {busser.map((bus) => (
                   <option key={bus.busId} value={bus.busId}>
                     {bus.registreringnummer} · {bus.model}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              Progression område
+              <select
+                className="input"
+                value={form.progressionTerritoryId ?? ""}
+                onChange={(e) =>
+                  setForm((current) => ({
+                    ...current,
+                    progressionTerritoryId: e.target.value
+                      ? Number(e.target.value)
+                      : null,
+                  }))
+                }
+              >
+                <option value="">Auto / ingen valgt</option>
+
+                {territories.map((territory) => (
+                  <option
+                    key={territory.progressionTerritoryId}
+                    value={territory.progressionTerritoryId}
+                  >
+                    {territory.name} ({territory.key})
                   </option>
                 ))}
               </select>

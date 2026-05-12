@@ -74,6 +74,7 @@ export default function AdminRejseTable({
                 <th>ID</th>
                 <th>Titel</th>
                 <th>Destination</th>
+                <th>Progression</th>
                 <th>Status</th>
                 <th>Start</th>
                 <th>Slut</th>

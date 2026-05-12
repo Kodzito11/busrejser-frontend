@@ -4,10 +4,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { rejseApi } from "../api/rejseApi";
 import { busApi } from "../../bus/api/busApi";
 import { bookingApi } from "../../booking/api/bookingApi";
+import { progressionTerritoryAdminApi } from "../../progression-admin/api/progressionTerritoryAdminApi";
 
 import type { Rejse, RejseCreate } from "../model/rejse.types";
 import type { Bus } from "../../bus/model/bus.types";
 import type { BookingListItem } from "../../booking/model/booking.types";
+import type { ProgressionTerritoryAdminItem } from "../../progression-admin/model/progressionTerritoryAdmin.types";
 
 import {
   emptyForm,
@@ -31,6 +33,10 @@ export default function AdminRejsePage() {
 
   const [rejser, setRejser] = useState<Rejse[]>([]);
   const [busser, setBusser] = useState<Bus[]>([]);
+  const [territories, setTerritories] = useState<
+    ProgressionTerritoryAdminItem[]
+  >([]);
+
   const [form, setForm] = useState<RejseCreate>(emptyForm);
 
   const [search, setSearch] = useState("");
@@ -54,18 +60,25 @@ export default function AdminRejsePage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const selectableTerritories = useMemo(
+    () => territories.filter((x) => x.isActive && x.isVisible),
+    [territories]
+  );
+
   async function load() {
     try {
       setLoading(true);
       setError("");
 
-      const [rejseData, busData] = await Promise.all([
+      const [rejseData, busData, territoryData] = await Promise.all([
         rejseApi.list(),
         busApi.list(),
+        progressionTerritoryAdminApi.getAll(),
       ]);
 
       setRejser(rejseData);
       setBusser(busData);
+      setTerritories(territoryData);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Kunne ikke hente rejser.");
     } finally {
@@ -145,6 +158,7 @@ export default function AdminRejsePage() {
         price: Number(form.price),
         maxSeats: Number(form.maxSeats),
         busId: form.busId ?? null,
+        progressionTerritoryId: form.progressionTerritoryId ?? null,
       };
 
       if (editingId) {
@@ -183,6 +197,7 @@ export default function AdminRejsePage() {
       price: rejse.price,
       maxSeats: rejse.maxSeats,
       busId: rejse.busId ?? null,
+      progressionTerritoryId: rejse.progressionTerritoryId ?? null,
       shortDescription: rejse.shortDescription ?? "",
       description: rejse.description ?? "",
       imageUrl: rejse.imageUrl ?? "",
@@ -342,6 +357,7 @@ export default function AdminRejsePage() {
           form={form}
           setForm={setForm}
           busser={busser}
+          territories={selectableTerritories}
           editingId={editingId}
           saving={saving}
           canSave={canSave}
