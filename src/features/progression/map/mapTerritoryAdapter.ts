@@ -18,6 +18,8 @@ export type MapTerritory = {
   longitude: number;
   polygon?: [number, number][];
   geoJson?: FeatureCollection<Geometry>;
+
+  hasMapMetadata: boolean;
 };
 
 const fallbackTerritoryPosition = {
@@ -67,6 +69,7 @@ export function buildMapTerritories(
     const staticKey = resolveStaticZoneKey(territory.key);
     const staticZone = progressionZones.find((zone) => zone.key === staticKey);
 
+    const hasMapMetadata = Boolean (staticZone);
     return {
       key: territory.key,
       name: territory.name,
@@ -83,6 +86,8 @@ export function buildMapTerritories(
       longitude: staticZone?.longitude ?? fallbackTerritoryPosition.longitude,
       polygon: staticZone?.polygon,
       geoJson: staticZone?.geoJson,
+
+      hasMapMetadata,
     };
   });
 }

@@ -297,6 +297,18 @@ export default function ProgressionMap({
                     Besøgt {territory.visitCount} gange
                     <br />
                     Completion {territory.completionPercent}%
+
+                    {!territory.hasMapMetadata && (
+                      <>
+                        <br />
+                        <br />
+                        <strong>Map shape mangler</strong>
+                        <br />
+                        <span>
+                          Key "{territory.key}" findes i backend, men ikke i frontend map metadata.
+                        </span>
+                      </>
+                    )}
                   </>
                 )}
               </Popup>

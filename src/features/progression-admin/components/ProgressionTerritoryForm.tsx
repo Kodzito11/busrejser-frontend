@@ -131,6 +131,10 @@ export default function ProgressionTerritoryForm({
             placeholder="dk"
             required
           />
+          <p className="muted">
+            Key skal matche en eksisterende frontend map key for at kunne tegnes på kortet.
+            Eksempler: dk, germany, prague, netherlands, sweden, norway.
+          </p>
         </label>
 
         <label>
