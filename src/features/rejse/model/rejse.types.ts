@@ -16,8 +16,8 @@ export type Rejse = {
   bookedSeats?: number;
 
   progressionTerritoryId?: number | null;
-progressionTerritoryName?: string | null;
-progressionTerritoryKey?: string | null;
+  progressionTerritoryName?: string | null;
+  progressionTerritoryKey?: string | null;
 
   shortDescription?: string | null;
   description?: string | null;
@@ -40,12 +40,11 @@ export type RejseCreate = {
   price: number;
   maxSeats: number;
   busId?: number | null;
+  progressionTerritoryId?: number | null;
 
   shortDescription?: string | null;
   description?: string | null;
   imageUrl?: string | null;
   isFeatured: boolean;
   isPublished: boolean;
-
-  progressionTerritoryId?: number | null;
 };
