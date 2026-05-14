@@ -35,6 +35,8 @@ export default function ProgressionPage() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
   const [quests, setQuests] = useState<QuestProgressItem[]>([]);
+  const [selectedBundeslandKey, setSelectedBundeslandKey] =
+    useState<string | null>(null);
 
   const [selectedZoneKey, setSelectedZoneKey] =
     useState<SelectedProgressionZoneKey>(null);
@@ -103,11 +105,19 @@ export default function ProgressionPage() {
   function handleSelectZone(zoneKey: SelectedProgressionZoneKey) {
     setSelectedZoneKey(zoneKey);
     setSelectedMunicipalityName(null);
+    setSelectedBundeslandKey(null);
+  }
+
+  function handleSelectBundesland(bundeslandKey: string) {
+    setSelectedZoneKey("germany");
+    setSelectedMunicipalityName(null);
+    setSelectedBundeslandKey(bundeslandKey);
   }
 
   function handleSelectMunicipality(municipalityName: string) {
     setSelectedZoneKey("dk");
     setSelectedMunicipalityName(municipalityName);
+    setSelectedBundeslandKey(null);
   }
 
   if (loading) {
@@ -178,8 +188,10 @@ export default function ProgressionPage() {
               municipalities={mapMunicipalities}
               selectedZoneKey={selectedZoneKey}
               selectedMunicipalityName={selectedMunicipalityName}
+              selectedBundeslandKey={selectedBundeslandKey}
               onSelectZone={handleSelectZone}
               onSelectMunicipality={handleSelectMunicipality}
+              onSelectBundesland={handleSelectBundesland}
             />
 
             <ActiveZoneDetailCard

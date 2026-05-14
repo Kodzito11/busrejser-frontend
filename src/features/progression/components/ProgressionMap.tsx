@@ -25,6 +25,7 @@ import { defaultMapCamera, getMapCameraForTerritory } from "../map/mapCamera";
 
 import {
   findBundeslandTerritory,
+  getBundeslandKeyFromFeature,
   getBundeslandTooltipText,
 } from "../map/mapBundeslandAdapter";
 
@@ -34,8 +35,10 @@ type Props = {
   municipalities: MapMunicipality[];
   selectedZoneKey: SelectedProgressionZoneKey;
   selectedMunicipalityName: string | null;
+  selectedBundeslandKey: string | null;
   onSelectZone: (key: SelectedProgressionZoneKey) => void;
   onSelectMunicipality: (municipalityName: string) => void;
+  onSelectBundesland: (bundeslandKey: string) => void;
 };
 
 function getTerritoryMapStyle(status: string) {
@@ -115,7 +118,20 @@ function getMunicipalityMapVisuals(
   };
 }
 
-function getBundeslandMapVisuals(territory: MapTerritory | null) {
+function getBundeslandMapVisuals(
+  territory: MapTerritory | null,
+  selected: boolean
+) {
+  if (selected) {
+    return {
+      borderColor: "#facc15",
+      fillColor: "#facc15",
+      fillOpacity: 0.36,
+      weight: 3,
+      dashArray: undefined,
+    };
+  }
+
   if (territory?.status === "mastered") {
     return {
       borderColor: "#ca8a04",
@@ -178,8 +194,10 @@ export default function ProgressionMap({
   municipalities,
   selectedZoneKey,
   selectedMunicipalityName,
+  selectedBundeslandKey,
   onSelectZone,
   onSelectMunicipality,
+  onSelectBundesland,
 }: Props) {
   const points = locations.filter(
     (x) => x.hasCoordinates && x.latitude != null && x.longitude != null
@@ -269,11 +287,14 @@ export default function ProgressionMap({
 
           {isGermanySelected && (
             <GeoJSON
-              key="germany-bundeslaender"
+              key={`germany-bundeslaender-${selectedBundeslandKey ?? "none"}`}
               data={germanyBundeslaenderGeoJson as FeatureCollection<Geometry>}
               style={(feature: any) => {
+                const bundeslandKey = getBundeslandKeyFromFeature(feature);
                 const territory = findBundeslandTerritory(territories, feature);
-                const visuals = getBundeslandMapVisuals(territory);
+                const selected = bundeslandKey === selectedBundeslandKey;
+
+                const visuals = getBundeslandMapVisuals(territory, selected);
 
                 return {
                   color: visuals.borderColor,
@@ -285,6 +306,7 @@ export default function ProgressionMap({
                 };
               }}
               onEachFeature={(feature: any, layer) => {
+                const bundeslandKey = getBundeslandKeyFromFeature(feature);
                 const territory = findBundeslandTerritory(territories, feature);
 
                 layer.bindTooltip(
@@ -294,10 +316,8 @@ export default function ProgressionMap({
 
                 layer.on({
                   click: () => {
-                    if (territory) {
-                      onSelectZone(
-                        territory.key as SelectedProgressionZoneKey
-                      );
+                    if (bundeslandKey) {
+                      onSelectBundesland(bundeslandKey);
                     }
                   },
                 });
