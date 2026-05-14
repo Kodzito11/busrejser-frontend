@@ -19,7 +19,14 @@ import type { SelectedProgressionZoneKey } from "../model/progressionView.types"
 import type { MapTerritory } from "../map/mapTerritoryAdapter";
 
 import municipalitiesGeoJson from "../game/geojson/denmark-municipalities.json";
+import { germanyBundeslaenderGeoJson } from "../game/progressionGeoJson";
+
 import { defaultMapCamera, getMapCameraForTerritory } from "../map/mapCamera";
+
+import {
+  findBundeslandTerritory,
+  getBundeslandTooltipText,
+} from "../map/mapBundeslandAdapter";
 
 type Props = {
   locations: VisitedLocationMapItem[];
@@ -108,6 +115,36 @@ function getMunicipalityMapVisuals(
   };
 }
 
+function getBundeslandMapVisuals(territory: MapTerritory | null) {
+  if (territory?.status === "mastered") {
+    return {
+      borderColor: "#ca8a04",
+      fillColor: "#facc15",
+      fillOpacity: 0.24,
+      weight: 2,
+      dashArray: undefined,
+    };
+  }
+
+  if (territory?.status === "unlocked") {
+    return {
+      borderColor: "#16a34a",
+      fillColor: "#22c55e",
+      fillOpacity: 0.2,
+      weight: 2,
+      dashArray: undefined,
+    };
+  }
+
+  return {
+    borderColor: "#1f2937",
+    fillColor: "#020617",
+    fillOpacity: 0.28,
+    weight: 1,
+    dashArray: "4",
+  };
+}
+
 function getMunicipalityTooltipText(
   municipalityName: string,
   municipality: MapMunicipality | null
@@ -147,6 +184,9 @@ export default function ProgressionMap({
   const points = locations.filter(
     (x) => x.hasCoordinates && x.latitude != null && x.longitude != null
   );
+
+  const isGermanySelected =
+    selectedZoneKey === "germany" || selectedZoneKey === "de";
 
   const visibleTerritories = selectedZoneKey
     ? territories.filter((territory) => territory.key === selectedZoneKey)
@@ -227,6 +267,44 @@ export default function ProgressionMap({
             />
           )}
 
+          {isGermanySelected && (
+            <GeoJSON
+              key="germany-bundeslaender"
+              data={germanyBundeslaenderGeoJson as FeatureCollection<Geometry>}
+              style={(feature: any) => {
+                const territory = findBundeslandTerritory(territories, feature);
+                const visuals = getBundeslandMapVisuals(territory);
+
+                return {
+                  color: visuals.borderColor,
+                  fillColor: visuals.fillColor,
+                  fillOpacity: visuals.fillOpacity,
+                  weight: visuals.weight,
+                  dashArray: visuals.dashArray,
+                  className: "progression-map__bundesland",
+                };
+              }}
+              onEachFeature={(feature: any, layer) => {
+                const territory = findBundeslandTerritory(territories, feature);
+
+                layer.bindTooltip(
+                  getBundeslandTooltipText(feature, territory),
+                  { sticky: true }
+                );
+
+                layer.on({
+                  click: () => {
+                    if (territory) {
+                      onSelectZone(
+                        territory.key as SelectedProgressionZoneKey
+                      );
+                    }
+                  },
+                });
+              }}
+            />
+          )}
+
           {visibleTerritories.map((territory) => {
             if (territory.geoJson) {
               return (
@@ -234,7 +312,10 @@ export default function ProgressionMap({
                   key={`territory-geojson-${territory.key}`}
                   data={territory.geoJson}
                   eventHandlers={{
-                    click: () => onSelectZone(territory.key),
+                    click: () =>
+                      onSelectZone(
+                        territory.key as SelectedProgressionZoneKey
+                      ),
                   }}
                   style={getTerritoryMapStyle(territory.status)}
                 />
@@ -248,7 +329,10 @@ export default function ProgressionMap({
                 key={`territory-polygon-${territory.key}`}
                 positions={territory.polygon}
                 eventHandlers={{
-                  click: () => onSelectZone(territory.key),
+                  click: () =>
+                    onSelectZone(
+                      territory.key as SelectedProgressionZoneKey
+                    ),
                 }}
                 pathOptions={getTerritoryMapStyle(territory.status)}
               />
@@ -297,9 +381,9 @@ export default function ProgressionMap({
                     Besøgt {territory.visitCount} gange
                     <br />
                     Completion {territory.completionPercent}%
-
                   </>
                 )}
+
                 {!territory.hasMapMetadata && (
                   <>
                     <br />
@@ -307,7 +391,8 @@ export default function ProgressionMap({
                     <strong>Map shape mangler</strong>
                     <br />
                     <span>
-                      Key "{territory.key}" findes i backend, men ikke i frontend map metadata.
+                      Key "{territory.key}" findes i backend, men ikke i
+                      frontend map metadata.
                     </span>
                   </>
                 )}
