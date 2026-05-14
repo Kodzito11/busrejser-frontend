@@ -26,7 +26,6 @@ import { defaultMapCamera, getMapCameraForTerritory } from "../map/mapCamera";
 import {
   findBundeslandTerritory,
   getBundeslandKeyFromFeature,
-  getBundeslandTooltipText,
 } from "../map/mapBundeslandAdapter";
 
 type Props = {
@@ -161,17 +160,6 @@ function getBundeslandMapVisuals(
   };
 }
 
-function getMunicipalityTooltipText(
-  municipalityName: string,
-  municipality: MapMunicipality | null
-) {
-  if (!municipality) {
-    return `${municipalityName} · locked`;
-  }
-
-  return `${municipality.name} · ${municipality.status} · ${municipality.completionPercent}%`;
-}
-
 function ProgressionMapController({
   selectedZoneKey,
 }: {
@@ -203,11 +191,24 @@ export default function ProgressionMap({
     (x) => x.hasCoordinates && x.latitude != null && x.longitude != null
   );
 
+  const isDenmarkSelected = selectedZoneKey === "dk";
+
   const isGermanySelected =
     selectedZoneKey === "germany" || selectedZoneKey === "de";
 
   const visibleTerritories = selectedZoneKey
-    ? territories.filter((territory) => territory.key === selectedZoneKey)
+    ? territories.filter((territory) => {
+        if (isDenmarkSelected && territory.key === "dk") return false;
+
+        if (
+          isGermanySelected &&
+          (territory.key === "germany" || territory.key === "de")
+        ) {
+          return false;
+        }
+
+        return territory.key === selectedZoneKey;
+      })
     : territories;
 
   function isMunicipalitySelected(municipalityName: string) {
@@ -268,16 +269,6 @@ export default function ProgressionMap({
               onEachFeature={(feature: any, layer) => {
                 const municipalityName = feature?.properties?.label_dk ?? "";
 
-                const municipality = findMapMunicipality(
-                  municipalities,
-                  municipalityName
-                );
-
-                layer.bindTooltip(
-                  getMunicipalityTooltipText(municipalityName, municipality),
-                  { sticky: true }
-                );
-
                 layer.on({
                   click: () => onSelectMunicipality(municipalityName),
                 });
@@ -307,12 +298,6 @@ export default function ProgressionMap({
               }}
               onEachFeature={(feature: any, layer) => {
                 const bundeslandKey = getBundeslandKeyFromFeature(feature);
-                const territory = findBundeslandTerritory(territories, feature);
-
-                layer.bindTooltip(
-                  getBundeslandTooltipText(feature, territory),
-                  { sticky: true }
-                );
 
                 layer.on({
                   click: () => {
