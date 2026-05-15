@@ -19,7 +19,10 @@ import type { SelectedProgressionZoneKey } from "../model/progressionView.types"
 import type { MapTerritory } from "../map/mapTerritoryAdapter";
 
 import municipalitiesGeoJson from "../game/geojson/denmark-municipalities.json";
-import { germanyBundeslaenderGeoJson } from "../game/progressionGeoJson";
+import {
+  germanyBundeslaenderGeoJson,
+  swedenRegionsGeoJson,
+} from "../game/progressionGeoJson";
 
 import { defaultMapCamera, getMapCameraForTerritory } from "../map/mapCamera";
 
@@ -27,6 +30,12 @@ import {
   findBundeslandTerritory,
   getBundeslandKeyFromFeature,
 } from "../map/mapBundeslandAdapter";
+
+import {
+  findSwedenRegionTerritory,
+  getSwedenRegionKeyFromFeature,
+  getSwedenRegionTooltipText,
+} from "../map/mapSwedenRegionAdapter";
 
 type Props = {
   locations: VisitedLocationMapItem[];
@@ -196,19 +205,32 @@ export default function ProgressionMap({
   const isGermanySelected =
     selectedZoneKey === "germany" || selectedZoneKey === "de";
 
+  const isSwedenSelected =
+    selectedZoneKey === "se" || selectedZoneKey === "sweden" || selectedZoneKey === "sverige";
+
+  const selectedSwedenRegionKey = null;
+
   const visibleTerritories = selectedZoneKey
     ? territories.filter((territory) => {
-        if (isDenmarkSelected && territory.key === "dk") return false;
+      if (isDenmarkSelected && territory.key === "dk") return false;
 
-        if (
-          isGermanySelected &&
-          (territory.key === "germany" || territory.key === "de")
-        ) {
-          return false;
-        }
+      if (
+        isGermanySelected &&
+        (territory.key === "germany" || territory.key === "de")
+      ) {
+        return false;
+      }
+      if (
+        isSwedenSelected &&
+        (territory.key === "se" ||
+          territory.key === "sweden" ||
+          territory.key === "sverige")
+      ) {
+        return false;
+      }
 
-        return territory.key === selectedZoneKey;
-      })
+      return territory.key === selectedZoneKey;
+    })
     : territories;
 
   function isMunicipalitySelected(municipalityName: string) {
@@ -304,6 +326,43 @@ export default function ProgressionMap({
                     if (bundeslandKey) {
                       onSelectBundesland(bundeslandKey);
                     }
+                  },
+                });
+              }}
+            />
+          )}
+
+          {isSwedenSelected && (
+            <GeoJSON
+              key="sweden-regions"
+              data={swedenRegionsGeoJson as FeatureCollection<Geometry>}
+              style={(feature: any) => {
+                const regionKey = getSwedenRegionKeyFromFeature(feature);
+                const territory = findSwedenRegionTerritory(territories, feature);
+                const selected = regionKey === selectedSwedenRegionKey;
+
+                const visuals = getBundeslandMapVisuals(territory, selected);
+
+                return {
+                  color: visuals.borderColor,
+                  fillColor: visuals.fillColor,
+                  fillOpacity: visuals.fillOpacity,
+                  weight: visuals.weight,
+                  dashArray: visuals.dashArray,
+                  className: "progression-map__sweden-region",
+                };
+              }}
+              onEachFeature={(feature: any, layer) => {
+                const tooltipText = getSwedenRegionTooltipText(
+                  feature,
+                  findSwedenRegionTerritory(territories, feature)
+                );
+
+                layer.bindTooltip(tooltipText);
+
+                layer.on({
+                  click: () => {
+                    console.log("Sweden region clicked:", getSwedenRegionKeyFromFeature(feature));
                   },
                 });
               }}

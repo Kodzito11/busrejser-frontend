@@ -46,8 +46,9 @@ const territoryKeyAliases: Record<string, string> = {
   netherlands: "netherlands",
   holland: "netherlands",
 
-  sweden: "sweden",
-  sverige: "sweden",
+  sweden: "se",
+  sverige: "se",
+  se: "se",
 
   norway: "norway",
   norge: "norway",
