@@ -7,7 +7,7 @@ import {
   Polygon,
   GeoJSON,
   useMap,
-  CircleMarker
+  CircleMarker,
 } from "react-leaflet";
 import type { FeatureCollection, Geometry } from "geojson";
 
@@ -33,7 +33,7 @@ import {
 
 import {
   findSwedenRegionTerritory,
-  getSwedenRegionKeyFromFeature
+  getSwedenRegionKeyFromFeature,
 } from "../map/mapSwedenRegionAdapter";
 
 type Props = {
@@ -53,25 +53,25 @@ function getTerritoryMapStyle(status: string) {
     return {
       color: "#ca8a04",
       fillColor: "#facc15",
-      fillOpacity: 0.22,
+      fillOpacity: 0.26,
       weight: 2,
     };
   }
 
   if (status === "unlocked") {
     return {
-      color: "#16a34a",
+      color: "#15803d",
       fillColor: "#22c55e",
-      fillOpacity: 0.18,
+      fillOpacity: 0.2,
       weight: 2,
     };
   }
 
   return {
-    color: "#64748b",
-    fillColor: "#94a3b8",
-    fillOpacity: 0.08,
-    weight: 2,
+    color: "#334155",
+    fillColor: "#0f172a",
+    fillOpacity: 0.12,
+    weight: 1.5,
   };
 }
 
@@ -81,9 +81,9 @@ function getMunicipalityMapVisuals(
 ) {
   if (selected) {
     return {
-      borderColor: "#facc15",
+      borderColor: "#ca8a04",
       fillColor: "#facc15",
-      fillOpacity: 0.35,
+      fillOpacity: 0.38,
       weight: 3,
       dashArray: undefined,
     };
@@ -93,7 +93,7 @@ function getMunicipalityMapVisuals(
     return {
       borderColor: "#ca8a04",
       fillColor: "#facc15",
-      fillOpacity: 0.24,
+      fillOpacity: 0.26,
       weight: 2,
       dashArray: undefined,
     };
@@ -101,18 +101,18 @@ function getMunicipalityMapVisuals(
 
   if (municipality?.status === "unlocked") {
     return {
-      borderColor: "#16a34a",
+      borderColor: "#15803d",
       fillColor: "#22c55e",
-      fillOpacity: 0.2,
+      fillOpacity: 0.22,
       weight: 2,
       dashArray: undefined,
     };
   }
 
   return {
-    borderColor: "#1f2937",
-    fillColor: "#020617",
-    fillOpacity: 0.38,
+    borderColor: "#334155",
+    fillColor: "#0f172a",
+    fillOpacity: 0.3,
     weight: 1,
     dashArray: "4",
   };
@@ -124,9 +124,9 @@ function getSubTerritoryMapVisuals(
 ) {
   if (selected) {
     return {
-      borderColor: "#facc15",
+      borderColor: "#ca8a04",
       fillColor: "#facc15",
-      fillOpacity: 0.36,
+      fillOpacity: 0.38,
       weight: 3,
       dashArray: undefined,
     };
@@ -136,7 +136,7 @@ function getSubTerritoryMapVisuals(
     return {
       borderColor: "#ca8a04",
       fillColor: "#facc15",
-      fillOpacity: 0.24,
+      fillOpacity: 0.26,
       weight: 2,
       dashArray: undefined,
     };
@@ -144,21 +144,48 @@ function getSubTerritoryMapVisuals(
 
   if (territory?.status === "unlocked") {
     return {
-      borderColor: "#16a34a",
+      borderColor: "#15803d",
       fillColor: "#22c55e",
-      fillOpacity: 0.2,
+      fillOpacity: 0.22,
       weight: 2,
       dashArray: undefined,
     };
   }
 
   return {
-    borderColor: "#1f2937",
-    fillColor: "#020617",
-    fillOpacity: 0.28,
+    borderColor: "#334155",
+    fillColor: "#0f172a",
+    fillOpacity: 0.24,
     weight: 1,
     dashArray: "4",
   };
+}
+
+function normalizeLocationValue(value?: string | null) {
+  return (value ?? "").trim().toLowerCase();
+}
+
+function isPragueLocation(location: VisitedLocationMapItem) {
+  const name = normalizeLocationValue(location.name);
+  const country = normalizeLocationValue(location.country);
+  const region = normalizeLocationValue(location.region);
+  const municipality = normalizeLocationValue(location.municipality);
+
+  return (
+    country === "cz" ||
+    country === "czechia" ||
+    country === "czech republic" ||
+    country === "tjekkiet" ||
+    name.includes("prag") ||
+    name.includes("prague") ||
+    name.includes("praha") ||
+    region.includes("prag") ||
+    region.includes("prague") ||
+    region.includes("praha") ||
+    municipality.includes("prag") ||
+    municipality.includes("prague") ||
+    municipality.includes("praha")
+  );
 }
 
 function ProgressionMapController({
@@ -187,9 +214,13 @@ export default function ProgressionMap({
   onSelectMunicipality,
   onSelectSubTerritory,
 }: Props) {
-  const points = locations.filter(
-    (x) => x.hasCoordinates && x.latitude != null && x.longitude != null
-  );
+  const points = locations.filter((x) => {
+    if (!x.hasCoordinates || x.latitude == null || x.longitude == null) {
+      return false;
+    }
+
+    return !isPragueLocation(x);
+  });
 
   const isDenmarkSelected = selectedZoneKey === "dk";
 
@@ -203,26 +234,26 @@ export default function ProgressionMap({
 
   const visibleTerritories = selectedZoneKey
     ? territories.filter((territory) => {
-      if (isDenmarkSelected && territory.key === "dk") return false;
+        if (isDenmarkSelected && territory.key === "dk") return false;
 
-      if (
-        isGermanySelected &&
-        (territory.key === "germany" || territory.key === "de")
-      ) {
-        return false;
-      }
+        if (
+          isGermanySelected &&
+          (territory.key === "germany" || territory.key === "de")
+        ) {
+          return false;
+        }
 
-      if (
-        isSwedenSelected &&
-        (territory.key === "se" ||
-          territory.key === "sweden" ||
-          territory.key === "sverige")
-      ) {
-        return false;
-      }
+        if (
+          isSwedenSelected &&
+          (territory.key === "se" ||
+            territory.key === "sweden" ||
+            territory.key === "sverige")
+        ) {
+          return false;
+        }
 
-      return territory.key === selectedZoneKey;
-    })
+        return territory.key === selectedZoneKey;
+      })
     : territories;
 
   function isMunicipalitySelected(municipalityName: string) {
@@ -292,8 +323,9 @@ export default function ProgressionMap({
 
           {isGermanySelected && (
             <GeoJSON
-              key={`germany-bundeslaender-${selectedSubTerritoryKey ?? "none"
-                }`}
+              key={`germany-bundeslaender-${
+                selectedSubTerritoryKey ?? "none"
+              }`}
               data={germanyBundeslaenderGeoJson as FeatureCollection<Geometry>}
               style={(feature: any) => {
                 const bundeslandKey = getBundeslandKeyFromFeature(feature);
@@ -397,11 +429,11 @@ export default function ProgressionMap({
             <CircleMarker
               key={`location-${location.visitedLocationId}`}
               center={[location.latitude!, location.longitude!]}
-              radius={6}
+              radius={5}
               pathOptions={{
-                color: "#facc15",
-                fillColor: "#facc15",
-                fillOpacity: 0.9,
+                color: "#1e3a8a",
+                fillColor: "#60a5fa",
+                fillOpacity: 0.95,
                 weight: 2,
               }}
             >
