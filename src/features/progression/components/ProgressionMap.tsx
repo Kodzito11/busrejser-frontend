@@ -92,27 +92,27 @@ function getPolygonOnlyGeoJson(geoJson?: any) {
 function getTerritoryMapStyle(status: string) {
   if (status === "mastered") {
     return {
-      color: "#ca8a04",
-      fillColor: "#facc15",
-      fillOpacity: 0.26,
+      color: "#b45309",
+      fillColor: "#f59e0b",
+      fillOpacity: 0.18,
       weight: 2,
     };
   }
 
   if (status === "unlocked") {
     return {
-      color: "#15803d",
-      fillColor: "#22c55e",
-      fillOpacity: 0.2,
+      color: "#047857",
+      fillColor: "#10b981",
+      fillOpacity: 0.12,
       weight: 2,
     };
   }
 
   return {
-    color: "#334155",
-    fillColor: "#0f172a",
-    fillOpacity: 0.12,
-    weight: 1.5,
+    color: "#64748b",
+    fillColor: "#64748b",
+    fillOpacity: 0.04,
+    weight: 1,
   };
 }
 
@@ -122,10 +122,10 @@ function getMunicipalityMapVisuals(
 ) {
   if (selected) {
     return {
-      borderColor: "#ca8a04",
-      fillColor: "#facc15",
-      fillOpacity: 0.38,
-      weight: 3,
+      borderColor: "#b45309",
+      fillColor: "#f59e0b",
+      fillOpacity: 0.26,
+      weight: 2,
       dashArray: undefined,
     };
   }
@@ -142,20 +142,20 @@ function getMunicipalityMapVisuals(
 
   if (municipality?.status === "unlocked") {
     return {
-      borderColor: "#15803d",
-      fillColor: "#22c55e",
-      fillOpacity: 0.22,
-      weight: 2,
+      borderColor: "#047857",
+      fillColor: "#10b981",
+      fillOpacity: 0.24,
+      weight: 1.2,
       dashArray: undefined,
     };
   }
 
   return {
-    borderColor: "#334155",
-    fillColor: "#0f172a",
-    fillOpacity: 0.3,
-    weight: 1,
-    dashArray: "4",
+    borderColor: "#475569",
+    fillColor: "#64748b",
+    fillOpacity: 0.14,
+    weight: 0.8,
+    dashArray: undefined,
   };
 }
 
@@ -471,12 +471,12 @@ export default function ProgressionMap({
             <CircleMarker
               key={`location-${location.visitedLocationId}`}
               center={[location.latitude!, location.longitude!]}
-              radius={5}
+              radius={4}
               pathOptions={{
                 color: "#1e3a8a",
-                fillColor: "#60a5fa",
-                fillOpacity: 0.95,
-                weight: 2,
+                fillColor: "#2563eb",
+                fillOpacity: 0.85,
+                weight: 1.5,
               }}
             >
               <Popup>
