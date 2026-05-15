@@ -48,6 +48,47 @@ type Props = {
   onSelectSubTerritory: (parentKey: string, subTerritoryKey: string) => void;
 };
 
+function getPolygonOnlyGeoJson(geoJson?: any) {
+  if (!geoJson) return null;
+
+  if (geoJson.type === "FeatureCollection" && Array.isArray(geoJson.features)) {
+    return {
+      ...geoJson,
+      features: geoJson.features.filter((feature: any) => {
+        const geometryType = feature.geometry?.type;
+
+        return geometryType === "Polygon" || geometryType === "MultiPolygon";
+      }),
+    };
+  }
+
+  if (
+    geoJson.type === "Feature" &&
+    (geoJson.geometry?.type === "Polygon" ||
+      geoJson.geometry?.type === "MultiPolygon")
+  ) {
+    return {
+      type: "FeatureCollection",
+      features: [geoJson],
+    };
+  }
+
+  if (geoJson.type === "Polygon" || geoJson.type === "MultiPolygon") {
+    return {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          properties: {},
+          geometry: geoJson,
+        },
+      ],
+    };
+  }
+
+  return null;
+}
+
 function getTerritoryMapStyle(status: string) {
   if (status === "mastered") {
     return {
@@ -234,26 +275,26 @@ export default function ProgressionMap({
 
   const visibleTerritories = selectedZoneKey
     ? territories.filter((territory) => {
-        if (isDenmarkSelected && territory.key === "dk") return false;
+      if (isDenmarkSelected && territory.key === "dk") return false;
 
-        if (
-          isGermanySelected &&
-          (territory.key === "germany" || territory.key === "de")
-        ) {
-          return false;
-        }
+      if (
+        isGermanySelected &&
+        (territory.key === "germany" || territory.key === "de")
+      ) {
+        return false;
+      }
 
-        if (
-          isSwedenSelected &&
-          (territory.key === "se" ||
-            territory.key === "sweden" ||
-            territory.key === "sverige")
-        ) {
-          return false;
-        }
+      if (
+        isSwedenSelected &&
+        (territory.key === "se" ||
+          territory.key === "sweden" ||
+          territory.key === "sverige")
+      ) {
+        return false;
+      }
 
-        return territory.key === selectedZoneKey;
-      })
+      return territory.key === selectedZoneKey;
+    })
     : territories;
 
   function isMunicipalitySelected(municipalityName: string) {
@@ -323,9 +364,8 @@ export default function ProgressionMap({
 
           {isGermanySelected && (
             <GeoJSON
-              key={`germany-bundeslaender-${
-                selectedSubTerritoryKey ?? "none"
-              }`}
+              key={`germany-bundeslaender-${selectedSubTerritoryKey ?? "none"
+                }`}
               data={germanyBundeslaenderGeoJson as FeatureCollection<Geometry>}
               style={(feature: any) => {
                 const bundeslandKey = getBundeslandKeyFromFeature(feature);
@@ -392,11 +432,13 @@ export default function ProgressionMap({
           )}
 
           {visibleTerritories.map((territory) => {
-            if (territory.geoJson) {
+            const polygonOnlyGeoJson = getPolygonOnlyGeoJson(territory.geoJson);
+
+            if (polygonOnlyGeoJson && polygonOnlyGeoJson.features.length > 0) {
               return (
                 <GeoJSON
                   key={`territory-geojson-${territory.key}`}
-                  data={territory.geoJson}
+                  data={polygonOnlyGeoJson}
                   eventHandlers={{
                     click: () =>
                       onSelectZone(
