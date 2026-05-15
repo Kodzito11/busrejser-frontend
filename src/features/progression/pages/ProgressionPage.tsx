@@ -35,13 +35,14 @@ export default function ProgressionPage() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
   const [quests, setQuests] = useState<QuestProgressItem[]>([]);
-  const [selectedBundeslandKey, setSelectedBundeslandKey] =
-    useState<string | null>(null);
 
   const [selectedZoneKey, setSelectedZoneKey] =
     useState<SelectedProgressionZoneKey>(null);
 
   const [selectedMunicipalityName, setSelectedMunicipalityName] =
+    useState<string | null>(null);
+
+  const [selectedSubTerritoryKey, setSelectedSubTerritoryKey] =
     useState<string | null>(null);
 
   useEffect(() => {
@@ -63,7 +64,6 @@ export default function ProgressionPage() {
           api.badges.getMine(),
           api.travelHistory.getMine(),
         ]);
-
 
         setData(mapResult);
         setQuests(questResult);
@@ -105,19 +105,19 @@ export default function ProgressionPage() {
   function handleSelectZone(zoneKey: SelectedProgressionZoneKey) {
     setSelectedZoneKey(zoneKey);
     setSelectedMunicipalityName(null);
-    setSelectedBundeslandKey(null);
+    setSelectedSubTerritoryKey(null);
   }
 
-  function handleSelectBundesland(bundeslandKey: string) {
-    setSelectedZoneKey("germany");
+  function handleSelectSubTerritory(parentKey: string, subTerritoryKey: string) {
+    setSelectedZoneKey(parentKey);
     setSelectedMunicipalityName(null);
-    setSelectedBundeslandKey(bundeslandKey);
+    setSelectedSubTerritoryKey(subTerritoryKey);
   }
 
   function handleSelectMunicipality(municipalityName: string) {
     setSelectedZoneKey("dk");
     setSelectedMunicipalityName(municipalityName);
-    setSelectedBundeslandKey(null);
+    setSelectedSubTerritoryKey(null);
   }
 
   if (loading) {
@@ -188,10 +188,10 @@ export default function ProgressionPage() {
               municipalities={mapMunicipalities}
               selectedZoneKey={selectedZoneKey}
               selectedMunicipalityName={selectedMunicipalityName}
-              selectedBundeslandKey={selectedBundeslandKey}
+              selectedSubTerritoryKey={selectedSubTerritoryKey}
               onSelectZone={handleSelectZone}
               onSelectMunicipality={handleSelectMunicipality}
-              onSelectBundesland={handleSelectBundesland}
+              onSelectSubTerritory={handleSelectSubTerritory}
             />
 
             <ActiveZoneDetailCard
