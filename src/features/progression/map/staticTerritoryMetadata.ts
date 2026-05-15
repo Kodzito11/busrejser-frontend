@@ -4,6 +4,7 @@ import {
     denmarkGeoJson,
     germanyGeoJson,
     swedenGeoJson,
+    pragueGeoJson
 } from "../game/progressionGeoJson";
 
 export type ProgressionZoneStatus = "locked" | "unlocked";
@@ -57,12 +58,7 @@ export const progressionZones: ProgressionZone[] = [
         latitude: 50.0755,
         longitude: 14.4378,
         radiusMeters: 45000,
-        polygon: [
-            [50.15, 14.2],
-            [50.15, 14.7],
-            [49.95, 14.7],
-            [49.95, 14.2],
-        ],
+       geoJson: pragueGeoJson,
         matchCountries: ["cz", "czechia", "czech republic", "tjekkiet"],
         matchNames: ["prague", "praha", "prag"],
     },
