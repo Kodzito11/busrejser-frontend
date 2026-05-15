@@ -3,12 +3,13 @@ import type { VisitedLocationMapItem } from "../model/progression.types";
 import {
     denmarkGeoJson,
     germanyGeoJson,
+    swedenGeoJson,
 } from "../game/progressionGeoJson";
 
 export type ProgressionZoneStatus = "locked" | "unlocked";
 
 export type ProgressionZone = {
-    key: "dk" | "germany" | "prague";
+    key: "dk" | "germany" | "prague" | "se";
     title: string;
     description: string;
     latitude: number;
@@ -64,6 +65,17 @@ export const progressionZones: ProgressionZone[] = [
         ],
         matchCountries: ["cz", "czechia", "czech republic", "tjekkiet"],
         matchNames: ["prague", "praha", "prag"],
+    },
+    {
+        key: "se",
+        title: "Sverige",
+        description: "Nordisk naboland låst op via svenske destinationer.",
+        latitude: 62.0,
+        longitude: 15.0,
+        radiusMeters: 500000,
+        geoJson: swedenGeoJson,
+        matchCountries: ["se", "sverige", "sweden"],
+        matchNames: ["stockholm", "göteborg", "goteborg", "malmö", "malmo"],
     }
 ];
 
