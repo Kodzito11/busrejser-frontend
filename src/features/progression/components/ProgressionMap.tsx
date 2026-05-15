@@ -33,8 +33,7 @@ import {
 
 import {
   findSwedenRegionTerritory,
-  getSwedenRegionKeyFromFeature,
-  getSwedenRegionTooltipText,
+  getSwedenRegionKeyFromFeature
 } from "../map/mapSwedenRegionAdapter";
 
 type Props = {
@@ -211,26 +210,26 @@ export default function ProgressionMap({
 
   const visibleTerritories = selectedZoneKey
     ? territories.filter((territory) => {
-        if (isDenmarkSelected && territory.key === "dk") return false;
+      if (isDenmarkSelected && territory.key === "dk") return false;
 
-        if (
-          isGermanySelected &&
-          (territory.key === "germany" || territory.key === "de")
-        ) {
-          return false;
-        }
+      if (
+        isGermanySelected &&
+        (territory.key === "germany" || territory.key === "de")
+      ) {
+        return false;
+      }
 
-        if (
-          isSwedenSelected &&
-          (territory.key === "se" ||
-            territory.key === "sweden" ||
-            territory.key === "sverige")
-        ) {
-          return false;
-        }
+      if (
+        isSwedenSelected &&
+        (territory.key === "se" ||
+          territory.key === "sweden" ||
+          territory.key === "sverige")
+      ) {
+        return false;
+      }
 
-        return territory.key === selectedZoneKey;
-      })
+      return territory.key === selectedZoneKey;
+    })
     : territories;
 
   function isMunicipalitySelected(municipalityName: string) {
@@ -300,9 +299,8 @@ export default function ProgressionMap({
 
           {isGermanySelected && (
             <GeoJSON
-              key={`germany-bundeslaender-${
-                selectedSubTerritoryKey ?? "none"
-              }`}
+              key={`germany-bundeslaender-${selectedSubTerritoryKey ?? "none"
+                }`}
               data={germanyBundeslaenderGeoJson as FeatureCollection<Geometry>}
               style={(feature: any) => {
                 const bundeslandKey = getBundeslandKeyFromFeature(feature);
@@ -358,13 +356,6 @@ export default function ProgressionMap({
                 };
               }}
               onEachFeature={(feature: any, layer) => {
-                const tooltipText = getSwedenRegionTooltipText(
-                  feature,
-                  findSwedenRegionTerritory(territories, feature)
-                );
-
-                layer.bindTooltip(tooltipText);
-
                 layer.on({
                   click: () => {
                     const regionKey = getSwedenRegionKeyFromFeature(feature);
