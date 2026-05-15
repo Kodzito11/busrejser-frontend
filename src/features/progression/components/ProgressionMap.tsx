@@ -2,12 +2,12 @@ import "leaflet/dist/leaflet.css";
 import { useEffect } from "react";
 import {
   MapContainer,
-  Marker,
   Popup,
   TileLayer,
   Polygon,
   GeoJSON,
   useMap,
+  CircleMarker
 } from "react-leaflet";
 import type { FeatureCollection, Geometry } from "geojson";
 
@@ -73,13 +73,6 @@ function getTerritoryMapStyle(status: string) {
     fillOpacity: 0.08,
     weight: 2,
   };
-}
-
-function getTerritoryStatusIcon(status: string) {
-  if (status === "mastered") return "🏆";
-  if (status === "unlocked") return "🟢";
-
-  return "🔒";
 }
 
 function getMunicipalityMapVisuals(
@@ -401,9 +394,16 @@ export default function ProgressionMap({
           })}
 
           {points.map((location) => (
-            <Marker
+            <CircleMarker
               key={`location-${location.visitedLocationId}`}
-              position={[location.latitude!, location.longitude!]}
+              center={[location.latitude!, location.longitude!]}
+              radius={6}
+              pathOptions={{
+                color: "#facc15",
+                fillColor: "#facc15",
+                fillOpacity: 0.9,
+                weight: 2,
+              }}
             >
               <Popup>
                 <strong>{location.name}</strong>
@@ -415,50 +415,7 @@ export default function ProgressionMap({
                   ? "1 gang"
                   : `${location.visitCount} gange`}
               </Popup>
-            </Marker>
-          ))}
-
-          {visibleTerritories.map((territory) => (
-            <Marker
-              key={`territory-${territory.key}`}
-              position={[territory.latitude, territory.longitude]}
-            >
-              <Popup>
-                <strong>
-                  {getTerritoryStatusIcon(territory.status)} {territory.name}
-                </strong>
-                <br />
-                {territory.description}
-                <br />
-                <br />
-                {territory.status === "locked" ? (
-                  <>Ikke besøgt endnu</>
-                ) : (
-                  <>
-                    {territory.status === "mastered"
-                      ? "Territory mastered"
-                      : "Zone unlocked"}
-                    <br />
-                    Besøgt {territory.visitCount} gange
-                    <br />
-                    Completion {territory.completionPercent}%
-                  </>
-                )}
-
-                {!territory.hasMapMetadata && (
-                  <>
-                    <br />
-                    <br />
-                    <strong>Map shape mangler</strong>
-                    <br />
-                    <span>
-                      Key "{territory.key}" findes i backend, men ikke i
-                      frontend map metadata.
-                    </span>
-                  </>
-                )}
-              </Popup>
-            </Marker>
+            </CircleMarker>
           ))}
         </MapContainer>
       </div>
