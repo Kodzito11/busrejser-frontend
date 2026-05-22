@@ -1,15 +1,48 @@
+import {
+  clearSession,
+  getAccessToken,
+  getRefreshToken,
+  saveAccessToken,
+  saveRefreshToken,
+} from "../../features/auth/utils/auth.storage";
+
 export const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
 
-export async function http<T>(path: string, options?: RequestInit): Promise<T> {
-  const rawToken = localStorage.getItem("token");
-  const token =
-    rawToken && rawToken !== "undefined" && rawToken !== "null"
-      ? rawToken
-      : null;
+type HttpOptions = {
+  skipAuthRefresh?: boolean;
+};
 
+let refreshPromise: Promise<boolean> | null = null;
+
+export async function http<T>(
+  path: string,
+  options?: RequestInit,
+  httpOptions?: HttpOptions
+): Promise<T> {
+  const res = await sendRequest(path, options);
+
+  if (
+    res.status === 401 &&
+    !httpOptions?.skipAuthRefresh
+  ) {
+    const refreshed = await refreshAccessToken();
+
+    if (refreshed) {
+      const retryRes = await sendRequest(path, options);
+      return handleResponse<T>(retryRes);
+    }
+
+    clearSession();
+  }
+
+  return handleResponse<T>(res);
+}
+
+async function sendRequest(path: string, options?: RequestInit) {
+  const token = getAccessToken();
   const isFormData = options?.body instanceof FormData;
 
-  const res = await fetch(`${API_BASE}${path}`, {
+  return fetch(`${API_BASE}${path}`, {
     ...options,
     headers: {
       ...(isFormData ? {} : { "Content-Type": "application/json" }),
@@ -17,7 +50,54 @@ export async function http<T>(path: string, options?: RequestInit): Promise<T> {
       ...(options?.headers || {}),
     },
   });
+}
 
+async function refreshAccessToken() {
+  const refreshToken = getRefreshToken();
+
+  if (!refreshToken) {
+    return false;
+  }
+
+  if (!refreshPromise) {
+    refreshPromise = doRefresh(refreshToken).finally(() => {
+      refreshPromise = null;
+    });
+  }
+
+  return refreshPromise;
+}
+
+async function doRefresh(refreshToken: string) {
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/refresh`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ refreshToken }),
+    });
+
+    if (!res.ok) {
+      return false;
+    }
+
+    const data = await res.json();
+
+    if (!data?.accessToken || !data?.refreshToken) {
+      return false;
+    }
+
+    saveAccessToken(data.accessToken);
+    saveRefreshToken(data.refreshToken);
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function handleResponse<T>(res: Response): Promise<T> {
   if (!res.ok) {
     let message = `${res.status} ${res.statusText}`;
 

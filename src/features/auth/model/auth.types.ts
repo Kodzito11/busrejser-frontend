@@ -1,6 +1,6 @@
 export type RegisterRequest = {
-  FirstName: string;
-  LastName : string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
 };
@@ -15,17 +15,32 @@ export type LoginRequest = {
   password: string;
 };
 
+export type AuthenticatedUserResponse = {
+  userId: number;
+  email: string;
+  role: string;
+};
+
 export type LoginResponse = {
-  tokenType: string;
   accessToken: string;
   accessTokenExpiresAt: string;
   refreshToken: string;
   refreshTokenExpiresAt: string;
-  user: {
-    userId: number;
-    email: string;
-    role: string;
-  };
+  user: AuthenticatedUserResponse;
+};
+
+export type RefreshTokenRequest = {
+  refreshToken: string;
+};
+
+export type RefreshTokenResponse = LoginResponse;
+
+export type LogoutRequest = {
+  refreshToken: string;
+};
+
+export type LogoutResponse = {
+  message: string;
 };
 
 export type ForgotPasswordRequest = {
@@ -46,11 +61,8 @@ export type ResetPasswordResponse = {
 };
 
 export type MeResponse = {
-  userId: string;
-  firstName: string;
-  lastName : string;
+  userId: number;
+  fullName: string;
   email: string;
   role: string;
-  createdAt : string;
-  phone? : string;
 };

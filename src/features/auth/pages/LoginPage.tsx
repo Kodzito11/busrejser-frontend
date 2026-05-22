@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { api } from "../../../shared/api/api";
-import { getCurrentUser } from "../utils/auth.storage";
+import { getCurrentUser, saveSession } from "../utils/auth.storage";
+
 
 export default function Login() {
   const navigate = useNavigate();
@@ -45,10 +46,18 @@ export default function Login() {
         password,
       });
 
-      localStorage.setItem("token", res.accessToken);
+      saveSession({
+        accessToken: res.accessToken,
+        refreshToken: res.refreshToken,
+      });
 
       const me = await api.auth.me();
-      localStorage.setItem("me", JSON.stringify(me));
+
+      saveSession({
+        accessToken: res.accessToken,
+        refreshToken: res.refreshToken,
+        user: me,
+      });
 
       if (me.role === "Admin" || me.role === "Medarbejder") {
         navigate("/admin", { replace: true });
