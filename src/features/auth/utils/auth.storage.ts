@@ -1,18 +1,15 @@
 import type { MeResponse } from "../model/auth.types";
 
 const ACCESS_TOKEN_KEY = "token";
-const REFRESH_TOKEN_KEY = "refreshToken";
 const CURRENT_USER_KEY = "me";
 
 type SaveSessionInput = {
   accessToken: string;
-  refreshToken: string;
   user?: MeResponse | null;
 };
 
-export function saveSession({ accessToken, refreshToken, user }: SaveSessionInput) {
+export function saveSession({ accessToken, user }: SaveSessionInput) {
   localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-  localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
 
   if (user) {
     localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
@@ -21,10 +18,6 @@ export function saveSession({ accessToken, refreshToken, user }: SaveSessionInpu
 
 export function saveAccessToken(accessToken: string) {
   localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-}
-
-export function saveRefreshToken(refreshToken: string) {
-  localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
 }
 
 export function saveCurrentUser(user: MeResponse) {
@@ -45,19 +38,8 @@ export function getAccessToken() {
   return token;
 }
 
-export function getRefreshToken() {
-  const token = localStorage.getItem(REFRESH_TOKEN_KEY);
-
-  if (!token || token === "undefined" || token === "null") {
-    return null;
-  }
-
-  return token;
-}
-
 export function clearSession() {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
-  localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem(CURRENT_USER_KEY);
 }
 

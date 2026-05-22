@@ -48,14 +48,12 @@ export default function Login() {
 
       saveSession({
         accessToken: res.accessToken,
-        refreshToken: res.refreshToken,
       });
 
       const me = await api.auth.me();
 
       saveSession({
         accessToken: res.accessToken,
-        refreshToken: res.refreshToken,
         user: me,
       });
 

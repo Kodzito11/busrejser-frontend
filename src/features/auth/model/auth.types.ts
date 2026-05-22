@@ -24,20 +24,11 @@ export type AuthenticatedUserResponse = {
 export type LoginResponse = {
   accessToken: string;
   accessTokenExpiresAt: string;
-  refreshToken: string;
   refreshTokenExpiresAt: string;
   user: AuthenticatedUserResponse;
 };
 
-export type RefreshTokenRequest = {
-  refreshToken: string;
-};
-
 export type RefreshTokenResponse = LoginResponse;
-
-export type LogoutRequest = {
-  refreshToken: string;
-};
 
 export type LogoutResponse = {
   message: string;

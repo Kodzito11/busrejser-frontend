@@ -1,9 +1,7 @@
 import {
   clearSession,
   getAccessToken,
-  getRefreshToken,
   saveAccessToken,
-  saveRefreshToken,
 } from "../../features/auth/utils/auth.storage";
 
 export const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
@@ -54,14 +52,8 @@ async function sendRequest(path: string, options?: RequestInit) {
 }
 
 async function refreshAccessToken() {
-  const refreshToken = getRefreshToken();
-
-  if (!refreshToken) {
-    return false;
-  }
-
   if (!refreshPromise) {
-    refreshPromise = doRefresh(refreshToken).finally(() => {
+    refreshPromise = doRefresh().finally(() => {
       refreshPromise = null;
     });
   }
@@ -69,14 +61,14 @@ async function refreshAccessToken() {
   return refreshPromise;
 }
 
-async function doRefresh(refreshToken: string) {
+async function doRefresh() {
   try {
     const res = await fetch(`${API_BASE}/api/auth/refresh`, {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ refreshToken }),
     });
 
     if (!res.ok) {
@@ -85,12 +77,11 @@ async function doRefresh(refreshToken: string) {
 
     const data = await res.json();
 
-    if (!data?.accessToken || !data?.refreshToken) {
+    if (!data?.accessToken) {
       return false;
     }
 
     saveAccessToken(data.accessToken);
-    saveRefreshToken(data.refreshToken);
 
     return true;
   } catch {

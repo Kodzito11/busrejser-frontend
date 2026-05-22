@@ -4,7 +4,6 @@ import type {
   ForgotPasswordResponse,
   LoginRequest,
   LoginResponse,
-  LogoutRequest,
   LogoutResponse,
   MeResponse,
   RefreshTokenResponse,
@@ -28,24 +27,22 @@ export const authApi = {
     }),
 
   refresh: () =>
-    http<RefreshTokenResponse>(
-      "/api/auth/refresh",
-      {
-        method: "POST",
+  http<RefreshTokenResponse>(
+    "/api/auth/refresh",
+    {
+      method: "POST",
+    },
+    { skipAuthRefresh: true }
+  ),
 
-      },
-      { skipAuthRefresh: true }
-    ),
-
-  logout: (payload: LogoutRequest) =>
-    http<LogoutResponse>(
-      "/api/auth/logout",
-      {
-        method: "POST",
-        body: JSON.stringify(payload),
-      },
-      { skipAuthRefresh: true }
-    ),
+  logout: () =>
+  http<LogoutResponse>(
+    "/api/auth/logout",
+    {
+      method: "POST",
+    },
+    { skipAuthRefresh: true }
+  ),
 
   forgotPassword: (payload: ForgotPasswordRequest) =>
     http<ForgotPasswordResponse>("/api/auth/forgot-password", {
