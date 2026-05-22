@@ -22,6 +22,7 @@ export type AuthenticatedUserResponse = {
 };
 
 export type LoginResponse = {
+  toksenType: string;
   accessToken: string;
   accessTokenExpiresAt: string;
   refreshTokenExpiresAt: string;
