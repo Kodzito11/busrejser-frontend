@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
 import logo from "../../assets/busplanen-high-resolution-logo-transparent.png";
-import { getCurrentUser, logout } from "../../features/auth/utils/auth.storage";
+import { getCurrentUser } from "../../features/auth/utils/auth.storage";
+import { logoutUser } from "../../features/auth/utils/logoutUser";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ export default function Header() {
 
   const displayName =
     user?.lastName ||
+    user?.firstName ||
     user?.email ||
     "Konto";
 
@@ -45,10 +47,10 @@ export default function Header() {
     navigate(path);
   }
 
-  function handleLogout() {
-    logout();
+  async function handleLogout() {
+    await logoutUser();
     setMenuOpen(false);
-    navigate("/");
+    navigate("/login", { replace: true });
   }
 
   return (

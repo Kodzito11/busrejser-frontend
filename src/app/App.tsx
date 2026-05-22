@@ -38,53 +38,56 @@ import RequireStaffRedirect from "../features/auth/components/RequireStaffRedire
 
 import AdminProgressionTerritoriesPage from "../features/progression-admin/pages/AdminProgressionTerritoriesPage";
 
+import { AuthDebugPanel } from "../features/auth/dev/AuthDebugPanel";
+
 export default function App() {
   return (
-    <Routes>
-      {/* PUBLIC + MAIN LAYOUT */}
-      <Route element={<MainLayout />}>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/om" element={<AboutPage />} />
-        <Route path="/rejser" element={<RejserPage />} />
-        <Route path="/rejser/kalender" element={<RejseKalenderPage />} />
-        <Route path="/rejser/lavpris" element={<RejseLavPrisKalenderPage />} />
-        <Route path="/rejse/:id" element={<RejseDetaljePage />} />
-        <Route path="/book/:id" element={<BookRejsePage />} />
+    <>
+      <Routes>
+        {/* PUBLIC + MAIN LAYOUT */}
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/om" element={<AboutPage />} />
+          <Route path="/rejser" element={<RejserPage />} />
+          <Route path="/rejser/kalender" element={<RejseKalenderPage />} />
+          <Route path="/rejser/lavpris" element={<RejseLavPrisKalenderPage />} />
+          <Route path="/rejse/:id" element={<RejseDetaljePage />} />
+          <Route path="/book/:id" element={<BookRejsePage />} />
 
-        <Route path="/betaling/success" element={<BetalingSuccessPage />} />
-        <Route path="/betaling/cancel" element={<BetalingCancelPage />} />
+          <Route path="/betaling/success" element={<BetalingSuccessPage />} />
+          <Route path="/betaling/cancel" element={<BetalingCancelPage />} />
 
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/glemt-adgangskode" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/glemt-adgangskode" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-        <Route path="/profil" element={<ProfilePage />} />
+          <Route path="/profil" element={<ProfilePage />} />
 
-        {/* CUSTOMER PROTECTED */}
-        <Route element={<RequireCustomer />}>
-          <Route path="/kunde" element={<KundeDashboardPage />} />
-          <Route path="/mine-bookinger" element={<MineBookingerPage />} />
-          <Route path="/progression" element={<ProgressionPage />} />
+          {/* CUSTOMER PROTECTED */}
+          <Route element={<RequireCustomer />}>
+            <Route path="/kunde" element={<KundeDashboardPage />} />
+            <Route path="/mine-bookinger" element={<MineBookingerPage />} />
+            <Route path="/progression" element={<ProgressionPage />} />
+          </Route>
+
+          {/* OPTIONAL REDIRECT */}
+          <Route path="/busser" element={<RequireStaffRedirect />} />
         </Route>
 
-        {/* OPTIONAL REDIRECT */}
-        <Route
-          path="/busser"
-          element={<RequireStaffRedirect/>}
-        />
-      </Route>
-
-      {/* ADMIN PROTECTED */}
-      <Route element={<RequireStaff />}>
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminHomePage />} />
-          <Route path="busser" element={<AdminBusPage />} />
-          <Route path="rejser" element={<AdminRejsePage />} />
-          <Route path="bookings" element={<AdminBookingPage />} />
-          <Route path="progression" element={<AdminProgressionTerritoriesPage />} />
+        {/* ADMIN PROTECTED */}
+        <Route element={<RequireStaff />}>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminHomePage />} />
+            <Route path="busser" element={<AdminBusPage />} />
+            <Route path="rejser" element={<AdminRejsePage />} />
+            <Route path="bookings" element={<AdminBookingPage />} />
+            <Route path="progression" element={<AdminProgressionTerritoriesPage />} />
+          </Route>
         </Route>
-      </Route>
-    </Routes>
+      </Routes>
+
+      <AuthDebugPanel />
+    </>
   );
 }
