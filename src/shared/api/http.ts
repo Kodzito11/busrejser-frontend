@@ -44,6 +44,7 @@ async function sendRequest(path: string, options?: RequestInit) {
 
   return fetch(`${API_BASE}${path}`, {
     ...options,
+    credentials: "include",
     headers: {
       ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),

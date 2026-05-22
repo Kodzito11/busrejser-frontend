@@ -2,8 +2,9 @@ import { useState } from "react";
 import {
   getAccessToken,
   getCurrentUser,
-  getRefreshToken,
+  saveAccessToken,
 } from "../utils/auth.storage";
+import {api} from "../../../shared/api/api";
 
 function decodeJwt(token: string | null) {
   if (!token) return null;
@@ -39,7 +40,6 @@ export function AuthDebugPanel() {
   if (!import.meta.env.DEV) return null;
 
   const accessToken = getAccessToken();
-  const refreshToken = getRefreshToken();
   const user = getCurrentUser();
   const payload = decodeJwt(accessToken);
 
@@ -51,7 +51,6 @@ export function AuthDebugPanel() {
     checkedAt: new Date().toISOString(),
     user,
     hasAccessToken: !!accessToken,
-    hasRefreshToken: !!refreshToken,
     accessTokenExpiresAt: expiresAt,
     accessTokenTimeLeft: getTimeLeft(payload?.exp),
     jwtPayload: payload,
@@ -61,6 +60,20 @@ export function AuthDebugPanel() {
       me: !!localStorage.getItem("me"),
     },
   };
+
+  async function refreshAuthSession() {
+  try {
+    const response = await api.auth.refresh();
+
+    if (response.accessToken) {
+      saveAccessToken(response.accessToken);
+    }
+    
+    refreshPanel();
+  } catch (error) {
+    console.error("Auth refresh failed", error);
+  }
+}
 
   async function copyDebugInfo() {
     await navigator.clipboard.writeText(JSON.stringify(debugInfo, null, 2));
@@ -106,7 +119,6 @@ export function AuthDebugPanel() {
         <div>Email: {user?.email ?? "Ingen"}</div>
         <div>Role: {user?.role ?? "Ingen"}</div>
         <div>Access token: {accessToken ? "Ja" : "Nej"}</div>
-        <div>Refresh token: {refreshToken ? "Ja" : "Nej"}</div>
         <div>JWT expires: {expiresAt}</div>
         <div>Time left: {getTimeLeft(payload?.exp)}</div>
       </div>
@@ -114,7 +126,7 @@ export function AuthDebugPanel() {
       <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
         <button
           type="button"
-          onClick={refreshPanel}
+          onClick={refreshAuthSession}
           style={{
             flex: 1,
             padding: 8,

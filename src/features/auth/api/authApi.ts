@@ -7,7 +7,6 @@ import type {
   LogoutRequest,
   LogoutResponse,
   MeResponse,
-  RefreshTokenRequest,
   RefreshTokenResponse,
   RegisterRequest,
   RegisterResponse,
@@ -28,12 +27,12 @@ export const authApi = {
       body: JSON.stringify(payload),
     }),
 
-  refresh: (payload: RefreshTokenRequest) =>
+  refresh: () =>
     http<RefreshTokenResponse>(
       "/api/auth/refresh",
       {
         method: "POST",
-        body: JSON.stringify(payload),
+
       },
       { skipAuthRefresh: true }
     ),
