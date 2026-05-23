@@ -40,6 +40,8 @@ import AdminProgressionTerritoriesPage from "../features/progression-admin/pages
 
 import { AuthDebugPanel } from "../features/auth/dev/AuthDebugPanel";
 
+import VerifyEmailPage from "../features/auth/pages/VerifyEmailPage";
+
 export default function App() {
   return (
     <>
@@ -61,6 +63,7 @@ export default function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/glemt-adgangskode" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
 
           <Route path="/profil" element={<ProfilePage />} />
 

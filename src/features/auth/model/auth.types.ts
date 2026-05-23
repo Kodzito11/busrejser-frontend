@@ -59,3 +59,19 @@ export type MeResponse = {
   email: string;
   role: string;
 };
+
+export type VerifyEmailRequest = {
+  token: string;
+};
+
+export type VerifyEmailResponse = {
+  message: string;
+};
+
+export type ResendVerificationEmailRequest = {
+  email: string;
+};
+
+export type ResendVerificationEmailResponse = {
+  message: string;
+};

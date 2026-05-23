@@ -11,6 +11,10 @@ import type {
   RegisterResponse,
   ResetPasswordRequest,
   ResetPasswordResponse,
+  VerifyEmailRequest,
+VerifyEmailResponse,
+ResendVerificationEmailRequest,
+ResendVerificationEmailResponse,
 } from "../model/auth.types";
 
 export const authApi = {
@@ -57,4 +61,16 @@ export const authApi = {
     }),
 
   me: () => http<MeResponse>("/api/user/me"),
+
+  verifyEmail: (payload: VerifyEmailRequest) =>
+  http<VerifyEmailResponse>("/api/auth/verify-email", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  }),
+
+resendVerificationEmail: (payload: ResendVerificationEmailRequest) =>
+  http<ResendVerificationEmailResponse>("/api/auth/resend-verification-email", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  }),
 };
