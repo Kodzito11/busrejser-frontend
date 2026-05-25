@@ -1,14 +1,17 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { getCurrentUser } from "../utils/auth.storage";
+import { useResolvedSession } from "../hooks/useResolvedSession";
 
 export default function RequireStaff() {
-  const user = getCurrentUser();
+  const { user, loading } = useResolvedSession();
 
-  const isStaff =
-    user?.role === "Admin" || user?.role === "Medarbejder";
+  if (loading) {
+    return null;
+  }
+
+  const isStaff = user?.role === "Admin" || user?.role === "Medarbejder";
 
   if (!isStaff) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   return <Outlet />;

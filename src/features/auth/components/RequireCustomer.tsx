@@ -1,13 +1,15 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { getCurrentUser } from "../utils/auth.storage";
+import { useResolvedSession } from "../hooks/useResolvedSession";
 
 export default function RequireCustomer() {
-  const user = getCurrentUser();
+  const { user, loading } = useResolvedSession();
 
-  const isCustomer = user?.role === "Kunde";
+  if (loading) {
+    return null;
+  }
 
-  if (!isCustomer) {
-    return <Navigate to="/" replace />;
+  if (user?.role !== "Kunde") {
+    return <Navigate to="/login" replace />;
   }
 
   return <Outlet />;

@@ -42,6 +42,8 @@ import { AuthDebugPanel } from "../features/auth/dev/AuthDebugPanel";
 
 import VerifyEmailPage from "../features/auth/pages/VerifyEmailPage";
 
+import RequireAuth from "../features/auth/components/RequireAuth";
+
 export default function App() {
   return (
     <>
@@ -65,7 +67,9 @@ export default function App() {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
 
-          <Route path="/profil" element={<ProfilePage />} />
+          <Route element={<RequireAuth />}>
+            <Route path="/profil" element={<ProfilePage />} />
+          </Route>
 
           {/* CUSTOMER PROTECTED */}
           <Route element={<RequireCustomer />}>

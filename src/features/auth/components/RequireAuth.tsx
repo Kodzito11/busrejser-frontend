@@ -1,8 +1,12 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { getCurrentUser } from "../utils/auth.storage";
+import { useResolvedSession } from "../hooks/useResolvedSession";
 
 export default function RequireAuth() {
-  const user = getCurrentUser();
+  const { user, loading } = useResolvedSession();
+
+  if (loading) {
+    return null;
+  }
 
   if (!user) {
     return <Navigate to="/login" replace />;
