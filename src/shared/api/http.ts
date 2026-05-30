@@ -4,6 +4,8 @@ import {
   saveAccessToken,
 } from "../../features/auth/utils/auth.storage";
 
+import { devLog } from "../utils/devLog";
+
 export const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
 
 type HttpOptions = {
@@ -19,17 +21,19 @@ export async function http<T>(
 ): Promise<T> {
   const res = await sendRequest(path, options);
 
-  if (
-    res.status === 401 &&
-    !httpOptions?.skipAuthRefresh
-  ) {
+  if (res.status === 401 && !httpOptions?.skipAuthRefresh) {
+    devLog("AUTH", "http 401 received -> trying refresh", { path });
+
     const refreshed = await refreshAccessToken();
 
     if (refreshed) {
+      devLog("AUTH", "refresh success -> retrying original request", { path });
+
       const retryRes = await sendRequest(path, options);
       return handleResponse<T>(retryRes);
     }
 
+    devLog("AUTH", "refresh failed -> clearing session", { path });
     clearSession();
   }
 
@@ -39,6 +43,13 @@ export async function http<T>(
 async function sendRequest(path: string, options?: RequestInit) {
   const token = getAccessToken();
   const isFormData = options?.body instanceof FormData;
+
+  devLog("HTTP", "sending request", {
+    path,
+    method: options?.method ?? "GET",
+    hasToken: !!token,
+    isFormData,
+  });
 
   return fetch(`${API_BASE}${path}`, {
     ...options,
@@ -52,11 +63,17 @@ async function sendRequest(path: string, options?: RequestInit) {
 }
 
 async function refreshAccessToken() {
-  if (!refreshPromise) {
-    refreshPromise = doRefresh().finally(() => {
-      refreshPromise = null;
-    });
+  if (refreshPromise) {
+    devLog("AUTH", "refresh already in progress -> waiting");
+    return refreshPromise;
   }
+
+  devLog("AUTH", "starting refresh request");
+
+  refreshPromise = doRefresh().finally(() => {
+    devLog("AUTH", "refresh promise cleared");
+    refreshPromise = null;
+  });
 
   return refreshPromise;
 }
@@ -72,19 +89,28 @@ async function doRefresh() {
     });
 
     if (!res.ok) {
+      devLog("AUTH", "refresh response not ok", {
+        status: res.status,
+        statusText: res.statusText,
+      });
+
       return false;
     }
 
     const data = await res.json();
 
     if (!data?.accessToken) {
+      devLog("AUTH", "refresh response missing accessToken");
       return false;
     }
 
     saveAccessToken(data.accessToken);
 
+    devLog("AUTH", "access token saved after refresh");
+
     return true;
-  } catch {
+  } catch (error) {
+    devLog("AUTH", "refresh request crashed", error);
     return false;
   }
 }
@@ -102,6 +128,12 @@ async function handleResponse<T>(res: Response): Promise<T> {
       const text = await res.text().catch(() => "");
       if (text) message = text;
     }
+
+    devLog("HTTP", "request failed", {
+      status: res.status,
+      statusText: res.statusText,
+      message,
+    });
 
     throw new Error(message);
   }
