@@ -11,6 +11,9 @@ type BookingWithTrip = Booking & {
 
 export default function MineBookinger() {
     const currentUser = getCurrentUser();
+    const currentUserName = currentUser
+        ? `${currentUser.firstName ?? ""} ${currentUser.lastName ?? ""}`.trim()
+        : "";
     const [bookings, setBookings] = useState<BookingWithTrip[]>([]);
     const [loading, setLoading] = useState(true);
     const [err, setErr] = useState("");
@@ -79,7 +82,7 @@ export default function MineBookinger() {
             <header className="header">
                 <div>
                     <h1>Mine bookinger</h1>
-                    <p className="muted">{currentUser.fullName ?? currentUser.email}</p>
+                    <p className="muted">{currentUserName || currentUser.email}</p>
                 </div>
                 <button onClick={load} disabled={loading}>
                     Genindlæs

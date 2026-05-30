@@ -84,7 +84,7 @@ export default function ProfilePage() {
         email: profile.email,
         role: profile.role,
         firstName: profile.firstName ?? null,
-        lastName: profile.lastname ?? null,
+        lastName: profile.lastName ?? null,
         phone: profile.phone ?? null,
         createdAt: profile.createdAt,
       })
@@ -140,8 +140,8 @@ export default function ProfilePage() {
     try {
       const updated = await userApi.updateMe({
         email: profileForm.email.trim(),
-        firstName: profileForm.fullName.trim() || null,
-        lastName: profileForm.lastName.trim() || null,
+        firstName: profileForm.firstName.trim(),
+        lastName: profileForm.lastName.trim(),
         phone: profileForm.phone?.trim() || null,
       });
 
@@ -149,7 +149,7 @@ export default function ProfilePage() {
       setProfileForm({
         email: updated.email ?? "",
         firstName: updated.firstName ?? "",
-        lastName: updated.lastname ?? "",
+        lastName: updated.lastName ?? "",
         phone: updated.phone ?? "",
       });
 
