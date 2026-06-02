@@ -16,12 +16,17 @@ export default function RequireCustomer() {
     return null;
   }
 
+  if (!user) {
+    devLog("AUTH", "RequireCustomer denied -> redirect /login");
+    return <Navigate to="/login" replace />;
+  }
+
   if (user?.role !== "Kunde") {
-    devLog("AUTH", "RequireCustomer denied -> redirect /login", {
+    devLog("AUTH", "RequireCustomer denied -> redirect /admin", {
       role: user?.role,
     });
 
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/admin" replace />;
   }
 
   devLog("AUTH", "RequireCustomer allowed");

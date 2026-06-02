@@ -29,25 +29,24 @@ export function useResolvedSession() {
           userId: existingUser.userId,
           role: existingUser.role,
         });
-
-        setUser(existingUser);
-        setLoading(false);
-        return;
       }
 
-      devLog("AUTH", "no local user -> trying refresh");
       setLoading(true);
 
       try {
-        const refreshed = await authApi.refresh();
+        if (!existingUser) {
+          devLog("AUTH", "no local user -> trying refresh");
 
-        devLog("AUTH", "refresh success -> saving access token");
-        saveAccessToken(refreshed.accessToken);
+          const refreshed = await authApi.refresh();
 
-        devLog("AUTH", "fetching /me after refresh");
+          devLog("AUTH", "refresh success -> saving access token");
+          saveAccessToken(refreshed.accessToken);
+        }
+
+        devLog("AUTH", "fetching /me to resolve current session");
         const me = await authApi.me();
 
-        devLog("AUTH", "/me success -> session restored", {
+        devLog("AUTH", "/me success -> session resolved", {
           userId: me.userId,
           role: me.role,
         });

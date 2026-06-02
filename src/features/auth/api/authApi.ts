@@ -12,65 +12,89 @@ import type {
   ResetPasswordRequest,
   ResetPasswordResponse,
   VerifyEmailRequest,
-VerifyEmailResponse,
-ResendVerificationEmailRequest,
-ResendVerificationEmailResponse,
+  VerifyEmailResponse,
+  ResendVerificationEmailRequest,
+  ResendVerificationEmailResponse,
 } from "../model/auth.types";
 
 export const authApi = {
   register: (payload: RegisterRequest) =>
-    http<RegisterResponse>("/api/auth/register", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    }),
+    http<RegisterResponse>(
+      "/api/auth/register",
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+      { skipAuthRefresh: true }
+    ),
 
   login: (payload: LoginRequest) =>
-    http<LoginResponse>("/api/auth/login", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    }),
+    http<LoginResponse>(
+      "/api/auth/login",
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+      { skipAuthRefresh: true }
+    ),
 
   refresh: () =>
-  http<RefreshTokenResponse>(
-    "/api/auth/refresh",
-    {
-      method: "POST",
-    },
-    { skipAuthRefresh: true }
-  ),
+    http<RefreshTokenResponse>(
+      "/api/auth/refresh",
+      {
+        method: "POST",
+      },
+      { skipAuthRefresh: true }
+    ),
 
   logout: () =>
-  http<LogoutResponse>(
-    "/api/auth/logout",
-    {
-      method: "POST",
-    },
-    { skipAuthRefresh: true }
-  ),
+    http<LogoutResponse>(
+      "/api/auth/logout",
+      {
+        method: "POST",
+      },
+      { skipAuthRefresh: true }
+    ),
 
   forgotPassword: (payload: ForgotPasswordRequest) =>
-    http<ForgotPasswordResponse>("/api/auth/forgot-password", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    }),
+    http<ForgotPasswordResponse>(
+      "/api/auth/forgot-password",
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+      { skipAuthRefresh: true }
+    ),
 
   resetPassword: (payload: ResetPasswordRequest) =>
-    http<ResetPasswordResponse>("/api/auth/reset-password", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    }),
+    http<ResetPasswordResponse>(
+      "/api/auth/reset-password",
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+      { skipAuthRefresh: true }
+    ),
 
   me: () => http<MeResponse>("/api/user/me"),
 
   verifyEmail: (payload: VerifyEmailRequest) =>
-  http<VerifyEmailResponse>("/api/auth/verify-email", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  }),
+    http<VerifyEmailResponse>(
+      "/api/auth/verify-email",
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+      { skipAuthRefresh: true }
+    ),
 
-resendVerificationEmail: (payload: ResendVerificationEmailRequest) =>
-  http<ResendVerificationEmailResponse>("/api/auth/resend-verification-email", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  }),
+  resendVerificationEmail: (payload: ResendVerificationEmailRequest) =>
+    http<ResendVerificationEmailResponse>(
+      "/api/auth/resend-verification-email",
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+      { skipAuthRefresh: true }
+    ),
 };

@@ -1,16 +1,19 @@
 import { useEffect, useRef, useState } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 import logo from "../../assets/busplanen-high-resolution-logo-transparent.png";
-import { getCurrentUser } from "../../features/auth/utils/auth.storage";
+import {
+  AUTH_SESSION_CHANGED_EVENT,
+  getCurrentUser,
+} from "../../features/auth/utils/auth.storage";
 import { logoutUser } from "../../features/auth/utils/logoutUser";
 
 export default function Header() {
   const navigate = useNavigate();
-  const location = useLocation();
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [, setSessionVersion] = useState(0);
 
   const user = getCurrentUser();
 
@@ -26,8 +29,14 @@ export default function Header() {
     "Konto";
 
   useEffect(() => {
-    setMenuOpen(false);
-  }, [location.pathname]);
+    function handleSessionChanged() {
+      setSessionVersion((version) => version + 1);
+    }
+
+    window.addEventListener(AUTH_SESSION_CHANGED_EVENT, handleSessionChanged);
+    return () =>
+      window.removeEventListener(AUTH_SESSION_CHANGED_EVENT, handleSessionChanged);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

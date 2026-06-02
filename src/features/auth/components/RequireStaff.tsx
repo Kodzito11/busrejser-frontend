@@ -18,12 +18,17 @@ export default function RequireStaff() {
 
   const isStaff = user?.role === "Admin" || user?.role === "Medarbejder";
 
+  if (!user) {
+    devLog("AUTH", "RequireStaff denied -> redirect /login");
+    return <Navigate to="/login" replace />;
+  }
+
   if (!isStaff) {
-    devLog("AUTH", "RequireStaff denied -> redirect /login", {
+    devLog("AUTH", "RequireStaff denied -> redirect /kunde", {
       role: user?.role,
     });
 
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/kunde" replace />;
   }
 
   devLog("AUTH", "RequireStaff allowed", {

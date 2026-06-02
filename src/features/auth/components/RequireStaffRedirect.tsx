@@ -1,9 +1,12 @@
 import { Navigate } from "react-router-dom";
-import { getCurrentUser } from "../utils/auth.storage";
+import { useResolvedSession } from "../hooks/useResolvedSession";
 
 export default function RequireStaffRedirect() {
-  const user = getCurrentUser();
+  const { user, loading } = useResolvedSession();
   const isStaff = user?.role === "Admin" || user?.role === "Medarbejder";
 
-  return <Navigate to={isStaff ? "/admin/busser" : "/"} replace />;
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace />;
+
+  return <Navigate to={isStaff ? "/admin/busser" : "/kunde"} replace />;
 }

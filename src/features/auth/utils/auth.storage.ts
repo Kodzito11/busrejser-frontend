@@ -2,6 +2,7 @@ import type { MeResponse } from "../model/auth.types";
 
 const ACCESS_TOKEN_KEY = "token";
 const CURRENT_USER_KEY = "me";
+export const AUTH_SESSION_CHANGED_EVENT = "busplanen:auth-session-changed";
 
 type SaveSessionInput = {
   accessToken: string;
@@ -14,14 +15,18 @@ export function saveSession({ accessToken, user }: SaveSessionInput) {
   if (user) {
     localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
   }
+
+  notifySessionChanged();
 }
 
 export function saveAccessToken(accessToken: string) {
   localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+  notifySessionChanged();
 }
 
 export function saveCurrentUser(user: MeResponse) {
   localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+  notifySessionChanged();
 }
 
 export function getToken() {
@@ -41,6 +46,7 @@ export function getAccessToken() {
 export function clearSession() {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(CURRENT_USER_KEY);
+  notifySessionChanged();
 }
 
 export function logout() {
@@ -79,4 +85,9 @@ export function canManageBuses() {
 
 export function isStaff() {
   return hasRole("Admin", "Medarbejder");
+}
+
+function notifySessionChanged() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(AUTH_SESSION_CHANGED_EVENT));
 }

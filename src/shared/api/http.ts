@@ -34,6 +34,7 @@ export async function http<T>(
     }
 
     devLog("AUTH", "refresh failed -> clearing session", { path });
+    await logoutServerSession();
     clearSession();
   }
 
@@ -112,6 +113,20 @@ async function doRefresh() {
   } catch (error) {
     devLog("AUTH", "refresh request crashed", error);
     return false;
+  }
+}
+
+async function logoutServerSession() {
+  try {
+    await fetch(`${API_BASE}/api/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  } catch (error) {
+    devLog("AUTH", "server logout after failed refresh crashed", error);
   }
 }
 

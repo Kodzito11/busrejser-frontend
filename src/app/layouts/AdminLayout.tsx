@@ -2,8 +2,8 @@ import { NavLink, Navigate, Outlet, useNavigate } from "react-router-dom";
 import {
   canManageBuses,
   getCurrentUser,
-  logout,
 } from "../../features/auth/utils/auth.storage";
+import { logoutUser } from "../../features/auth/utils/logoutUser";
 
 export default function AdminLayout() {
   const navigate = useNavigate();
@@ -11,9 +11,9 @@ export default function AdminLayout() {
 
   const isStaff = canManageBuses();
 
-  function handleLogout() {
-    logout();
-    navigate("/");
+  async function handleLogout() {
+    await logoutUser();
+    navigate("/login", { replace: true });
   }
 
   if (!isStaff) {

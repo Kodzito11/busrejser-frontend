@@ -1,4 +1,4 @@
-import { API_BASE, http } from "../../../shared/api/http";
+import { http } from "../../../shared/api/http";
 import type { Facilitet } from "../model/facilitet.types";
 import type { Bus, BusCreate } from "../model/bus.types";
 
@@ -31,37 +31,12 @@ export const busApi = {
     }),
 
   uploadImage: async (id: number, file: File) => {
-    const token = localStorage.getItem("token");
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await fetch(`${API_BASE}/api/bus/${id}/image`, {
+    return http(`/api/bus/${id}/image`, {
       method: "POST",
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
       body: formData,
     });
-
-    if (!res.ok) {
-      let message = "Upload fejlede.";
-
-      try {
-        const data = await res.json();
-        if (data?.message || data?.Message) {
-          message = data.message ?? data.Message;
-        }
-      } catch {
-        const text = await res.text().catch(() => "");
-        if (text) message = text;
-      }
-
-      throw new Error(message);
-    }
-
-    const ct = res.headers.get("content-type") || "";
-    if (!ct.includes("application/json")) return null;
-
-    return await res.json();
   },
 };

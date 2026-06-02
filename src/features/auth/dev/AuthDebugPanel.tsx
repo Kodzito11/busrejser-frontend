@@ -2,7 +2,9 @@ import { useState } from "react";
 import {
   getAccessToken,
   getCurrentUser,
+  saveCurrentUser,
   saveAccessToken,
+  clearSession,
 } from "../utils/auth.storage";
 import {api} from "../../../shared/api/api";
 
@@ -56,7 +58,6 @@ export function AuthDebugPanel() {
     jwtPayload: payload,
     localStorageKeys: {
       token: !!localStorage.getItem("token"),
-      refreshToken: !!localStorage.getItem("refreshToken"),
       me: !!localStorage.getItem("me"),
     },
   };
@@ -68,6 +69,9 @@ export function AuthDebugPanel() {
     if (response.accessToken) {
       saveAccessToken(response.accessToken);
     }
+
+    const me = await api.auth.me();
+    saveCurrentUser(me);
     
     refreshPanel();
   } catch (error) {
@@ -86,9 +90,7 @@ export function AuthDebugPanel() {
   }
 
   function clearLocalSession() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("me");
+    clearSession();
     refreshPanel();
   }
 
