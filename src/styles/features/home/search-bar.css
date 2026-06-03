@@ -1,63 +1,124 @@
 .searchBar {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 240px;
-  width: min(1280px, 100%);
-  background: #fff;
-  border-radius: 0;
+  grid-template-columns: minmax(260px, 1.45fr) minmax(150px, 0.72fr) minmax(150px, 0.72fr) minmax(150px, 0.7fr);
+  gap: 0;
+  width: min(1180px, 100%);
   overflow: hidden;
-  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(15, 17, 21, 0.08);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(5, 12, 26, 0.26);
+}
+
+.searchHeading {
+  grid-column: 1 / -1;
+  padding: 18px 22px 0;
+}
+
+.searchEyebrow {
+  display: block;
+  color: #13284f;
+  font-size: 1.08rem;
+  font-weight: 850;
 }
 
 .searchItem {
-  padding: 16px 20px;
-  border-right: 1px solid rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  justify-content: center;
+  gap: 8px;
+  min-height: 94px;
+  padding: 18px 22px 22px;
+  border-right: 1px solid rgba(15, 17, 21, 0.09);
 }
 
 .searchLabel {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #8a8a8a;
+  color: #5b6472;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
-.searchValue {
-  color: #111;
+.searchInput {
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #0f172a;
+  font: inherit;
   font-size: 1rem;
+}
+
+.searchInput::placeholder {
+  color: #8a94a6;
+}
+
+.searchInput:focus {
+  outline: none;
 }
 
 .searchCta {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 94px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
   background: var(--accent);
   color: #fff;
-  font-weight: 800;
+  font: inherit;
   font-size: 1rem;
-  transition: background 0.18s ease;
+  font-weight: 850;
+  cursor: pointer;
+  transition: background 0.18s ease, transform 0.18s ease;
 }
 
 .searchCta:hover {
   background: var(--accent-hover);
 }
 
+.searchCta:focus {
+  outline: 3px solid rgba(215, 25, 32, 0.24);
+  outline-offset: -3px;
+}
+
 @media (max-width: 1100px) {
   .searchBar {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .searchItem:nth-of-type(2) {
+    border-right: 0;
+  }
+
+  .searchCta {
+    grid-column: 1 / -1;
+    min-height: 68px;
   }
 }
 
 @media (max-width: 768px) {
   .searchBar {
     grid-template-columns: 1fr;
-    border-radius: 18px;
+    border-radius: 16px;
+  }
+
+  .searchHeading {
+    padding: 16px 18px 0;
   }
 
   .searchItem {
-    border-right: none;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    min-height: auto;
+    padding: 16px 18px;
+    border-right: 0;
+    border-bottom: 1px solid rgba(15, 17, 21, 0.09);
+  }
+
+  .searchCta {
+    min-height: 58px;
   }
 }

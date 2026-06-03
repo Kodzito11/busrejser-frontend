@@ -1,130 +1,100 @@
 .heroSection {
   width: 100%;
-  margin: 0 0 56px;
-  overflow: hidden;
+  margin: 0 0 96px;
+  overflow: visible;
 }
 
 .heroImage {
   position: relative;
   width: 100%;
-  min-height: clamp(560px, 78vh, 860px);
-  overflow: hidden;
+  min-height: clamp(560px, 72vh, 760px);
+  overflow: visible;
   background-size: cover;
   background-position: center;
-  transform: scale(1.02);
-  transition: transform 8s ease, background-image 0.45s ease;
 }
 
 .heroOverlay {
-  min-height: clamp(560px, 78vh, 860px);
-  padding: clamp(28px, 4vw, 56px);
+  min-height: clamp(560px, 72vh, 760px);
+  padding: clamp(42px, 6vw, 78px) var(--site-pad) 0;
 }
 
 .heroInner {
+  width: min(var(--site-max), 100%);
   min-height: inherit;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 36px;
-  transition: opacity 0.25s ease, transform 0.25s ease;
-}
-
-.heroInner.isHidden {
-  opacity: 0;
-  transform: translateY(8px);
-  pointer-events: none;
+  justify-content: center;
+  gap: clamp(34px, 6vw, 72px);
 }
 
 .heroContent {
-  max-width: min(820px, 100%);
+  max-width: min(760px, 100%);
   color: #fff;
-  padding-top: clamp(8px, 2vw, 28px);
 }
 
 .heroKicker {
-  margin: 0 0 12px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  margin: 0 0 14px;
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.84);
 }
 
 .heroTitle {
-  font-size: clamp(42px, 7vw, 96px);
-  line-height: 0.95;
-  margin: 0 0 18px;
-  max-width: 9ch;
-  color: #fff;
-}
-
-.heroTitleLong {
-  font-size: clamp(38px, 6vw, 76px);
   max-width: 12ch;
+  margin: 0 0 18px;
+  color: #fff;
+  font-size: clamp(46px, 7vw, 88px);
+  line-height: 0.98;
 }
 
 .heroText {
-  max-width: 58ch;
-  font-size: clamp(1rem, 1.2vw, 1.2rem);
-  line-height: 1.6;
+  max-width: 56ch;
+  margin: 0;
   color: rgba(255, 255, 255, 0.9);
+  font-size: clamp(1.08rem, 1.4vw, 1.32rem);
+  line-height: 1.6;
 }
 
-.heroArrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #fff;
-  font-size: clamp(36px, 3vw, 52px);
-  font-weight: 300;
-  background: none;
-  border: none;
-  cursor: pointer;
-  z-index: 3;
-  opacity: 0;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+.valueSection {
+  width: min(var(--site-max), calc(100% - (var(--site-pad) * 2)));
+  margin: -54px auto 56px;
+  position: relative;
+  z-index: 2;
 }
 
-.heroImage:hover .heroArrow {
-  opacity: 1;
+.valueGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
 }
 
-.heroArrow:hover {
-  transform: translateY(-50%) scale(1.04);
+.valueCard {
+  min-height: 160px;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
 }
 
-.heroArrowLeft {
-  left: 24px;
+.valueCard h2 {
+  margin: 0 0 10px;
+  font-size: 1.05rem;
+  line-height: 1.25;
 }
 
-.heroArrowRight {
-  right: 24px;
+.valueCard p {
+  margin: 0;
+  color: var(--muted);
 }
 
-.heroDots {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-
-.heroDot {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  border: none;
-  background: rgba(255, 255, 255, 0.45);
-  cursor: pointer;
-  padding: 0;
-  transition: 0.2s ease;
-}
-
-.heroDot:hover {
-  background: rgba(255, 255, 255, 0.75);
-}
-
-.heroDot.active {
-  width: 30px;
-  background: #fff;
+@media (max-width: 1100px) {
+  .valueGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 768px) {
@@ -138,20 +108,29 @@
   }
 
   .heroOverlay {
-    padding: 20px;
-    gap: 24px;
+    padding: 34px 16px 28px;
+  }
+
+  .heroInner {
+    gap: 28px;
   }
 
   .heroTitle {
-    max-width: 11ch;
+    max-width: 10ch;
+    font-size: clamp(38px, 13vw, 56px);
     line-height: 1;
   }
 
-  .heroTitleLong {
-    max-width: 12ch;
+  .valueSection {
+    width: calc(100% - 32px);
+    margin: 0 auto 36px;
   }
 
-  .heroArrow {
-    display: none;
+  .valueGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .valueCard {
+    min-height: auto;
   }
 }

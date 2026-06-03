@@ -1,15 +1,8 @@
-import { Link } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+
 import { api } from "../../../shared/api/api";
 import type { Rejse } from "../../rejse/model/rejse.types";
-
-type HeroSlide = {
-  id: number;
-  kicker: string;
-  title: string;
-  text: string;
-  image: string;
-};
 
 type FeaturedTrip = {
   id: number;
@@ -23,30 +16,30 @@ type FeaturedTrip = {
   seatsLeft: number;
 };
 
-const fallbackHeroSlides: HeroSlide[] = [
+type ValueCard = {
+  title: string;
+  text: string;
+};
+
+const fallbackHeroImage =
+  "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=2200&q=80";
+
+const valueCards: ValueCard[] = [
   {
-    id: 1,
-    kicker: "",
-    title: "Billige ture, dyre minder.",
-    text: "Find din næste busrejse hurtigt og enkelt. Oplev Europa med gode priser, stærke ruter og minder der holder længere end turen.",
-    image:
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=2200&q=80",
+    title: "Udvalgte rejser",
+    text: "Se kommende busture og oplevelser samlet ét sted.",
   },
   {
-    id: 2,
-    kicker: "",
-    title: "Rejs længere. Brug mindre.",
-    text: "Kom afsted på ture med karakter, komfort og oplevelser der føles større end prisen.",
-    image:
-      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2200&q=80",
+    title: "Nem booking",
+    text: "Reserver din plads hurtigt og få overblik over din booking.",
   },
   {
-    id: 3,
-    kicker: "",
-    title: "Europa venter.",
-    text: "Fra storbyer til kyst og natur. Find næste afgang og gør turen enkel fra start til slut med BusPlanen.",
-    image:
-      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2200&q=80",
+    title: "Fællesskab på vejen",
+    text: "Rejs sammen til events, oplevelser og ture.",
+  },
+  {
+    title: "Overblik fra start til slut",
+    text: "Følg dine bookinger, status og kommende afgange.",
   },
 ];
 
@@ -67,21 +60,6 @@ function isLowSeats(rejse: Rejse) {
   return seatsLeft > 0 && seatsLeft <= 5;
 }
 
-function mapRejseToHeroSlide(rejse: Rejse): HeroSlide {
-  return {
-    id: rejse.rejseId,
-    kicker: rejse.destination,
-    title: rejse.title,
-    text:
-      rejse.shortDescription ||
-      rejse.description ||
-      "Find din næste busrejse hurtigt og enkelt med BusPlanen.",
-    image:
-      rejse.imageUrl ||
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=2200&q=80",
-  };
-}
-
 function mapRejseToFeaturedTrip(rejse: Rejse): FeaturedTrip {
   const seatsLeft = getSeatsLeft(rejse);
 
@@ -94,9 +72,7 @@ function mapRejseToFeaturedTrip(rejse: Rejse): FeaturedTrip {
       rejse.description ||
       "Oplev en tur med gode priser og stærke minder.",
     price: formatPrice(rejse.price),
-    image:
-      rejse.imageUrl ||
-      "https://images.unsplash.com/photo-1502780402662-acc01917f4a1?auto=format&fit=crop&w=1400&q=80",
+    image: rejse.imageUrl || fallbackHeroImage,
     isSoldOut: seatsLeft <= 0,
     isLowSeats: seatsLeft > 0 && seatsLeft <= 5,
     seatsLeft,
@@ -104,10 +80,11 @@ function mapRejseToFeaturedTrip(rejse: Rejse): FeaturedTrip {
 }
 
 export default function HomePage() {
+  const navigate = useNavigate();
   const [rejser, setRejser] = useState<Rejse[]>([]);
-  const [currentHero, setCurrentHero] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const [isArrowHovered, setIsArrowHovered] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [travelDate, setTravelDate] = useState("");
+  const [passengerCount, setPassengerCount] = useState("1");
 
   useEffect(() => {
     async function load() {
@@ -140,11 +117,6 @@ export default function HomePage() {
     return futureRejser.slice(0, 3);
   }, [futureRejser]);
 
-  const heroSlides = useMemo(() => {
-    const featured = featuredRejser.map(mapRejseToHeroSlide);
-    return featured.length > 0 ? featured : fallbackHeroSlides;
-  }, [featuredRejser]);
-
   const featuredTrips = useMemo(() => {
     return featuredRejser.map(mapRejseToFeaturedTrip);
   }, [featuredRejser]);
@@ -157,123 +129,95 @@ export default function HomePage() {
       .slice(0, 6);
   }, [futureRejser, featuredRejser]);
 
-  const slide = heroSlides[currentHero] ?? heroSlides[0];
+  const heroImage = featuredRejser[0]?.imageUrl || fallbackHeroImage;
 
-  useEffect(() => {
-    if (isPaused || heroSlides.length <= 1) return;
-
-    const intervalId = window.setInterval(() => {
-      setCurrentHero((prev) => (prev + 1) % heroSlides.length);
-    }, 6000);
-
-    return () => window.clearInterval(intervalId);
-  }, [isPaused, heroSlides]);
-
-  useEffect(() => {
-    if (currentHero >= heroSlides.length) {
-      setCurrentHero(0);
-    }
-  }, [heroSlides, currentHero]);
-
-  const titleClass = useMemo(() => {
-    return slide?.title.length > 22 ? "heroTitle heroTitleLong" : "heroTitle";
-  }, [slide]);
-
-  function goPrev() {
-    setCurrentHero((prev) => (prev === 0 ? heroSlides.length - 1 : prev - 1));
+  function handleSearchSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    navigate("/rejser");
   }
-
-  function goNext() {
-    setCurrentHero((prev) => (prev + 1) % heroSlides.length);
-  }
-
-  function goTo(index: number) {
-    setCurrentHero(index);
-  }
-
-  if (!slide) return null;
 
   return (
     <div className="homePage">
       <section className="heroSection">
         <div
           className="heroImage"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
           style={{
-            backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.50), rgba(0,0,0,0.18)), url("${slide.image}")`,
+            backgroundImage: `linear-gradient(90deg, rgba(7, 20, 44, 0.86), rgba(7, 20, 44, 0.54), rgba(7, 20, 44, 0.24)), url("${heroImage}")`,
           }}
         >
-          {heroSlides.length > 1 && (
-            <>
-              <button
-                type="button"
-                className="heroArrow heroArrowLeft"
-                onClick={goPrev}
-                onMouseEnter={() => setIsArrowHovered(true)}
-                onMouseLeave={() => setIsArrowHovered(false)}
-                aria-label="Forrige slide"
-              >
-                ‹
-              </button>
-
-              <button
-                type="button"
-                className="heroArrow heroArrowRight"
-                onClick={goNext}
-                onMouseEnter={() => setIsArrowHovered(true)}
-                onMouseLeave={() => setIsArrowHovered(false)}
-                aria-label="Næste slide"
-              >
-                ›
-              </button>
-            </>
-          )}
-
           <div className="heroOverlay">
-            <div className={`heroInner ${isArrowHovered ? "isHidden" : ""}`}>
+            <div className="heroInner">
               <div className="heroContent">
-                <p className="heroKicker">{slide.kicker}</p>
-                <h1 className={titleClass}>{slide.title}</h1>
-                <p className="heroText">{slide.text}</p>
+                <p className="heroKicker">BusPlanen</p>
+                <h1 className="heroTitle">Billige ture, dyre minder</h1>
+                <p className="heroText">
+                  Find planlagte busture, events og fællesrejser samlet ét sted.
+                </p>
               </div>
 
-              <div className="searchBar" aria-label="Søg rejser">
-                <div className="searchItem">
-                  <span className="searchLabel">Rejsetype</span>
-                  <span className="searchValue">Busrejser</span>
+              <form
+                className="searchBar"
+                aria-label="Find din næste rejse"
+                onSubmit={handleSearchSubmit}
+              >
+                <div className="searchHeading">
+                  <span className="searchEyebrow">Find din næste rejse</span>
                 </div>
 
-                <div className="searchItem">
-                  <span className="searchLabel">Destination</span>
-                  <span className="searchValue">{slide.kicker || "Europa"}</span>
-                </div>
+                <label className="searchItem">
+                  <span className="searchLabel">
+                    Søg efter destination, event eller rejse
+                  </span>
+                  <input
+                    className="searchInput"
+                    value={searchQuery}
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                    placeholder="Fx Prag, koncert eller sommer"
+                  />
+                </label>
 
-                <div className="searchItem">
-                  <span className="searchLabel">Tidspunkt</span>
-                  <span className="searchValue">Se kommende afgange</span>
-                </div>
+                <label className="searchItem">
+                  <span className="searchLabel">Dato</span>
+                  <input
+                    className="searchInput"
+                    type="date"
+                    value={travelDate}
+                    onChange={(event) => setTravelDate(event.target.value)}
+                  />
+                </label>
 
-                <Link className="searchCta" to="/rejser">
-                  Vis rejser
-                </Link>
-              </div>
+                <label className="searchItem">
+                  <span className="searchLabel">Antal personer</span>
+                  <select
+                    className="searchInput"
+                    value={passengerCount}
+                    onChange={(event) => setPassengerCount(event.target.value)}
+                  >
+                    {[1, 2, 3, 4, 5, 6].map((count) => (
+                      <option key={count} value={String(count)}>
+                        {count} {count === 1 ? "person" : "personer"}
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-              {heroSlides.length > 1 && (
-                <div className="heroDots" aria-label="Hero navigation">
-                  {heroSlides.map((hero, index) => (
-                    <button
-                      key={hero.id}
-                      type="button"
-                      className={`heroDot ${index === currentHero ? "active" : ""}`}
-                      onClick={() => goTo(index)}
-                      aria-label={`Gå til slide ${index + 1}`}
-                    />
-                  ))}
-                </div>
-              )}
+                <button className="searchCta" type="submit">
+                  Søg rejser
+                </button>
+              </form>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="valueSection" aria-label="Fordele ved BusPlanen">
+        <div className="valueGrid">
+          {valueCards.map((card) => (
+            <article className="valueCard" key={card.title}>
+              <h2>{card.title}</h2>
+              <p>{card.text}</p>
+            </article>
+          ))}
         </div>
       </section>
 
@@ -319,7 +263,7 @@ export default function HomePage() {
                       className="tripArrow"
                       aria-label={`Se mere om ${trip.title}`}
                     >
-                      →
+                      {"\u2192"}
                     </Link>
                   </div>
                 </div>
@@ -375,7 +319,7 @@ export default function HomePage() {
                     <div className="tripBottom">
                       <strong>{r.price.toLocaleString("da-DK")} kr</strong>
                       <Link to={`/rejse/${r.rejseId}`} className="tripArrow">
-                        →
+                        {"\u2192"}
                       </Link>
                     </div>
                   </div>
