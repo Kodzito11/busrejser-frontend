@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { api } from "../../../shared/api/api";
+import { getCurrentUser } from "../../auth/utils/auth.storage";
 import type { Rejse } from "../model/rejse.types";
 import "../../../styles/features/public/rejser-status.css";
 import { getErrorMessage } from "../../../shared/utils/error";
@@ -8,11 +9,24 @@ import { getErrorMessage } from "../../../shared/utils/error";
 export default function RejseDetalje() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [rejse, setRejse] = useState<Rejse | null>(null);
   const [antal, setAntal] = useState(1);
+  const [availableSeats, setAvailableSeats] = useState<number | null>(null);
+  const [kundeNavn, setKundeNavn] = useState("");
+  const [kundeEmail, setKundeEmail] = useState("");
   const [loading, setLoading] = useState(true);
+  const [paymentLoading, setPaymentLoading] = useState(false);
   const [err, setErr] = useState("");
+  const [paymentError, setPaymentError] = useState("");
+
+  const currentUser = getCurrentUser();
+  const isLoggedIn = !!currentUser;
+  const currentUserName = currentUser
+    ? `${currentUser.firstName ?? ""} ${currentUser.lastName ?? ""}`.trim()
+    : "";
+  const antalFromQuery = Number(searchParams.get("antal"));
 
   async function load() {
     try {
@@ -24,8 +38,17 @@ export default function RejseDetalje() {
         throw new Error("Ugyldigt rejse-id.");
       }
 
-      const r = await api.rejser.get(rejseId);
+      const [r, seats] = await Promise.all([
+        api.rejser.get(rejseId),
+        api.bookings.getAvailableSeats(rejseId),
+      ]);
+
       setRejse(r);
+      setAvailableSeats(seats);
+
+      if (!Number.isNaN(antalFromQuery) && antalFromQuery > 0 && seats > 0) {
+        setAntal(Math.min(antalFromQuery, seats));
+      }
     } catch (error: unknown) {
       setErr(getErrorMessage(error, "Kunne ikke hente rejse."));
     } finally {
@@ -35,12 +58,12 @@ export default function RejseDetalje() {
 
   useEffect(() => {
     load();
-  }, [id]);
+  }, [id, antalFromQuery]);
 
   const seats = useMemo(() => {
     if (!rejse) return 0;
-    return Math.max(0, rejse.maxSeats - (rejse.bookedSeats ?? 0));
-  }, [rejse]);
+    return availableSeats ?? Math.max(0, rejse.maxSeats - (rejse.bookedSeats ?? 0));
+  }, [availableSeats, rejse]);
 
   const totalPrice = useMemo(() => {
     if (!rejse) return 0;
@@ -110,22 +133,52 @@ export default function RejseDetalje() {
   }
 
   function handleStartBooking() {
-    if (!id || !rejse || seats === 0 || antal < 1 || antal > seats) return;
-    navigate(`/book/${id}?antal=${antal}`);
+    void goToPayment();
   }
 
-  function formatDateTime(value: string) {
-    return new Date(value).toLocaleString("da-DK", {
+  async function goToPayment() {
+    if (!id || !rejse || !canBook) return;
+
+    setPaymentError("");
+    setPaymentLoading(true);
+
+    try {
+      const payload = {
+        rejseId: Number(id),
+        kundeNavn: isLoggedIn
+          ? currentUserName || (currentUser?.email ?? "")
+          : kundeNavn.trim(),
+        kundeEmail: isLoggedIn ? currentUser?.email ?? "" : kundeEmail.trim(),
+        antalPladser: Number(antal),
+      };
+
+      const res = await api.stripe.createCheckoutSession(payload);
+
+      if (!res?.url) {
+        throw new Error("Stripe checkout URL mangler.");
+      }
+
+      window.location.href = res.url;
+    } catch (error: unknown) {
+      setPaymentError(getErrorMessage(error, "Kunne ikke starte betaling."));
+      setPaymentLoading(false);
+    }
+  }
+
+  function formatCompactDate(value: string) {
+    return new Date(value).toLocaleDateString("da-DK", {
       day: "numeric",
-      month: "numeric",
+      month: "short",
       year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
     });
   }
 
   function formatPrice(value: number) {
     return new Intl.NumberFormat("da-DK").format(value);
+  }
+
+  function isValidEmail(value: string) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
   }
 
   if (loading) {
@@ -174,200 +227,217 @@ export default function RejseDetalje() {
     );
   }
 
-  const canBook = seats > 0 && antal >= 1 && antal <= seats;
+  const guestInfoIsValid =
+    kundeNavn.trim().length > 0 && isValidEmail(kundeEmail);
+  const accountInfoIsValid =
+    isLoggedIn && !!(currentUser?.email ?? "").trim();
+  const seatsInputIsValid = seats > 0 && antal >= 1 && antal <= seats;
+  const canBook =
+    !paymentLoading &&
+    seatsInputIsValid &&
+    (accountInfoIsValid || guestInfoIsValid);
 
   return (
-    <div className="wrap">
-      <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+    <div className="tripDetailPage">
+      <section className="tripDetailHero">
         {rejse.imageUrl ? (
           <div
-            style={{
-              height: "320px",
-              backgroundImage: `url(${rejse.imageUrl})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
+            className="tripDetailHero__image"
+            style={{ backgroundImage: `url(${rejse.imageUrl})` }}
           />
         ) : (
-          <div
-            style={{
-              height: "220px",
-              display: "grid",
-              placeItems: "center",
-              background: "rgba(255,255,255,0.04)",
-            }}
-          >
+          <div className="tripDetailHero__image tripDetailHero__image--empty">
             <span className="muted">Ingen billede tilgængeligt</span>
           </div>
         )}
 
-        <div style={{ padding: "1.5rem" }}>
-          <div
-            style={{
-              display: "grid",
-              gap: "1.5rem",
-              alignItems: "start",
-              gridTemplateColumns: "minmax(0, 2fr) minmax(320px, 1fr)",
-            }}
-          >
-            <div>
-              <div
-                style={{
-                  display: "flex",
-                  gap: "0.75rem",
-                  alignItems: "center",
-                  flexWrap: "wrap",
-                  marginBottom: "0.75rem",
-                }}
-              >
-                <span className={seatsStatus.className}>{seatsStatus.text}</span>
-                <span className="muted">{durationText}</span>
-              </div>
+        <div className="tripDetailHero__body">
+          <div className="tripDetailHero__meta">
+            <span className={seatsStatus.className}>{seatsStatus.text}</span>
+            <span>{durationText}</span>
+          </div>
 
-              <h1 style={{ marginBottom: "0.5rem" }}>{rejse.title}</h1>
-              <p className="muted" style={{ fontSize: "1rem", marginBottom: "1rem" }}>
-                {rejse.destination}
-              </p>
+          <h1>{rejse.title}</h1>
+          <p>{rejse.destination}</p>
+        </div>
+      </section>
 
-              {rejse.shortDescription && (
-                <p style={{ marginBottom: "1.5rem", lineHeight: 1.7 }}>
-                  {rejse.shortDescription}
-                </p>
-              )}
-
-              <div
-                className="rejse-info"
-                style={{
-                  display: "grid",
-                  gap: "1rem",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-                  marginBottom: "1.5rem",
-                }}
-              >
-                <div className="card">
-                  <strong>Afgang</strong>
-                  <div style={{ marginTop: 8 }}>{formatDateTime(rejse.startAt)}</div>
-                </div>
-
-                <div className="card">
-                  <strong>Hjemkomst</strong>
-                  <div style={{ marginTop: 8 }}>{formatDateTime(rejse.endAt)}</div>
-                </div>
-
-                <div className="card">
-                  <strong>Pris pr. person</strong>
-                  <div style={{ marginTop: 8 }}>{formatPrice(rejse.price)} kr</div>
-                </div>
-
-                <div className="card">
-                  <strong>Ledige pladser</strong>
-                  <div style={{ marginTop: 8 }}>{seats}</div>
-                </div>
-              </div>
-
-              <div className="card" style={{ marginBottom: "1rem" }}>
-                <h3 style={{ marginBottom: "0.75rem" }}>Om rejsen</h3>
-                <p style={{ margin: 0, lineHeight: 1.7 }}>
-                  {rejse.description ||
-                    "Tag med på en behagelig og enkel busrejse med fokus på pris, komfort og en god oplevelse fra start til slut."}
-                </p>
-              </div>
-
-              <div className="card">
-                <h3 style={{ marginBottom: "0.75rem" }}>Godt at vide</h3>
-                <ul style={{ margin: 0, paddingLeft: "1.2rem", lineHeight: 1.8 }}>
-                  <li>Din booking oprettes først, når betalingen er gennemført.</li>
-                  <li>Betaling sker sikkert via Stripe.</li>
-                  <li>Du modtager din bookingreference efter gennemført betaling.</li>
-                </ul>
+      <div className="tripCheckoutLayout">
+        <main className="tripCheckoutMain">
+          <section className="tripStepCard">
+            <div className="tripStepHeader">
+              <span className="tripStepNumber">1</span>
+              <div>
+                <p>Vælg antal pladser</p>
+                <h2>Hvor mange skal med?</h2>
               </div>
             </div>
 
-            <aside>
-              <div
-                className="card booking-box"
-                style={{
-                  position: "sticky",
-                  top: "1rem",
-                }}
-              >
-                <h2 style={{ marginBottom: "0.5rem" }}>Book rejsen</h2>
-                <p className="muted" style={{ marginBottom: "1rem" }}>
-                  Vælg antal pladser og gå videre til betaling.
-                </p>
+            <div className="seatPicker">
+              <label htmlFor="antalPladser">
+                Antal pladser
+                <span>{seats} ledige</span>
+              </label>
+              <input
+                id="antalPladser"
+                type="number"
+                value={antal}
+                min={1}
+                max={seats || 1}
+                onChange={(e) => handleAntalChange(e.target.value)}
+              />
+            </div>
 
-                <div
-                  style={{
-                    display: "grid",
-                    gap: "0.75rem",
-                    marginBottom: "1rem",
-                  }}
-                >
-                  <div>
-                    <strong>Pris pr. person</strong>
-                    <div style={{ marginTop: 6 }}>{formatPrice(rejse.price)} kr</div>
-                  </div>
-
-                  <div>
-                    <strong>Ledige pladser</strong>
-                    <div style={{ marginTop: 6 }}>{seats}</div>
-                  </div>
-                </div>
-
-                <label htmlFor="antalPladser" style={{ display: "block", marginBottom: 8 }}>
-                  Antal pladser
-                </label>
-                <input
-                  id="antalPladser"
-                  type="number"
-                  value={antal}
-                  min={1}
-                  max={seats || 1}
-                  onChange={(e) => handleAntalChange(e.target.value)}
-                />
-
-                <div
-                  style={{
-                    marginTop: "1rem",
-                    marginBottom: "1rem",
-                    padding: "0.9rem 1rem",
-                    borderRadius: "12px",
-                    background: "rgba(255,255,255,0.04)",
-                  }}
-                >
-                  <strong>Total</strong>
-                  <div style={{ marginTop: 6, fontSize: "1.1rem" }}>
-                    {formatPrice(totalPrice)} kr
-                  </div>
-                </div>
-
-                <button onClick={handleStartBooking} disabled={!canBook} style={{ width: "100%" }}>
-                  {seats === 0 ? "Udsolgt" : "Start booking"}
-                </button>
-
-                <button
-                  className="ghost"
-                  onClick={() => navigate("/rejser")}
-                  style={{ width: "100%", marginTop: "0.75rem" }}
-                >
-                  Tilbage til rejser
-                </button>
-
-                {!canBook && seats > 0 && (
-                  <div className="error" style={{ marginTop: 12 }}>
-                    Vælg et gyldigt antal pladser.
-                  </div>
-                )}
-
-                {seats === 0 && (
-                  <div className="error" style={{ marginTop: 12 }}>
-                    Denne rejse er udsolgt.
-                  </div>
-                )}
+            {!seatsInputIsValid && seats > 0 && (
+              <div className="error tripInlineMessage">
+                Vælg et gyldigt antal pladser.
               </div>
-            </aside>
+            )}
+
+            {seats === 0 && (
+              <div className="error tripInlineMessage">Denne rejse er udsolgt.</div>
+            )}
+          </section>
+
+          <section className="tripStepCard">
+            <div className="tripStepHeader">
+              <span className="tripStepNumber">2</span>
+              <div>
+                <p>Dine oplysninger</p>
+                <h2>{isLoggedIn ? "Bookes på din profil" : "Hvem skal bookingen stå på?"}</h2>
+              </div>
+            </div>
+
+            {isLoggedIn ? (
+              <div className="tripAccountSummary">
+                <strong>Bookes som</strong>
+                <span>{currentUserName || currentUser?.email}</span>
+                <p>{currentUser?.email}</p>
+              </div>
+            ) : (
+              <div className="guestCheckoutFields">
+                <label htmlFor="kundeNavn">
+                  Navn
+                  <input
+                    id="kundeNavn"
+                    value={kundeNavn}
+                    onChange={(e) => setKundeNavn(e.target.value)}
+                    placeholder="Dit navn"
+                    required
+                  />
+                </label>
+
+                <label htmlFor="kundeEmail">
+                  Email
+                  <input
+                    id="kundeEmail"
+                    type="email"
+                    value={kundeEmail}
+                    onChange={(e) => setKundeEmail(e.target.value)}
+                    placeholder="din@email.dk"
+                    required
+                  />
+                </label>
+              </div>
+            )}
+          </section>
+
+          <section className="tripStepCard">
+            <div className="tripStepHeader">
+              <span className="tripStepNumber">3</span>
+              <div>
+                <p>Tryg betaling</p>
+                <h2>Sikkert videre til Stripe</h2>
+              </div>
+            </div>
+
+            <ul className="tripTrustList">
+              <li>Sikker betaling via Stripe</li>
+              <li>Booking oprettes først efter betaling</li>
+              <li>Du modtager bookingreference efter betaling</li>
+            </ul>
+          </section>
+        </main>
+
+        <aside className="tripBookingColumn">
+          <div className="tripBookingSummary">
+            <p className="tripSummaryEyebrow">Din booking</p>
+            <h2>{rejse.title}</h2>
+            <p className="tripSummaryDestination">{rejse.destination}</p>
+
+            {(rejse.shortDescription || rejse.description) && (
+              <p className="tripSummaryDescription">
+                {rejse.shortDescription || rejse.description}
+              </p>
+            )}
+
+            <div className="tripSummaryRoute">
+              <div>
+                <span>Afgang</span>
+                <strong>{formatCompactDate(rejse.startAt)}</strong>
+              </div>
+              <div>
+                <span>Hjemkomst</span>
+                <strong>{formatCompactDate(rejse.endAt)}</strong>
+              </div>
+            </div>
+
+            <div className="tripSummaryDetails">
+              <div>
+                <span>Varighed</span>
+                <strong>{durationText}</strong>
+              </div>
+              <div>
+                <span>Ledige pladser</span>
+                <strong>{seats}</strong>
+              </div>
+            </div>
+
+            <div className="tripSummaryRows">
+              <div>
+                <span>Antal pladser</span>
+                <strong>{antal}</strong>
+              </div>
+              <div>
+                <span>Pris pr. person</span>
+                <strong>{formatPrice(rejse.price)} kr</strong>
+              </div>
+            </div>
+
+            <div className="tripSummaryTotal">
+              <span>Totalpris</span>
+              <strong>{formatPrice(totalPrice)} kr</strong>
+            </div>
+
+            <button
+              className="tripPrimaryCta"
+              onClick={handleStartBooking}
+              disabled={!canBook}
+            >
+              {paymentLoading
+                ? "Sender til betaling..."
+                : seats === 0
+                  ? "Udsolgt"
+                  : "Fortsæt til sikker betaling"}
+            </button>
+            <p className="tripPaymentHint">Sikker betaling via Stripe</p>
+
+            {!canBook && seats > 0 && !isLoggedIn && !guestInfoIsValid && (
+              <div className="error tripSummaryError">
+                Udfyld navn og en gyldig email før betaling.
+              </div>
+            )}
+
+            {paymentError && (
+              <div className="error tripSummaryError">{paymentError}</div>
+            )}
+
+            <button className="tripSecondaryCta" onClick={() => navigate("/rejser")}>
+              Tilbage til rejser
+            </button>
+
           </div>
-        </div>
+        </aside>
       </div>
     </div>
   );

@@ -7,60 +7,67 @@ type Props = {
 };
 
 export default function RejseCard({ rejse, seatsLeft, onClick }: Props) {
+  const isSoldOut = seatsLeft <= 0;
+
+  function formatDate(value: string) {
+    return new Date(value).toLocaleDateString("da-DK", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  }
+
+  function formatPrice(value: number) {
+    return `${value.toLocaleString("da-DK")} kr`;
+  }
+
   return (
-    <article className="trip-card">
-      {rejse.imageUrl && (
-        <div
-          style={{
-            height: "150px",
-            backgroundImage: `url(${rejse.imageUrl})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            borderRadius: "12px 12px 0 0",
-            marginBottom: "1rem",
-          }}
-        />
-      )}
+    <article className="trip-card publicTripCard">
+      <div
+        className={`publicTripCard__image ${
+          !rejse.imageUrl ? "publicTripCard__image--empty" : ""
+        }`}
+        style={
+          rejse.imageUrl ? { backgroundImage: `url(${rejse.imageUrl})` } : undefined
+        }
+      >
+        <div className={`publicTripCard__badge ${isSoldOut ? "isSoldOut" : ""}`}>
+          {isSoldOut ? "Udsolgt" : `${seatsLeft} ledige`}
+        </div>
+      </div>
 
-      <div className="trip-card-top">
-        <div>
-          <p className="trip-card-id">Rejse #{rejse.rejseId}</p>
+      <div className="publicTripCard__content">
+        <div className="publicTripCard__top">
           <h3>{rejse.title}</h3>
-          <p className="muted">{rejse.destination}</p>
-          {rejse.shortDescription && <p>{rejse.shortDescription}</p>}
+          <p className="publicTripCard__destination">{rejse.destination}</p>
         </div>
 
-        <div className={`trip-badge ${seatsLeft <= 0 ? "soldout" : ""}`}>
-          {seatsLeft <= 0 ? "Udsolgt" : `${seatsLeft} ledige`}
-        </div>
-      </div>
+        {rejse.shortDescription && (
+          <p className="publicTripCard__description">{rejse.shortDescription}</p>
+        )}
 
-      <div className="trip-meta">
-        <div>
-          <span className="muted">Start</span>
-          <strong>{new Date(rejse.startAt).toLocaleString()}</strong>
+        <div className="publicTripCard__meta">
+          <div>
+            <span>Afgang</span>
+            <strong>{formatDate(rejse.startAt)}</strong>
+          </div>
+
+          <div>
+            <span>Hjemkomst</span>
+            <strong>{formatDate(rejse.endAt)}</strong>
+          </div>
+
+          <div>
+            <span>Fra</span>
+            <strong>{formatPrice(rejse.price)}</strong>
+          </div>
         </div>
 
-        <div>
-          <span className="muted">Slut</span>
-          <strong>{new Date(rejse.endAt).toLocaleString()}</strong>
+        <div className="publicTripCard__actions">
+          <button onClick={onClick} disabled={isSoldOut}>
+            {isSoldOut ? "Udsolgt" : "Se rejse"}
+          </button>
         </div>
-
-        <div>
-          <span className="muted">Pris</span>
-          <strong>{rejse.price} kr</strong>
-        </div>
-
-        <div>
-          <span className="muted">Bus</span>
-          <strong>{rejse.busId ?? "-"}</strong>
-        </div>
-      </div>
-
-      <div className="trip-actions">
-        <button onClick={onClick} disabled={seatsLeft <= 0}>
-          {seatsLeft <= 0 ? "Udsolgt" : "Se detaljer"}
-        </button>
       </div>
     </article>
   );

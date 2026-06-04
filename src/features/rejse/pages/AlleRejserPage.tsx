@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import RejseCardList from "../components/public/RejseCardList";
@@ -7,21 +6,6 @@ import RejserPageNav from "../components/public/RejserPageNav";
 import { useRejserData } from "../hooks/useRejserData";
 import { useRejserFilters } from "../hooks/useRejserFilters";
 import type { PeriodOption } from "../utils/publicRejseFilters";
-
-function getPeriodLabel(period: PeriodOption) {
-  switch (period) {
-    case "kommende":
-      return "kommende afgange";
-    case "sommer":
-      return "sommer";
-    case "efteraar":
-      return "efterår";
-    case "vinter":
-      return "vinter";
-    default:
-      return "";
-  }
-}
 
 function getValidPeriod(value: string | null): PeriodOption {
   if (
@@ -54,7 +38,7 @@ export default function AlleRejserPage() {
   const queryPeriod = getValidPeriod(searchParams.get("periode"));
   const queryPersons = getValidPersons(searchParams.get("personer"));
 
-  const { rejser, availableSeats, loading, error, refresh } = useRejserData();
+  const { rejser, availableSeats, loading, error } = useRejserData();
 
   const {
     search,
@@ -81,63 +65,12 @@ export default function AlleRejserPage() {
     initialPersons: queryPersons,
   });
 
-  const featuredRejser = useMemo(
-    () => visibleRejser.filter((rejse) => rejse.isFeatured).slice(0, 3),
-    [visibleRejser]
-  );
-
-  const resultContext = useMemo(() => {
-    const parts: string[] = [];
-
-    if (selectedDestination) {
-      parts.push(selectedDestination);
-    }
-
-    const periodLabel = getPeriodLabel(period);
-
-    if (periodLabel) {
-      parts.push(periodLabel);
-    }
-
-    if (persons > 1) {
-      parts.push(`${persons} personer`);
-    }
-
-    return parts.join(" · ");
-  }, [selectedDestination, period, persons]);
+  const featuredRejser = visibleRejser
+    .filter((rejse) => rejse.isFeatured)
+    .slice(0, 3);
 
   return (
-    <div className="wrap">
-      <section className="hero rejserHero">
-        <div>
-          <p className="rejserHero__eyebrow">Busrejser</p>
-          <h1>Find din næste tur</h1>
-          <p className="muted">
-            Udforsk kommende afgange, filtrer på destination og gå direkte
-            videre til booking, når den rigtige rejse dukker op.
-          </p>
-
-          {resultContext && (
-            <p className="muted">
-              Viser rejser for: <strong>{resultContext}</strong>
-            </p>
-          )}
-        </div>
-
-        <div className="rejserHero__actions">
-          <button onClick={() => navigate("/rejser/kalender")} type="button">
-            Åbn kalender
-          </button>
-          <button
-            className="ghost"
-            onClick={refresh}
-            disabled={loading && rejser.length === 0}
-          >
-            {loading ? "Opdaterer..." : "Opdater rejser"}
-          </button>
-        </div>
-      </section>
-
+    <div className="wrap rejserOverviewPage">
       <RejserPageNav />
 
       {error && <div className="error">{error}</div>}
@@ -167,9 +100,6 @@ export default function AlleRejserPage() {
           <div className="sectionHeader">
             <div>
               <h2>Featured rejser</h2>
-              <p className="muted">
-                Et hurtigt overblik over de ture vi fremhæver lige nu.
-              </p>
             </div>
           </div>
 
@@ -182,15 +112,12 @@ export default function AlleRejserPage() {
         </section>
       )}
 
-      <section className="cards">
-        <div className="sectionHeader">
-          <div>
-            <h2>Alle kommende rejser ({visibleRejser.length})</h2>
-            <p className="muted">
-              Browse alle publicerede rejser i klassisk kortoversigt.
-            </p>
+      <section className="cards rejserAllSection">
+          <div className="sectionHeader">
+            <div>
+              <h2>Alle kommende rejser ({visibleRejser.length})</h2>
+            </div>
           </div>
-        </div>
 
         <RejseCardList
           rejser={visibleRejser}

@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useParams, useSearchParams } from "react-router-dom";
 
 import HomePage from "../features/public/pages/HomePage";
 import AboutPage from "../features/public/pages/AboutPage";
@@ -16,7 +16,6 @@ import ResetPasswordPage from "../features/auth/pages/ResetPasswordPage";
 import KundeDashboardPage from "../features/customer/pages/KundeDashboardPage";
 import ProgressionPage from "../features/progression/pages/ProgressionPage";
 
-import BookRejsePage from "../features/booking/pages/CheckoutPage";
 import MineBookingerPage from "../features/booking/pages/MineBookinger";
 
 import BetalingSuccessPage from "../features/payment/pages/BetalingSuccessPage";
@@ -56,7 +55,7 @@ export default function App() {
           <Route path="/rejser/kalender" element={<RejseKalenderPage />} />
           <Route path="/rejser/lavpris" element={<RejseLavPrisKalenderPage />} />
           <Route path="/rejse/:id" element={<RejseDetaljePage />} />
-          <Route path="/book/:id" element={<BookRejsePage />} />
+          <Route path="/book/:id" element={<LegacyBookRedirect />} />
 
           <Route path="/betaling/success" element={<BetalingSuccessPage />} />
           <Route path="/betaling/cancel" element={<BetalingCancelPage />} />
@@ -96,5 +95,18 @@ export default function App() {
 
       <AuthDebugPanel />
     </>
+  );
+}
+
+function LegacyBookRedirect() {
+  const { id } = useParams();
+  const [searchParams] = useSearchParams();
+  const query = searchParams.toString();
+
+  return (
+    <Navigate
+      to={`/rejse/${id ?? ""}${query ? `?${query}` : ""}`}
+      replace
+    />
   );
 }

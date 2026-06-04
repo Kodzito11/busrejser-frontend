@@ -41,17 +41,26 @@ export default function RejseFilters({
   hasActiveFilters,
 }: Props) {
   return (
-    <section className="card">
-      <div
-        style={{
-          display: "grid",
-          gap: "1rem",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          alignItems: "end",
-        }}
-      >
-        <label>
-          Søg
+    <section className="rejseFilters">
+      <div className="rejseFilters__header">
+        <div>
+          <p>Filtrering</p>
+          <h2>Find den rigtige rejse</h2>
+        </div>
+
+        <button
+          type="button"
+          className="rejseFilters__reset"
+          onClick={onReset}
+          disabled={!hasActiveFilters}
+        >
+          Nulstil filtre
+        </button>
+      </div>
+
+      <div className="rejseFilters__grid">
+        <label className="rejseFilters__field rejseFilters__field--wide">
+          <span>Søg</span>
           <GeoAutocompleteInput
             value={search}
             placeholder="Søg efter by eller destination"
@@ -67,8 +76,8 @@ export default function RejseFilters({
         </label>
 
         {setSelectedDestination && (
-          <label>
-            Destination
+          <label className="rejseFilters__field">
+            <span>Destination</span>
             <select
               value={selectedDestination}
               onChange={(e) => setSelectedDestination(e.target.value)}
@@ -84,8 +93,8 @@ export default function RejseFilters({
         )}
 
         {setPeriod && (
-          <label>
-            Periode
+          <label className="rejseFilters__field">
+            <span>Periode</span>
             <select
               value={period}
               onChange={(e) => setPeriod(e.target.value as PeriodOption)}
@@ -100,8 +109,8 @@ export default function RejseFilters({
         )}
 
         {setPersons && (
-          <label>
-            Personer
+          <label className="rejseFilters__field">
+            <span>Personer</span>
             <input
               type="number"
               min={1}
@@ -113,8 +122,8 @@ export default function RejseFilters({
           </label>
         )}
 
-        <label>
-          Sortering
+        <label className="rejseFilters__field">
+          <span>Sortering</span>
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as SortOption)}
@@ -125,15 +134,10 @@ export default function RejseFilters({
             <option value="price-desc">Dyreste</option>
           </select>
         </label>
+      </div>
 
-        <label
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            minHeight: "42px",
-          }}
-        >
+      <div className="rejseFilters__toggles">
+        <label className="rejseFilters__toggle">
           <input
             type="checkbox"
             checked={onlyAvailable}
@@ -143,14 +147,7 @@ export default function RejseFilters({
         </label>
 
         {setOnlyFeatured && (
-          <label
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              minHeight: "42px",
-            }}
-          >
+          <label className="rejseFilters__toggle">
             <input
               type="checkbox"
               checked={onlyFeatured}
@@ -159,17 +156,6 @@ export default function RejseFilters({
             Kun featured
           </label>
         )}
-
-        <div>
-          <button
-            type="button"
-            className="ghost"
-            onClick={onReset}
-            disabled={!hasActiveFilters}
-          >
-            Nulstil filtre
-          </button>
-        </div>
       </div>
     </section>
   );

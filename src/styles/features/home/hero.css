@@ -1,3 +1,8 @@
+.homePage {
+  --home-accent: #142c5c;
+  --home-accent-hover: #0f2248;
+}
+
 .heroSection {
   width: 100%;
   margin: 0 0 96px;
