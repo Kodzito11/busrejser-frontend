@@ -133,4 +133,60 @@
   .valueCard {
     min-height: auto;
   }
+
+}
+
+.heroInner {
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+.heroImage {
+  position: relative;
+}
+.heroArrow {
+  position: absolute;
+  top: 50%;
+  z-index: 50;
+  transform: translateY(-50%);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 56px;
+  height: 56px;
+  padding: 0 0 5px 0;
+  border: 0;
+  border-radius: 999px;
+
+  background: rgba(0, 0, 0, 0.45);
+  color: white;
+
+  font-size: 48px;
+  line-height: 1;
+  font-family: Arial, sans-serif;
+  cursor: pointer;
+}
+
+.heroArrowLeft {
+  left: 32px;
+  padding-right: 4px;
+}
+
+.heroArrowRight {
+  right: 32px;
+  padding-left: 4px;
+}
+
+.heroArrow:hover {
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.heroInner {
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.heroInner.isHidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
 }

@@ -1,8 +1,16 @@
-import { type FormEvent, useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
 
 import { api } from "../../../shared/api/api";
 import type { Rejse } from "../../rejse/model/rejse.types";
+
+type HeroSlide = {
+  id: number;
+  kicker: string;
+  title: string;
+  text: string;
+  image: string;
+};
 
 type FeaturedTrip = {
   id: number;
@@ -16,35 +24,43 @@ type FeaturedTrip = {
   seatsLeft: number;
 };
 
-type ValueCard = {
-  title: string;
-  text: string;
-};
-
-const fallbackHeroImage =
-  "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=2200&q=80";
-
-const valueCards: ValueCard[] = [
+const fallbackHeroSlides: HeroSlide[] = [
   {
-    title: "Udvalgte rejser",
-    text: "Se kommende busture og oplevelser samlet ét sted.",
+    id: 1,
+    kicker: "BusPlanen",
+    title: "Billige ture, dyre minder.",
+    text: "Find din næste busrejse hurtigt og enkelt. Oplev Europa med gode priser, stærke rejser og minder der holder længere end turen.",
+    image:
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=2200&q=80",
   },
   {
-    title: "Nem booking",
-    text: "Reserver din plads hurtigt og få overblik over din booking.",
+    id: 2,
+    kicker: "Næste oplevelse",
+    title: "Rejs længere. Brug mindre.",
+    text: "Kom afsted på rejser med karakter, komfort og oplevelser der føles større end prisen.",
+    image:
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2200&q=80",
   },
   {
-    title: "Fællesskab på vejen",
-    text: "Rejs sammen til events, oplevelser og ture.",
-  },
-  {
-    title: "Overblik fra start til slut",
-    text: "Følg dine bookinger, status og kommende afgange.",
+    id: 3,
+    kicker: "Europa",
+    title: "Europa venter.",
+    text: "Fra storbyer til kyst og natur. Find næste afgang og gør rejsen enkel fra start til slut med BusPlanen.",
+    image:
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2200&q=80",
   },
 ];
 
+const fallbackTripImage =
+  "https://images.unsplash.com/photo-1502780402662-acc01917f4a1?auto=format&fit=crop&w=1400&q=80";
+
 function formatPrice(price: number) {
   return `${price.toLocaleString("da-DK")} kr`;
+}
+
+function getTime(value: string) {
+  const time = new Date(value).getTime();
+  return Number.isNaN(time) ? 0 : time;
 }
 
 function getSeatsLeft(rejse: Rejse) {
@@ -60,6 +76,42 @@ function isLowSeats(rejse: Rejse) {
   return seatsLeft > 0 && seatsLeft <= 5;
 }
 
+function isVisiblePublicRejse(rejse: Rejse) {
+  return rejse.isPublished !== false;
+}
+
+function isFutureRejse(rejse: Rejse) {
+  return getTime(rejse.startAt) >= Date.now();
+}
+
+function sortByStartDate(a: Rejse, b: Rejse) {
+  return getTime(a.startAt) - getTime(b.startAt);
+}
+
+function getDescription(rejse: Rejse, fallback: string) {
+  return rejse.shortDescription || rejse.description || fallback;
+}
+
+function getImage(rejse: Rejse, fallback = fallbackTripImage) {
+  return rejse.imageUrl || fallback;
+}
+
+function mapRejseToHeroSlide(rejse: Rejse): HeroSlide {
+  return {
+    id: rejse.rejseId,
+    kicker: rejse.destination,
+    title: rejse.title,
+    text: getDescription(
+      rejse,
+      "Find din næste busrejse hurtigt og enkelt med BusPlanen."
+    ),
+    image: getImage(
+      rejse,
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=2200&q=80"
+    ),
+  };
+}
+
 function mapRejseToFeaturedTrip(rejse: Rejse): FeaturedTrip {
   const seatsLeft = getSeatsLeft(rejse);
 
@@ -67,12 +119,9 @@ function mapRejseToFeaturedTrip(rejse: Rejse): FeaturedTrip {
     id: rejse.rejseId,
     country: rejse.destination,
     title: rejse.title,
-    text:
-      rejse.shortDescription ||
-      rejse.description ||
-      "Oplev en tur med gode priser og stærke minder.",
+    text: getDescription(rejse, "Oplev en rejse med gode priser og stærke minder."),
     price: formatPrice(rejse.price),
-    image: rejse.imageUrl || fallbackHeroImage,
+    image: getImage(rejse),
     isSoldOut: seatsLeft <= 0,
     isLowSeats: seatsLeft > 0 && seatsLeft <= 5,
     seatsLeft,
@@ -80,33 +129,48 @@ function mapRejseToFeaturedTrip(rejse: Rejse): FeaturedTrip {
 }
 
 export default function HomePage() {
-  const navigate = useNavigate();
   const [rejser, setRejser] = useState<Rejse[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [travelDate, setTravelDate] = useState("");
-  const [passengerCount, setPassengerCount] = useState("1");
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasLoadError, setHasLoadError] = useState(false);
+
+  const [currentHero, setCurrentHero] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isHeroControlsHovered, setIsHeroControlsHovered] = useState(false);
 
   useEffect(() => {
-    async function load() {
+    let isMounted = true;
+
+    async function loadRejser() {
       try {
+        setIsLoading(true);
+        setHasLoadError(false);
+
         const data = await api.rejser.list();
-        setRejser(data.filter((r) => r.isPublished));
+
+        if (!isMounted) return;
+
+        setRejser(data.filter(isVisiblePublicRejse));
       } catch {
+        if (!isMounted) return;
+
         setRejser([]);
+        setHasLoadError(true);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     }
 
-    load();
+    loadRejser();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const futureRejser = useMemo(() => {
-    const now = new Date().getTime();
-
-    return [...rejser]
-      .filter((r) => new Date(r.startAt).getTime() >= now)
-      .sort(
-        (a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime()
-      );
+    return [...rejser].filter(isFutureRejse).sort(sortByStartDate);
   }, [rejser]);
 
   const featuredRejser = useMemo(() => {
@@ -116,6 +180,27 @@ export default function HomePage() {
 
     return futureRejser.slice(0, 3);
   }, [futureRejser]);
+
+const heroSlides = useMemo(() => {
+  const heroRejser =
+    featuredRejser.length >= 2 ? featuredRejser : futureRejser.slice(0, 3);
+
+  const slides = heroRejser.map(mapRejseToHeroSlide);
+
+  if (slides.length >= 2) return slides;
+
+  if (slides.length === 1) {
+    return [
+      slides[0],
+      ...fallbackHeroSlides.map((slide) => ({
+        ...slide,
+        id: -slide.id,
+      })),
+    ];
+  }
+
+  return fallbackHeroSlides;
+}, [featuredRejser, futureRejser]);
 
   const featuredTrips = useMemo(() => {
     return featuredRejser.map(mapRejseToFeaturedTrip);
@@ -129,95 +214,124 @@ export default function HomePage() {
       .slice(0, 6);
   }, [futureRejser, featuredRejser]);
 
-  const heroImage = featuredRejser[0]?.imageUrl || fallbackHeroImage;
+  const slide = heroSlides[currentHero] ?? heroSlides[0];
 
-  function handleSearchSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    navigate("/rejser");
+  useEffect(() => {
+    if (isPaused || heroSlides.length <= 1) return;
+
+    const intervalId = window.setInterval(() => {
+      setCurrentHero((prev) => (prev + 1) % heroSlides.length);
+    }, 6000);
+
+    return () => window.clearInterval(intervalId);
+  }, [isPaused, heroSlides.length]);
+
+  useEffect(() => {
+    if (currentHero >= heroSlides.length) {
+      setCurrentHero(0);
+    }
+  }, [heroSlides.length, currentHero]);
+
+  const titleClass = useMemo(() => {
+    return slide?.title.length > 22 ? "heroTitle heroTitleLong" : "heroTitle";
+  }, [slide]);
+
+  function goPrev() {
+    setCurrentHero((prev) => (prev === 0 ? heroSlides.length - 1 : prev - 1));
   }
+
+  function goNext() {
+    setCurrentHero((prev) => (prev + 1) % heroSlides.length);
+  }
+
+  function goTo(index: number) {
+    setCurrentHero(index);
+  }
+
+  if (!slide) return null;
 
   return (
     <div className="homePage">
       <section className="heroSection">
         <div
           className="heroImage"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
           style={{
-            backgroundImage: `linear-gradient(90deg, rgba(7, 20, 44, 0.86), rgba(7, 20, 44, 0.54), rgba(7, 20, 44, 0.24)), url("${heroImage}")`,
+            backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.50), rgba(0,0,0,0.18)), url("${slide.image}")`,
           }}
         >
+          {heroSlides.length > 1 && (
+            <>
+              <button
+                type="button"
+                className="heroArrow heroArrowLeft"
+                onClick={goPrev}
+                onMouseEnter={() => setIsHeroControlsHovered(true)}
+                onMouseLeave={() => setIsHeroControlsHovered(false)}
+                aria-label="Forrige slide"
+              >
+                ‹
+              </button>
+
+              <button
+                type="button"
+                className="heroArrow heroArrowRight"
+                onClick={goNext}
+                onMouseEnter={() => setIsHeroControlsHovered(true)}
+                onMouseLeave={() => setIsHeroControlsHovered(false)}
+                aria-label="Næste slide"
+              >
+                ›
+              </button>
+            </>
+          )}
+
           <div className="heroOverlay">
-            <div className="heroInner">
+            <div className={`heroInner ${isHeroControlsHovered ? "isHidden" : ""}`}>
               <div className="heroContent">
-                <p className="heroKicker">BusPlanen</p>
-                <h1 className="heroTitle">Billige ture, dyre minder</h1>
-                <p className="heroText">
-                  Find planlagte busture, events og fællesrejser samlet ét sted.
-                </p>
+                <p className="heroKicker">{slide.kicker}</p>
+                <h1 className={titleClass}>{slide.title}</h1>
+                <p className="heroText">{slide.text}</p>
               </div>
 
-              <form
-                className="searchBar"
-                aria-label="Find din næste rejse"
-                onSubmit={handleSearchSubmit}
-              >
-                <div className="searchHeading">
-                  <span className="searchEyebrow">Find din næste rejse</span>
+              <div className="searchBar" aria-label="Søg rejser">
+                <div className="searchItem">
+                  <span className="searchLabel">Rejsetype</span>
+                  <span className="searchValue">Busrejser</span>
                 </div>
 
-                <label className="searchItem">
-                  <span className="searchLabel">
-                    Søg efter destination, event eller rejse
-                  </span>
-                  <input
-                    className="searchInput"
-                    value={searchQuery}
-                    onChange={(event) => setSearchQuery(event.target.value)}
-                    placeholder="Fx Prag, koncert eller sommer"
-                  />
-                </label>
+                <div className="searchItem">
+                  <span className="searchLabel">Destination</span>
+                  <span className="searchValue">{slide.kicker || "Europa"}</span>
+                </div>
 
-                <label className="searchItem">
-                  <span className="searchLabel">Dato</span>
-                  <input
-                    className="searchInput"
-                    type="date"
-                    value={travelDate}
-                    onChange={(event) => setTravelDate(event.target.value)}
-                  />
-                </label>
+                <div className="searchItem">
+                  <span className="searchLabel">Tidspunkt</span>
+                  <span className="searchValue">Se kommende afgange</span>
+                </div>
 
-                <label className="searchItem">
-                  <span className="searchLabel">Antal personer</span>
-                  <select
-                    className="searchInput"
-                    value={passengerCount}
-                    onChange={(event) => setPassengerCount(event.target.value)}
-                  >
-                    {[1, 2, 3, 4, 5, 6].map((count) => (
-                      <option key={count} value={String(count)}>
-                        {count} {count === 1 ? "person" : "personer"}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                <Link className="searchCta" to="/rejser">
+                  Vis rejser
+                </Link>
+              </div>
 
-                <button className="searchCta" type="submit">
-                  Søg rejser
-                </button>
-              </form>
+              {heroSlides.length > 1 && (
+                <div className="heroDots" aria-label="Hero navigation">
+                  {heroSlides.map((hero, index) => (
+                    <button
+                      key={hero.id}
+                      type="button"
+                      className={`heroDot ${index === currentHero ? "active" : ""
+                        }`}
+                      onClick={() => goTo(index)}
+                      aria-label={`Gå til slide ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-        </div>
-      </section>
-
-      <section className="valueSection" aria-label="Fordele ved BusPlanen">
-        <div className="valueGrid">
-          {valueCards.map((card) => (
-            <article className="valueCard" key={card.title}>
-              <h2>{card.title}</h2>
-              <p>{card.text}</p>
-            </article>
-          ))}
         </div>
       </section>
 
@@ -229,8 +343,16 @@ export default function HomePage() {
           </Link>
         </div>
 
+        {hasLoadError && (
+          <p className="muted">
+            Kunne ikke hente rejser lige nu. Prøv igen om lidt.
+          </p>
+        )}
+
         <div className="tripGrid">
-          {featuredTrips.length > 0 ? (
+          {isLoading ? (
+            <p>Henter rejser...</p>
+          ) : featuredTrips.length > 0 ? (
             featuredTrips.map((trip) => (
               <article className="tripCard" key={trip.id}>
                 <div
@@ -240,13 +362,19 @@ export default function HomePage() {
                   <span className="tripBadge">{trip.country}</span>
 
                   {trip.isSoldOut && (
-                    <span className="tripBadge" style={{ right: 12, left: "auto" }}>
+                    <span
+                      className="tripBadge"
+                      style={{ right: 12, left: "auto" }}
+                    >
                       Udsolgt
                     </span>
                   )}
 
                   {!trip.isSoldOut && trip.isLowSeats && (
-                    <span className="tripBadge" style={{ right: 12, left: "auto" }}>
+                    <span
+                      className="tripBadge"
+                      style={{ right: 12, left: "auto" }}
+                    >
                       Kun {trip.seatsLeft} pladser tilbage
                     </span>
                   )}
@@ -263,7 +391,7 @@ export default function HomePage() {
                       className="tripArrow"
                       aria-label={`Se mere om ${trip.title}`}
                     >
-                      {"\u2192"}
+                      →
                     </Link>
                   </div>
                 </div>
@@ -281,7 +409,9 @@ export default function HomePage() {
         </div>
 
         <div className="tripGrid">
-          {upcomingTrips.length > 0 ? (
+          {isLoading ? (
+            <p>Henter afgange...</p>
+          ) : upcomingTrips.length > 0 ? (
             upcomingTrips.map((r) => {
               const soldOut = isSoldOut(r);
               const lowSeats = isLowSeats(r);
@@ -289,24 +419,30 @@ export default function HomePage() {
 
               return (
                 <article className="tripCard" key={r.rejseId}>
-                  {r.imageUrl && (
-                    <div
-                      className="tripImage"
-                      style={{ backgroundImage: `url("${r.imageUrl}")` }}
-                    >
-                      {soldOut && (
-                        <span className="tripBadge" style={{ right: 12, left: "auto" }}>
-                          Udsolgt
-                        </span>
-                      )}
+                  <div
+                    className="tripImage"
+                    style={{ backgroundImage: `url("${getImage(r)}")` }}
+                  >
+                    <span className="tripBadge">{r.destination}</span>
 
-                      {!soldOut && lowSeats && (
-                        <span className="tripBadge" style={{ right: 12, left: "auto" }}>
-                          Kun {seatsLeft} tilbage
-                        </span>
-                      )}
-                    </div>
-                  )}
+                    {soldOut && (
+                      <span
+                        className="tripBadge"
+                        style={{ right: 12, left: "auto" }}
+                      >
+                        Udsolgt
+                      </span>
+                    )}
+
+                    {!soldOut && lowSeats && (
+                      <span
+                        className="tripBadge"
+                        style={{ right: 12, left: "auto" }}
+                      >
+                        Kun {seatsLeft} tilbage
+                      </span>
+                    )}
+                  </div>
 
                   <div className="tripBody">
                     <h3>{r.title}</h3>
@@ -317,9 +453,9 @@ export default function HomePage() {
                     </p>
 
                     <div className="tripBottom">
-                      <strong>{r.price.toLocaleString("da-DK")} kr</strong>
+                      <strong>{formatPrice(r.price)}</strong>
                       <Link to={`/rejse/${r.rejseId}`} className="tripArrow">
-                        {"\u2192"}
+                        →
                       </Link>
                     </div>
                   </div>
