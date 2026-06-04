@@ -138,7 +138,6 @@ export default function HomePage() {
 
   const [currentHero, setCurrentHero] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [isHeroControlsHovered, setIsHeroControlsHovered] = useState(false);
 
   const [selectedDestination, setSelectedDestination] = useState("");
   const [selectedPeriod, setSelectedPeriod] = useState("kommende");
@@ -300,8 +299,6 @@ export default function HomePage() {
                 type="button"
                 className="heroArrow heroArrowLeft"
                 onClick={goPrev}
-                onMouseEnter={() => setIsHeroControlsHovered(true)}
-                onMouseLeave={() => setIsHeroControlsHovered(false)}
                 aria-label="Forrige slide"
               >
                 ‹
@@ -311,8 +308,6 @@ export default function HomePage() {
                 type="button"
                 className="heroArrow heroArrowRight"
                 onClick={goNext}
-                onMouseEnter={() => setIsHeroControlsHovered(true)}
-                onMouseLeave={() => setIsHeroControlsHovered(false)}
                 aria-label="Næste slide"
               >
                 ›
@@ -321,11 +316,7 @@ export default function HomePage() {
           )}
 
           <div className="heroOverlay">
-            <div
-              className={`heroInner ${
-                isHeroControlsHovered ? "isHidden" : ""
-              }`}
-            >
+            <div className="heroInner">
               <div className="heroContent">
                 <p className="heroKicker">{slide.kicker}</p>
                 <h1 className={titleClass}>{slide.title}</h1>
