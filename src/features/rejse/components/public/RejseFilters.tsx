@@ -1,4 +1,4 @@
-import type { SortOption } from "../../utils/publicRejseFilters";
+import type { PeriodOption, SortOption } from "../../utils/publicRejseFilters";
 import GeoAutocompleteInput from "../../../geo/components/GeoAutocompleteInput";
 
 type Props = {
@@ -13,6 +13,10 @@ type Props = {
   setSelectedDestination?: (v: string) => void;
   onlyFeatured?: boolean;
   setOnlyFeatured?: (v: boolean) => void;
+  period?: PeriodOption;
+  setPeriod?: (v: PeriodOption) => void;
+  persons?: number;
+  setPersons?: (v: number) => void;
   onReset: () => void;
   hasActiveFilters: boolean;
 };
@@ -29,6 +33,10 @@ export default function RejseFilters({
   setSelectedDestination,
   onlyFeatured = false,
   setOnlyFeatured,
+  period = "",
+  setPeriod,
+  persons = 1,
+  setPersons,
   onReset,
   hasActiveFilters,
 }: Props) {
@@ -43,8 +51,7 @@ export default function RejseFilters({
         }}
       >
         <label>
-          Destination
-
+          Søg
           <GeoAutocompleteInput
             value={search}
             placeholder="Søg efter by eller destination"
@@ -73,6 +80,36 @@ export default function RejseFilters({
                 </option>
               ))}
             </select>
+          </label>
+        )}
+
+        {setPeriod && (
+          <label>
+            Periode
+            <select
+              value={period}
+              onChange={(e) => setPeriod(e.target.value as PeriodOption)}
+            >
+              <option value="">Alle perioder</option>
+              <option value="kommende">Kommende</option>
+              <option value="sommer">Sommer</option>
+              <option value="efteraar">Efterår</option>
+              <option value="vinter">Vinter</option>
+            </select>
+          </label>
+        )}
+
+        {setPersons && (
+          <label>
+            Personer
+            <input
+              type="number"
+              min={1}
+              value={persons}
+              onChange={(e) =>
+                setPersons(Math.max(1, Number(e.target.value)))
+              }
+            />
           </label>
         )}
 

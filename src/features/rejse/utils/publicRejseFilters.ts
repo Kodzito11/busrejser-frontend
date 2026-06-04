@@ -2,12 +2,16 @@ import type { Rejse } from "../model/rejse.types";
 
 export type SortOption = "date-asc" | "date-desc" | "price-asc" | "price-desc";
 
+export type PeriodOption = "" | "kommende" | "sommer" | "efteraar" | "vinter";
+
 export type PublicRejseFilters = {
   search: string;
   sort: SortOption;
   onlyAvailable: boolean;
   selectedDestination: string;
   onlyFeatured: boolean;
+  period: PeriodOption;
+  persons: number;
 };
 
 export function getSeatsLeft(
@@ -26,6 +30,34 @@ export function getAvailableDestinations(rejser: Rejse[]) {
   );
 }
 
+function isFutureTrip(rejse: Rejse) {
+  return new Date(rejse.startAt).getTime() >= Date.now();
+}
+
+function matchesPeriod(rejse: Rejse, period: PeriodOption) {
+  if (!period) return true;
+
+  const date = new Date(rejse.startAt);
+  const month = date.getMonth() + 1;
+
+  switch (period) {
+    case "kommende":
+      return isFutureTrip(rejse);
+
+    case "sommer":
+      return month >= 6 && month <= 8;
+
+    case "efteraar":
+      return month >= 9 && month <= 11;
+
+    case "vinter":
+      return month === 12 || month === 1 || month === 2;
+
+    default:
+      return true;
+  }
+}
+
 export function filterAndSortRejser(
   rejser: Rejse[],
   filters: PublicRejseFilters,
@@ -37,6 +69,7 @@ export function filterAndSortRejser(
 
   if (filters.search.trim()) {
     const query = filters.search.trim().toLowerCase();
+
     result = result.filter(
       (rejse) =>
         rejse.title.toLowerCase().includes(query) ||
@@ -51,8 +84,18 @@ export function filterAndSortRejser(
     );
   }
 
+  if (filters.period) {
+    result = result.filter((rejse) => matchesPeriod(rejse, filters.period));
+  }
+
   if (filters.onlyAvailable) {
     result = result.filter((rejse) => getSeatsLeft(rejse, availableSeats) > 0);
+  }
+
+  if (filters.persons > 1) {
+    result = result.filter(
+      (rejse) => getSeatsLeft(rejse, availableSeats) >= filters.persons
+    );
   }
 
   if (filters.onlyFeatured) {

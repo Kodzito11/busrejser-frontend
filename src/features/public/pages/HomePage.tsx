@@ -119,7 +119,10 @@ function mapRejseToFeaturedTrip(rejse: Rejse): FeaturedTrip {
     id: rejse.rejseId,
     country: rejse.destination,
     title: rejse.title,
-    text: getDescription(rejse, "Oplev en rejse med gode priser og stærke minder."),
+    text: getDescription(
+      rejse,
+      "Oplev en rejse med gode priser og stærke minder."
+    ),
     price: formatPrice(rejse.price),
     image: getImage(rejse),
     isSoldOut: seatsLeft <= 0,
@@ -136,6 +139,10 @@ export default function HomePage() {
   const [currentHero, setCurrentHero] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isHeroControlsHovered, setIsHeroControlsHovered] = useState(false);
+
+  const [selectedDestination, setSelectedDestination] = useState("");
+  const [selectedPeriod, setSelectedPeriod] = useState("kommende");
+  const [persons, setPersons] = useState(1);
 
   useEffect(() => {
     let isMounted = true;
@@ -173,6 +180,12 @@ export default function HomePage() {
     return [...rejser].filter(isFutureRejse).sort(sortByStartDate);
   }, [rejser]);
 
+  const destinationOptions = useMemo(() => {
+    return [
+      ...new Set(futureRejser.map((r) => r.destination).filter(Boolean)),
+    ].sort((a, b) => a.localeCompare(b, "da-DK"));
+  }, [futureRejser]);
+
   const featuredRejser = useMemo(() => {
     const featured = futureRejser.filter((r) => r.isFeatured).slice(0, 3);
 
@@ -181,26 +194,26 @@ export default function HomePage() {
     return futureRejser.slice(0, 3);
   }, [futureRejser]);
 
-const heroSlides = useMemo(() => {
-  const heroRejser =
-    featuredRejser.length >= 2 ? featuredRejser : futureRejser.slice(0, 3);
+  const heroSlides = useMemo(() => {
+    const heroRejser =
+      featuredRejser.length >= 2 ? featuredRejser : futureRejser.slice(0, 3);
 
-  const slides = heroRejser.map(mapRejseToHeroSlide);
+    const slides = heroRejser.map(mapRejseToHeroSlide);
 
-  if (slides.length >= 2) return slides;
+    if (slides.length >= 2) return slides;
 
-  if (slides.length === 1) {
-    return [
-      slides[0],
-      ...fallbackHeroSlides.map((slide) => ({
-        ...slide,
-        id: -slide.id,
-      })),
-    ];
-  }
+    if (slides.length === 1) {
+      return [
+        slides[0],
+        ...fallbackHeroSlides.map((slide) => ({
+          ...slide,
+          id: -slide.id,
+        })),
+      ];
+    }
 
-  return fallbackHeroSlides;
-}, [featuredRejser, futureRejser]);
+    return fallbackHeroSlides;
+  }, [featuredRejser, futureRejser]);
 
   const featuredTrips = useMemo(() => {
     return featuredRejser.map(mapRejseToFeaturedTrip);
@@ -213,6 +226,26 @@ const heroSlides = useMemo(() => {
       .filter((r) => !featuredIds.has(r.rejseId))
       .slice(0, 6);
   }, [futureRejser, featuredRejser]);
+
+  const searchHref = useMemo(() => {
+    const params = new URLSearchParams();
+
+    if (selectedDestination) {
+      params.set("destination", selectedDestination);
+    }
+
+    if (selectedPeriod) {
+      params.set("periode", selectedPeriod);
+    }
+
+    if (persons > 1) {
+      params.set("personer", String(persons));
+    }
+
+    const query = params.toString();
+
+    return query ? `/rejser?${query}` : "/rejser";
+  }, [selectedDestination, selectedPeriod, persons]);
 
   const slide = heroSlides[currentHero] ?? heroSlides[0];
 
@@ -288,7 +321,11 @@ const heroSlides = useMemo(() => {
           )}
 
           <div className="heroOverlay">
-            <div className={`heroInner ${isHeroControlsHovered ? "isHidden" : ""}`}>
+            <div
+              className={`heroInner ${
+                isHeroControlsHovered ? "isHidden" : ""
+              }`}
+            >
               <div className="heroContent">
                 <p className="heroKicker">{slide.kicker}</p>
                 <h1 className={titleClass}>{slide.title}</h1>
@@ -296,23 +333,52 @@ const heroSlides = useMemo(() => {
               </div>
 
               <div className="searchBar" aria-label="Søg rejser">
-                <div className="searchItem">
-                  <span className="searchLabel">Rejsetype</span>
-                  <span className="searchValue">Busrejser</span>
-                </div>
+                <label className="searchItem">
+                  <span className="searchLabel">Hvor vil du hen?</span>
+                  <select
+                    className="searchInput"
+                    value={selectedDestination}
+                    onChange={(e) => setSelectedDestination(e.target.value)}
+                  >
+                    <option value="">Alle destinationer</option>
+                    {destinationOptions.map((destination) => (
+                      <option key={destination} value={destination}>
+                        {destination}
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-                <div className="searchItem">
-                  <span className="searchLabel">Destination</span>
-                  <span className="searchValue">{slide.kicker || "Europa"}</span>
-                </div>
+                <label className="searchItem">
+                  <span className="searchLabel">Hvornår?</span>
+                  <select
+                    className="searchInput"
+                    value={selectedPeriod}
+                    onChange={(e) => setSelectedPeriod(e.target.value)}
+                  >
+                    <option value="kommende">Kommende</option>
+                    <option value="sommer">Sommer</option>
+                    <option value="efteraar">Efterår</option>
+                    <option value="vinter">Vinter</option>
+                    <option value="">Alle perioder</option>
+                  </select>
+                </label>
 
-                <div className="searchItem">
-                  <span className="searchLabel">Tidspunkt</span>
-                  <span className="searchValue">Se kommende afgange</span>
-                </div>
+                <label className="searchItem">
+                  <span className="searchLabel">Personer</span>
+                  <input
+                    className="searchInput"
+                    type="number"
+                    min={1}
+                    value={persons}
+                    onChange={(e) =>
+                      setPersons(Math.max(1, Number(e.target.value)))
+                    }
+                  />
+                </label>
 
-                <Link className="searchCta" to="/rejser">
-                  Vis rejser
+                <Link className="searchCta" to={searchHref}>
+                  Find rejser
                 </Link>
               </div>
 
@@ -322,8 +388,9 @@ const heroSlides = useMemo(() => {
                     <button
                       key={hero.id}
                       type="button"
-                      className={`heroDot ${index === currentHero ? "active" : ""
-                        }`}
+                      className={`heroDot ${
+                        index === currentHero ? "active" : ""
+                      }`}
                       onClick={() => goTo(index)}
                       aria-label={`Gå til slide ${index + 1}`}
                     />
